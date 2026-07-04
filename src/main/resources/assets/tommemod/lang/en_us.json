@@ -1,3 +1,6 @@
 {
-  "item.tommemod.dynamite": "Dynamite"
+  "item.tommemod.dynamite": "Dynamite",
+  "item.tommemod.bullet": "Bullet",
+
+  "creativetab.tutorial_tab": "What You've Been Waiting For..."
 }

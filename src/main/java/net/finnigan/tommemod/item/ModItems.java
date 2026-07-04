@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.item;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.item.custom.DynamiteItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -12,6 +13,8 @@ public class ModItems {
             DeferredRegister.create(ForgeRegistries.ITEMS, TommeMod.MOD_ID);
 
     public static final RegistryObject<Item> DYNAMITE = ITEMS.register("dynamite",
+            () -> new DynamiteItem(new Item.Properties()));
+    public static final RegistryObject<Item> BULLET = ITEMS.register("bullet",
             () -> new Item(new Item.Properties()));
 
     public static void register(IEventBus eventBus) {
