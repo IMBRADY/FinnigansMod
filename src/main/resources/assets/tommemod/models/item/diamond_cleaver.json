@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "tommemod:item/iron_cleaver"
+    "layer0": "tommemod:item/diamond_cleaver"
   },
   "display": {
     "firstperson_righthand": {

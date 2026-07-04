@@ -57,6 +57,15 @@ public class TommeMod
         if(event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(ModItems.BULLET);
             event.accept(ModItems.IRON_CLEAVER);
+            event.accept(ModItems.GOLD_CLEAVER);
+            event.accept(ModItems.DIAMOND_CLEAVER);
+            event.accept(ModItems.NETHERITE_CLEAVER);
+            event.accept(ModItems.WOOD_DAGGER);
+            event.accept(ModItems.STONE_DAGGER);
+            event.accept(ModItems.IRON_DAGGER);
+            event.accept(ModItems.GOLD_DAGGER);
+            event.accept(ModItems.DIAMOND_DAGGER);
+            event.accept(ModItems.NETHERITE_DAGGER);
         }
     }
 
