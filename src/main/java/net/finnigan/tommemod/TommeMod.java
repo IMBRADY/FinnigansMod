@@ -56,6 +56,7 @@ public class TommeMod
         }
         if(event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(ModItems.BULLET);
+            event.accept(ModItems.IRON_CLEAVER);
         }
     }
 

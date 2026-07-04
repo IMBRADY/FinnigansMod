@@ -19,6 +19,7 @@ public class ModCreativeModTabs {
                     .displayItems((pParameters, pOutput) -> {
                         pOutput.accept(ModItems.BULLET.get());
                         pOutput.accept(ModItems.DYNAMITE.get());
+                        pOutput.accept(ModItems.IRON_CLEAVER.get());
                     })
                     .build());
 
