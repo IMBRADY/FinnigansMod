@@ -22,8 +22,8 @@ public class ModItems {
             ITEMS.register("iron_cleaver",
                     () -> new ModdedSwordItem(
                             Tiers.IRON,
-                            12,
-                            -1.2F,
+                            9,
+                            -3.4F,
                             new Item.Properties().stacksTo(1)
                     ));
 
