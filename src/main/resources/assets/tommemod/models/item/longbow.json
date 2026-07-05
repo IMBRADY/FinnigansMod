@@ -1,0 +1,10 @@
+{
+  "parent": "item/generated",
+  "textures": { "layer0": "tommemod:item/longbow" },
+
+  "overrides": [
+    { "predicate": { "pulling": 1 }, "model": "tommemod:item/longbow_pulling_0" },
+    { "predicate": { "pulling": 1, "pull": 0.45 }, "model": "tommemod:item/longbow_pulling_1" },
+    { "predicate": { "pulling": 1, "pull": 0.9 }, "model": "tommemod:item/longbow_pulling_2" }
+  ]
+}

@@ -1,16 +1,24 @@
 {
   "item.tommemod.dynamite": "Dynamite",
   "item.tommemod.bullet": "Bullet",
+  "item.tommemod.longbow": "Longbow",
+
   "item.tommemod.iron_cleaver": "Iron Cleaver",
   "item.tommemod.gold_cleaver": "Gold Cleaver",
   "item.tommemod.diamond_cleaver": "Diamond Cleaver",
   "item.tommemod.netherite_cleaver": "Netherite Cleaver",
+
   "item.tommemod.wood_dagger": "Wood Dagger",
   "item.tommemod.stone_dagger": "Stone Dagger",
   "item.tommemod.iron_dagger": "Iron Dagger",
   "item.tommemod.gold_dagger": "Gold Dagger",
   "item.tommemod.diamond_dagger": "Diamond Dagger",
   "item.tommemod.netherite_dagger": "Netherite Dagger",
+
+  "item.tommemod.musket": "Musket",
+
+  "item.tommemod.harmony": "Harmony",
+  "entity.tommemod.music_note1": "Music Note",
 
   "creativetab.tutorial_tab": "What You've Been Waiting For..."
 }

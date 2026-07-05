@@ -19,16 +19,24 @@ public class ModCreativeModTabs {
                     .displayItems((pParameters, pOutput) -> {
                         pOutput.accept(ModItems.BULLET.get());
                         pOutput.accept(ModItems.DYNAMITE.get());
+
+                        pOutput.accept(ModItems.LONGBOW.get());
+
                         pOutput.accept(ModItems.IRON_CLEAVER.get());
                         pOutput.accept(ModItems.GOLD_CLEAVER.get());
                         pOutput.accept(ModItems.DIAMOND_CLEAVER.get());
                         pOutput.accept(ModItems.NETHERITE_CLEAVER.get());
+
                         pOutput.accept(ModItems.WOOD_DAGGER.get());
                         pOutput.accept(ModItems.STONE_DAGGER.get());
                         pOutput.accept(ModItems.IRON_DAGGER.get());
                         pOutput.accept(ModItems.GOLD_DAGGER.get());
                         pOutput.accept(ModItems.DIAMOND_DAGGER.get());
                         pOutput.accept(ModItems.NETHERITE_DAGGER.get());
+
+                        pOutput.accept(ModItems.MUSKET.get());
+
+                        pOutput.accept(ModItems.HARMONY.get());
                     })
                     .build());
 

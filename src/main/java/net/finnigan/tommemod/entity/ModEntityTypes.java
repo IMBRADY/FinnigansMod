@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.entity;
 
 import net.finnigan.tommemod.entity.custom.DynamiteEntity;
+import net.finnigan.tommemod.entity.custom.MusicNoteEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.registries.DeferredRegister;
@@ -23,4 +24,9 @@ public class ModEntityTypes {
                             .clientTrackingRange(4)
                             .updateInterval(10)
                             .build("dynamite"));
+    public static final RegistryObject<EntityType<MusicNoteEntity>> MUSIC_NOTE =
+            ENTITY_TYPES.register("music_note1",
+                    () -> EntityType.Builder.<MusicNoteEntity>of(MusicNoteEntity::new, MobCategory.MISC)
+                            .sized(1.0F, 1.0F)
+                            .build("music_note1"));
 }

@@ -10,11 +10,11 @@
       "item": "minecraft:stick"
     },
     "O": {
-      "item": "minecraft:iron_ingot"
+      "tag": "minecraft:planks"
     }
   },
   "result": {
-    "item": "tommemod:iron_dagger",
+    "item": "tommemod:wood_dagger",
     "count": 1
   }
 }

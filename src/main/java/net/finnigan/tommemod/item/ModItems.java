@@ -3,6 +3,9 @@ package net.finnigan.tommemod.item;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.entity.custom.ModdedSwordItem;
 import net.finnigan.tommemod.item.custom.DynamiteItem;
+import net.finnigan.tommemod.item.custom.HarmonyItem;
+import net.finnigan.tommemod.item.custom.LongbowItem;
+import net.finnigan.tommemod.item.custom.MusketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tiers;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -14,10 +17,26 @@ public class ModItems {
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, TommeMod.MOD_ID);
 
+    public static final RegistryObject<Item> LONGBOW = ITEMS.register("longbow",
+            () -> new LongbowItem(new Item.Properties()
+                    .durability(450) // tweak durability vs vanilla bow's 384
+            ));
     public static final RegistryObject<Item> DYNAMITE = ITEMS.register("dynamite",
             () -> new DynamiteItem(new Item.Properties()));
+    public static final RegistryObject<Item> HARMONY = ITEMS.register("harmony",
+            () -> new HarmonyItem(
+                    Tiers.NETHERITE,
+                    5,
+                    -2.4f,
+                    new Item.Properties()));
+    public static final RegistryObject<Item> MUSIC_NOTE_ITEM = ITEMS.register("music_note_item1",
+            () -> new Item(new Item.Properties()));
+
+    public static final RegistryObject<Item> MUSKET = ITEMS.register("musket",
+            () -> new MusketItem(new Item.Properties()));
     public static final RegistryObject<Item> BULLET = ITEMS.register("bullet",
             () -> new Item(new Item.Properties()));
+
     public static final RegistryObject<Item> IRON_CLEAVER =
             ITEMS.register("iron_cleaver", // has no cool sound effect, needs transformations updated
                     () -> new ModdedSwordItem(
@@ -50,12 +69,13 @@ public class ModItems {
                             -3.4F,
                             new Item.Properties().stacksTo(1)
                     ));
+
     public static final RegistryObject<Item> WOOD_DAGGER =
             ITEMS.register("wood_dagger", // has no cool sound effect, needs transformations updated
                     () -> new ModdedSwordItem(
                             Tiers.WOOD,
                             0,
-                            -1.6F,
+                            -1.0F,
                             new Item.Properties().stacksTo(1)
                     ));
     public static final RegistryObject<Item> STONE_DAGGER =
@@ -63,7 +83,7 @@ public class ModItems {
                     () -> new ModdedSwordItem(
                             Tiers.STONE,
                             0,
-                            -1.6F,
+                            -1.0F,
                             new Item.Properties().stacksTo(1)
                     ));
     public static final RegistryObject<Item> IRON_DAGGER =
@@ -71,7 +91,7 @@ public class ModItems {
                     () -> new ModdedSwordItem(
                             Tiers.IRON,
                             0,
-                            -1.6F,
+                            -1.0F,
                             new Item.Properties().stacksTo(1)
                     ));
     public static final RegistryObject<Item> GOLD_DAGGER =
@@ -79,7 +99,7 @@ public class ModItems {
                     () -> new ModdedSwordItem(
                             Tiers.GOLD,
                             0,
-                            -1.6F,
+                            -1.0F,
                             new Item.Properties().stacksTo(1)
                     ));
     public static final RegistryObject<Item> DIAMOND_DAGGER =
@@ -87,7 +107,7 @@ public class ModItems {
                     () -> new ModdedSwordItem(
                             Tiers.DIAMOND,
                             0,
-                            -1.6F,
+                            -1.0F,
                             new Item.Properties().stacksTo(1)
                     ));
     public static final RegistryObject<Item> NETHERITE_DAGGER =
@@ -95,9 +115,10 @@ public class ModItems {
                     () -> new ModdedSwordItem(
                             Tiers.NETHERITE,
                             0,
-                            -1.6F,
+                            -1.0F,
                             new Item.Properties().stacksTo(1)
                     ));
+
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

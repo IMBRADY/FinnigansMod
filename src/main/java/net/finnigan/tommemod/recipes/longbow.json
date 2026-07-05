@@ -1,20 +1,20 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "   ",
-    " O ",
-    " S "
+    "  S",
+    " B ",
+    "S  "
   ],
   "key": {
+    "B": {
+      "item": "minecraft:bow"
+    },
     "S": {
       "item": "minecraft:stick"
-    },
-    "O": {
-      "item": "minecraft:iron_ingot"
     }
   },
   "result": {
-    "item": "tommemod:iron_dagger",
+    "item": "tommemod:longbow",
     "count": 1
   }
 }

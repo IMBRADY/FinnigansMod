@@ -10,11 +10,11 @@
       "item": "minecraft:stick"
     },
     "O": {
-      "item": "minecraft:iron_ingot"
+      "item": "minecraft:netherite_ingot"
     }
   },
   "result": {
-    "item": "tommemod:iron_dagger",
+    "item": "tommemod:netherite_dagger",
     "count": 1
   }
 }
