@@ -1,9 +1,12 @@
 package net.finnigan.tommemod;
 
 import com.mojang.logging.LogUtils;
+import net.finnigan.tommemod.block.ModBlocks;
+import net.finnigan.tommemod.block.entity.ModBlockEntities;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.item.ModCreativeModTabs;
 import net.finnigan.tommemod.item.ModItems;
+import net.finnigan.tommemod.menu.ModMenuTypes;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -33,6 +36,10 @@ public class TommeMod
         ModCreativeModTabs.register(modEventBus);
         ModEntityTypes.ENTITY_TYPES.register(modEventBus);
         ModItems.register(modEventBus);
+
+        ModBlocks.BLOCKS.register(modEventBus);
+        ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        ModMenuTypes.MENUS.register(modEventBus);
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
