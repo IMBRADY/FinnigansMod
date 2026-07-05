@@ -8,6 +8,13 @@
   "item.tommemod.diamond_cleaver": "Diamond Cleaver",
   "item.tommemod.netherite_cleaver": "Netherite Cleaver",
 
+  "item.tommemod.wooden_pike": "Wooden Pike",
+  "item.tommemod.stone_pike": "Stone Pike",
+  "item.tommemod.iron_pike": "Iron Pike",
+  "item.tommemod.gold_pike": "Gold Pike",
+  "item.tommemod.diamond_pike": "Diamond Pike",
+  "item.tommemod.netherite_pike": "Netherite Pike",
+
   "item.tommemod.wood_dagger": "Wood Dagger",
   "item.tommemod.stone_dagger": "Stone Dagger",
   "item.tommemod.iron_dagger": "Iron Dagger",
@@ -15,9 +22,15 @@
   "item.tommemod.diamond_dagger": "Diamond Dagger",
   "item.tommemod.netherite_dagger": "Netherite Dagger",
 
+  "block.tommemod.oven": "Oven",
+  "item.tommemod.oven": "Oven",
+
+  "entity.minecraft.villager.tommemod.baker": "Baker",
+
   "item.tommemod.musket": "Musket",
 
   "item.tommemod.harmony": "Harmony",
+  "item.tommemod.featherlight": "Featherlight",
   "entity.tommemod.music_note1": "Music Note",
 
   "creativetab.tutorial_tab": "What You've Been Waiting For..."

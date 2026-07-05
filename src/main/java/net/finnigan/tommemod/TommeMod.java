@@ -7,6 +7,8 @@ import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.item.ModCreativeModTabs;
 import net.finnigan.tommemod.item.ModItems;
 import net.finnigan.tommemod.menu.ModMenuTypes;
+import net.finnigan.tommemod.villager.ModPoiTypes;
+import net.finnigan.tommemod.villager.ModVillagers;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -40,6 +42,9 @@ public class TommeMod
         ModBlocks.BLOCKS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModMenuTypes.MENUS.register(modEventBus);
+
+        ModPoiTypes.POI_TYPES.register(modEventBus);
+        ModVillagers.PROFESSIONS.register(modEventBus);
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);

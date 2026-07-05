@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  O",
+    " I ",
+    "I  "
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:stick"
+    },
+    "O": {
+      "item": "minecraft:gold_sword"
+    }
+  },
+  "result": {
+    "item": "tommemod:gold_pike",
+    "count": 1
+  }
+}

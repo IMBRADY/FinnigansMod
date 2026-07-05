@@ -36,7 +36,7 @@ public class OvenMenu extends AbstractContainerMenu {
             });
         }
         // fuel slot
-        this.addSlot(new SlotItemHandler(handler, 8, 8, 72));
+        this.addSlot(new SlotItemHandler(handler, 8, 116, 53));
 
         // player inventory
         for (int row = 0; row < 3; row++) {

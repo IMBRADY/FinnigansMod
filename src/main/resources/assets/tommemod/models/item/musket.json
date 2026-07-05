@@ -1,20 +1,28 @@
 {
-  "parent": "item/generated",
+  "parent": "item/bow",
   "textures": {
     "layer0": "tommemod:item/musket"
   },
   "display": {
-    "firstperson_righthand": {
-      "scale": [1.6, 1.6, 1.0]
-    },
-    "firstperson_lefthand": {
-      "scale": [1.6, 1.6, 1.0]
-    },
     "thirdperson_righthand": {
-      "scale": [1.8, 1.8, 1.0]
+      "rotation": [ -80, 260, -40 ],
+      "translation": [ -1, 2, -7.5 ],
+      "scale": [ 1.7, 1.7, 1 ]
     },
     "thirdperson_lefthand": {
-      "scale": [1.8, 1.8, 1.0]
+      "rotation": [ -80, -280, 40 ],
+      "translation": [ -1, 2, -7.5 ],
+      "scale": [ 1.7, 1.7, 1 ]
+    },
+    "firstperson_righthand": {
+      "rotation": [ -15, -80, 25 ],
+      "translation": [ 1.13, 4, 1 ],
+      "scale": [ 1.6, 1.6, 1 ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [ -15, 80, -25 ],
+      "translation": [ 1.13, 4, 1 ],
+      "scale": [ 1.6, 1.6, 1 ]
     }
   }
 }

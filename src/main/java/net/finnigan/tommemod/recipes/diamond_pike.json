@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  O",
+    " I ",
+    "I  "
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:stick"
+    },
+    "O": {
+      "item": "minecraft:diamond_sword"
+    }
+  },
+  "result": {
+    "item": "tommemod:diamond_pike",
+    "count": 1
+  }
+}

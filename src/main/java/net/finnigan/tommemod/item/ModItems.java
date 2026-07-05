@@ -2,10 +2,7 @@ package net.finnigan.tommemod.item;
 
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.entity.custom.ModdedSwordItem;
-import net.finnigan.tommemod.item.custom.DynamiteItem;
-import net.finnigan.tommemod.item.custom.HarmonyItem;
-import net.finnigan.tommemod.item.custom.LongbowItem;
-import net.finnigan.tommemod.item.custom.MusketItem;
+import net.finnigan.tommemod.item.custom.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tiers;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -26,11 +23,77 @@ public class ModItems {
     public static final RegistryObject<Item> HARMONY = ITEMS.register("harmony",
             () -> new HarmonyItem(
                     Tiers.NETHERITE,
-                    5,
-                    -2.4f,
+                    20,
+                    -2.6f,
                     new Item.Properties()));
     public static final RegistryObject<Item> MUSIC_NOTE_ITEM = ITEMS.register("music_note_item1",
             () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> FEATHERLIGHT = ITEMS.register("featherlight",
+            () -> new FeatherlightItem(Tiers.NETHERITE,
+                    15,
+                    -1.6F,
+                    new Item.Properties()));
+
+    public static final RegistryObject<PikeItem> WOODEN_PIKE = ITEMS.register("wooden_pike", () ->
+            new PikeItem(
+                    Tiers.WOOD,
+                    3,          // attackDamageModifier
+                    -3.0F,    // attackSpeedModifier
+                    1.5,        // reachBonus (add on top of default 4.5)
+                    1.0F,       // knockbackBonus
+                    new Item.Properties()
+            )
+    );
+    public static final RegistryObject<PikeItem> STONE_PIKE = ITEMS.register("stone_pike", () ->
+            new PikeItem(
+                    Tiers.STONE,
+                    3,          // attackDamageModifier
+                    -3.0F,    // attackSpeedModifier
+                    1.5,        // reachBonus (add on top of default 4.5)
+                    1.0F,       // knockbackBonus
+                    new Item.Properties()
+            )
+    );
+    public static final RegistryObject<PikeItem> IRON_PIKE = ITEMS.register("iron_pike", () ->
+            new PikeItem(
+                    Tiers.IRON,
+                    3,          // attackDamageModifier
+                    -3.0F,    // attackSpeedModifier
+                    1.5,        // reachBonus (add on top of default 4.5)
+                    1.0F,       // knockbackBonus
+                    new Item.Properties()
+            )
+    );
+    public static final RegistryObject<PikeItem> GOLD_PIKE = ITEMS.register("gold_pike", () ->
+            new PikeItem(
+                    Tiers.GOLD,
+                    3,          // attackDamageModifier
+                    -3.0F,    // attackSpeedModifier
+                    1.5,        // reachBonus (add on top of default 4.5)
+                    1.0F,       // knockbackBonus
+                    new Item.Properties()
+            )
+    );
+    public static final RegistryObject<PikeItem> DIAMOND_PIKE = ITEMS.register("diamond_pike", () ->
+            new PikeItem(
+                    Tiers.DIAMOND,
+                    3,          // attackDamageModifier
+                    -3.0F,    // attackSpeedModifier
+                    1.5,        // reachBonus (add on top of default 4.5)
+                    1.0F,       // knockbackBonus
+                    new Item.Properties()
+            )
+    );
+    public static final RegistryObject<PikeItem> NETHERITE_PIKE = ITEMS.register("netherite_pike", () ->
+            new PikeItem(
+                    Tiers.NETHERITE,
+                    3,          // attackDamageModifier
+                    -3.0F,    // attackSpeedModifier
+                    1.5,        // reachBonus (add on top of default 4.5)
+                    1.0F,       // knockbackBonus
+                    new Item.Properties()
+            )
+    );
 
     public static final RegistryObject<Item> MUSKET = ITEMS.register("musket",
             () -> new MusketItem(new Item.Properties()));

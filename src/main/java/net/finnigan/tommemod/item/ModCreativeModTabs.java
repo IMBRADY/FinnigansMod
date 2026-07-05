@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.item;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.block.ModBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -22,10 +23,19 @@ public class ModCreativeModTabs {
 
                         pOutput.accept(ModItems.LONGBOW.get());
 
+                        pOutput.accept(ModBlocks.OVEN.get());
+
                         pOutput.accept(ModItems.IRON_CLEAVER.get());
                         pOutput.accept(ModItems.GOLD_CLEAVER.get());
                         pOutput.accept(ModItems.DIAMOND_CLEAVER.get());
                         pOutput.accept(ModItems.NETHERITE_CLEAVER.get());
+
+                        pOutput.accept(ModItems.WOODEN_PIKE.get());
+                        pOutput.accept(ModItems.STONE_PIKE.get());
+                        pOutput.accept(ModItems.IRON_PIKE.get());
+                        pOutput.accept(ModItems.GOLD_PIKE.get());
+                        pOutput.accept(ModItems.DIAMOND_PIKE.get());
+                        pOutput.accept(ModItems.NETHERITE_PIKE.get());
 
                         pOutput.accept(ModItems.WOOD_DAGGER.get());
                         pOutput.accept(ModItems.STONE_DAGGER.get());
@@ -37,6 +47,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.MUSKET.get());
 
                         pOutput.accept(ModItems.HARMONY.get());
+                        pOutput.accept(ModItems.FEATHERLIGHT.get());
                     })
                     .build());
 
