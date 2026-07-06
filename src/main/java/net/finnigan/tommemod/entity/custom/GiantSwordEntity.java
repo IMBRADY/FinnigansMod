@@ -31,22 +31,9 @@ public class GiantSwordEntity extends Entity {
     private UUID ownerUUID;
     private int postImpactTicks = 0;
 
-    public float getSpinSpeed() {
-        return this.entityData.get(SPIN_SPEED);
-    }
-
-    public float getSpinAxisYaw() {
-        return this.entityData.get(SPIN_AXIS_YAW);
-    }
-
     public GiantSwordEntity(EntityType<? extends GiantSwordEntity> type, Level level) {
         super(type, level);
         this.noPhysics = true;
-
-        if (!level.isClientSide) {
-            this.entityData.set(SPIN_SPEED, 5F + this.random.nextFloat() * 15F); // 5–20 deg/tick, tune to taste
-            this.entityData.set(SPIN_AXIS_YAW, this.random.nextFloat() * 360F);  // random tilt direction
-        }
     }
 
     public void setOwner(Player player) {

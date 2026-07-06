@@ -26,19 +26,7 @@ public class GiantSwordRenderer extends EntityRenderer<GiantSwordEntity> {
     public void render(GiantSwordEntity entity, float entityYaw, float partialTicks,
                        PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         poseStack.pushPose();
-
-        if (!entity.hasImpacted()) {
-            float spinSpeed = entity.getSpinSpeed();
-            float axisYaw = entity.getSpinAxisYaw();
-
-            float totalSpin = (entity.tickCount + partialTicks) * spinSpeed;
-
-            // tilt the spin axis randomly instead of always spinning purely on X
-            poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(axisYaw));
-            poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(totalSpin));
-        } else {
-            poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-45)); // settled upside-down on impact
-        }
+        poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-45)); // settled upside-down on impact
 
         poseStack.scale(SCALE, SCALE, SCALE);
 
