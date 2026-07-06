@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.entity;
 
 import net.finnigan.tommemod.entity.custom.DynamiteEntity;
+import net.finnigan.tommemod.entity.custom.GiantSwordEntity;
 import net.finnigan.tommemod.entity.custom.MusicNoteEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -29,4 +30,11 @@ public class ModEntityTypes {
                     () -> EntityType.Builder.<MusicNoteEntity>of(MusicNoteEntity::new, MobCategory.MISC)
                             .sized(1.0F, 1.0F)
                             .build("music_note1"));
+    public static final RegistryObject<EntityType<GiantSwordEntity>> GIANT_SWORD = ENTITY_TYPES.register("giant_sword",
+            () -> EntityType.Builder.of(GiantSwordEntity::new, MobCategory.MISC)
+                    .sized(1.5F, 4.0F) // adjust to match giant sword's visual
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .build("giant_sword")
+    );
 }

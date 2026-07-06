@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "tommemod:item/featherlight"
+    "layer0": "tommemod:item/inverted_sword"
   },
   "display": {
     "firstperson_righthand": {

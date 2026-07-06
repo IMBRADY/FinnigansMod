@@ -18,12 +18,13 @@ public class ModItems {
             () -> new LongbowItem(new Item.Properties()
                     .durability(450) // tweak durability vs vanilla bow's 384
             ));
+
     public static final RegistryObject<Item> DYNAMITE = ITEMS.register("dynamite",
             () -> new DynamiteItem(new Item.Properties()));
     public static final RegistryObject<Item> HARMONY = ITEMS.register("harmony",
             () -> new HarmonyItem(
                     Tiers.NETHERITE,
-                    20,
+                    22,
                     -2.6f,
                     new Item.Properties()));
     public static final RegistryObject<Item> MUSIC_NOTE_ITEM = ITEMS.register("music_note_item1",
@@ -32,6 +33,11 @@ public class ModItems {
             () -> new FeatherlightItem(Tiers.NETHERITE,
                     15,
                     -1.6F,
+                    new Item.Properties()));
+    public static final RegistryObject<InvertedSwordItem> INVERTED_SWORD = ITEMS.register("inverted_sword", () ->
+            new InvertedSwordItem(Tiers.NETHERITE,
+                    20,
+                    -2.6F,
                     new Item.Properties()));
 
     public static final RegistryObject<PikeItem> WOODEN_PIKE = ITEMS.register("wooden_pike", () ->

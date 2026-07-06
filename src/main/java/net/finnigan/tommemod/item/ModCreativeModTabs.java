@@ -48,6 +48,7 @@ public class ModCreativeModTabs {
 
                         pOutput.accept(ModItems.HARMONY.get());
                         pOutput.accept(ModItems.FEATHERLIGHT.get());
+                        pOutput.accept(ModItems.INVERTED_SWORD.get());
                     })
                     .build());
 

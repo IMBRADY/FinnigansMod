@@ -1,5 +1,6 @@
 package net.finnigan.tommemod.client;
 
+import net.finnigan.tommemod.client.renderer.GiantSwordRenderer;
 import net.finnigan.tommemod.client.renderer.MusicNoteRenderer;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.item.custom.LongbowItem;
@@ -21,11 +22,12 @@ public class ClientModEvents {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(
                 ModEntityTypes.DYNAMITE.get(),
-                ThrownItemRenderer::new
-        );
+                ThrownItemRenderer::new);
         event.registerEntityRenderer(
                 ModEntityTypes.MUSIC_NOTE.get(),
-                MusicNoteRenderer::new
-        );
+                MusicNoteRenderer::new);
+        event.registerEntityRenderer(
+                ModEntityTypes.GIANT_SWORD.get(),
+                GiantSwordRenderer::new);
     }
 }
