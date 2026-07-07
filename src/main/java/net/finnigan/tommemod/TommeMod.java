@@ -74,7 +74,7 @@ public class TommeMod
             event.accept(ModItems.DIAMOND_CLEAVER);
             event.accept(ModItems.NETHERITE_CLEAVER);
 
-            event.accept(ModItems.WOOD_DAGGER);
+            event.accept(ModItems.WOODEN_DAGGER);
             event.accept(ModItems.STONE_DAGGER);
             event.accept(ModItems.IRON_DAGGER);
             event.accept(ModItems.GOLD_DAGGER);

@@ -1,6 +1,24 @@
 {
-  "parent": "block/cube_all",
+  "parent": "block/block",
   "textures": {
-    "all": "tommemod:block/oven"
-  }
+    "particle": "tommemod:block/oven_side",
+    "top": "tommemod:block/oven_top",
+    "bottom": "tommemod:block/oven_bottom",
+    "front": "tommemod:block/oven_front",
+    "side": "tommemod:block/oven_side"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 16],
+      "faces": {
+        "down":  { "texture": "#bottom" },
+        "up":    { "texture": "#top" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#side" },
+        "west":  { "texture": "#side" },
+        "east":  { "texture": "#side" }
+      }
+    }
+  ]
 }

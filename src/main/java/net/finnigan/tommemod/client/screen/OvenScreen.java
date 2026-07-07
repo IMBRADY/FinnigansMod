@@ -12,7 +12,17 @@ import net.minecraft.world.entity.player.Inventory;
 public class OvenScreen extends AbstractContainerScreen<OvenMenu> {
 
     private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(TommeMod.MOD_ID, "textures/gui/oven.png");
+            ResourceLocation.fromNamespaceAndPath(TommeMod.MOD_ID, "textures/gui/oven_gui.png");
+
+    // ---- Flame icon source rect, taken from the sprite sheet area outside the visible 176px GUI ----
+    private static final int FLAME_SRC_X = 176;
+    private static final int FLAME_SRC_Y = 0;
+    private static final int FLAME_WIDTH = 14;
+    private static final int FLAME_HEIGHT = 14;
+
+    // ---- Where the flame renders on-screen, relative to the GUI's top-left corner ----
+    private static final int FLAME_DEST_X = 58;
+    private static final int FLAME_DEST_Y = 36;
 
     public OvenScreen(OvenMenu menu, Inventory playerInv, Component title) {
         super(menu, playerInv, title);
@@ -26,7 +36,23 @@ public class OvenScreen extends AbstractContainerScreen<OvenMenu> {
         int y = (height - imageHeight) / 2;
         guiGraphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
 
-        // flame/progress overlays would go here, referencing menu.blockEntity.getCookProgress(i)
+        renderFlame(guiGraphics, x, y);
+    }
+
+    private void renderFlame(GuiGraphics guiGraphics, int x, int y) {
+        float fuelFraction = menu.blockEntity.getFuelTicksTotal() == 0 ? 0F
+                : (float) menu.blockEntity.getFuelTicksLeft() / menu.blockEntity.getFuelTicksTotal();
+
+        if (fuelFraction <= 0F) return; // fire's out — draw nothing
+
+        int filledHeight = Math.max(1, (int) (FLAME_HEIGHT * fuelFraction));
+
+        // Flame depletes from the top down, so the source Y and dest Y both shift
+        // to only reveal the bottom portion as fuel runs low — same technique vanilla uses.
+        guiGraphics.blit(TEXTURE,
+                x + FLAME_DEST_X, y + FLAME_DEST_Y + (FLAME_HEIGHT - filledHeight),
+                FLAME_SRC_X, FLAME_SRC_Y + (FLAME_HEIGHT - filledHeight),
+                FLAME_WIDTH, filledHeight);
     }
 
     @Override

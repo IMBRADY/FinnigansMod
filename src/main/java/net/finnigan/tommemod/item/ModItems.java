@@ -27,6 +27,11 @@ public class ModItems {
                     22,
                     -2.6f,
                     new Item.Properties()));
+    public static final RegistryObject<LightningRodSwordItem> LIGHTNING_ROD_SWORD = ITEMS.register("lightning_rod_sword", () ->
+            new LightningRodSwordItem(Tiers.NETHERITE,
+                    20,
+                    -2.6F,
+                    new Item.Properties()));
     public static final RegistryObject<Item> MUSIC_NOTE_ITEM = ITEMS.register("music_note_item1",
             () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> FEATHERLIGHT = ITEMS.register("featherlight",
@@ -139,8 +144,8 @@ public class ModItems {
                             new Item.Properties().stacksTo(1)
                     ));
 
-    public static final RegistryObject<Item> WOOD_DAGGER =
-            ITEMS.register("wood_dagger", // has no cool sound effect, needs transformations updated
+    public static final RegistryObject<Item> WOODEN_DAGGER =
+            ITEMS.register("wooden_dagger", // has no cool sound effect, needs transformations updated
                     () -> new ModdedSwordItem(
                             Tiers.WOOD,
                             0,

@@ -2,6 +2,11 @@ package net.finnigan.tommemod.block.entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -13,10 +18,9 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraft.core.Direction;
 
@@ -24,11 +28,11 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 
 public class OvenBlockEntity extends BlockEntity implements MenuProvider {
-// slots 0-3: input, 4-7: output, 8 = fuel
+
     private static final int INPUT_SLOTS = 4;
     private static final int OUTPUT_SLOTS = 4;
-    private static final int FUEL_SLOT = 8; // index 8, after 4 inputs + 4 outputs
-    public static final int COOK_TIME = 100; // matches smoker speed
+    private static final int FUEL_SLOT = 8;
+    public static final int COOK_TIME = 100;
 
     private final ItemStackHandler itemHandler = new ItemStackHandler(9) {
         @Override
@@ -43,15 +47,54 @@ public class OvenBlockEntity extends BlockEntity implements MenuProvider {
     private int fuelTicksLeft = 0;
     private int fuelTicksTotal = 0;
 
+    @Override
+    public void setChanged() {
+        super.setChanged();
+        if (level != null && !level.isClientSide()) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
+    }
+
     public OvenBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.OVEN.get(), pos, state); // you'll create ModBlockEntities
+        super(ModBlockEntities.OVEN.get(), pos, state);
     }
 
     public static void tick(net.minecraft.world.level.Level level, BlockPos pos, BlockState state, OvenBlockEntity entity) {
         if (level.isClientSide()) return;
 
         boolean dirty = false;
-        boolean anyCooking = false;
+
+        boolean hasValidInput = false;
+        for (int i = 0; i < INPUT_SLOTS; i++) {
+            ItemStack input = entity.itemHandler.getStackInSlot(i);
+            ItemStack output = entity.itemHandler.getStackInSlot(INPUT_SLOTS + i);
+
+            Optional<net.minecraft.world.item.crafting.SmokingRecipe> recipeOpt = level.getRecipeManager()
+                    .getRecipeFor(RecipeType.SMOKING, new net.minecraft.world.SimpleContainer(input), level);
+
+            if (!input.isEmpty() && recipeOpt.isPresent()
+                    && canInsertResult(output, recipeOpt.get().getResultItem(level.registryAccess()))) {
+                hasValidInput = true;
+                break;
+            }
+        }
+
+        if (hasValidInput && entity.fuelTicksLeft <= 0) {
+            ItemStack fuel = entity.itemHandler.getStackInSlot(FUEL_SLOT);
+            int burnTime = net.minecraftforge.common.ForgeHooks.getBurnTime(fuel, null);
+            if (burnTime > 0) {
+                entity.fuelTicksLeft = burnTime;
+                entity.fuelTicksTotal = burnTime;
+                fuel.shrink(1);
+                dirty = true;
+            }
+        }
+
+        boolean isLit = entity.fuelTicksLeft > 0;
+        if (isLit) {
+            entity.fuelTicksLeft--;
+            dirty = true;
+        }
 
         for (int i = 0; i < INPUT_SLOTS; i++) {
             ItemStack input = entity.itemHandler.getStackInSlot(i);
@@ -63,8 +106,7 @@ public class OvenBlockEntity extends BlockEntity implements MenuProvider {
             boolean canCook = !input.isEmpty() && recipeOpt.isPresent()
                     && canInsertResult(output, recipeOpt.get().getResultItem(level.registryAccess()));
 
-            if (canCook && entity.fuelTicksLeft > 0) {
-                anyCooking = true;
+            if (isLit && canCook) {
                 entity.cookProgress[i]++;
                 if (entity.cookProgress[i] >= COOK_TIME) {
                     entity.cookProgress[i] = 0;
@@ -75,25 +117,11 @@ public class OvenBlockEntity extends BlockEntity implements MenuProvider {
                         output.grow(result.getCount());
                     }
                     input.shrink(1);
-                    dirty = true;
                 }
+                dirty = true;
             } else {
                 entity.cookProgress[i] = 0;
             }
-        }
-
-        // fuel consumption — only burns fuel while at least one slot is actively cooking
-        if (anyCooking && entity.fuelTicksLeft <= 0) {
-            ItemStack fuel = entity.itemHandler.getStackInSlot(FUEL_SLOT);
-            int burnTime = net.minecraftforge.common.ForgeHooks.getBurnTime(fuel, null);
-            if (burnTime > 0) {
-                entity.fuelTicksLeft = burnTime;
-                entity.fuelTicksTotal = burnTime;
-                fuel.shrink(1);
-                dirty = true;
-            }
-        } else if (anyCooking) {
-            entity.fuelTicksLeft--;
         }
 
         if (dirty) entity.setChanged();
@@ -137,4 +165,41 @@ public class OvenBlockEntity extends BlockEntity implements MenuProvider {
     public int getCookProgress(int slot) { return cookProgress[slot]; }
     public int getFuelTicksLeft() { return fuelTicksLeft; }
     public int getFuelTicksTotal() { return fuelTicksTotal; }
+
+    // ---- Persistence ----
+
+    @Override
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.put("inventory", itemHandler.serializeNBT());
+        tag.putIntArray("cook_progress", cookProgress);
+        tag.putInt("fuel_ticks_left", fuelTicksLeft);
+        tag.putInt("fuel_ticks_total", fuelTicksTotal);
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        itemHandler.deserializeNBT(tag.getCompound("inventory"));
+        if (tag.contains("cook_progress")) {
+            System.arraycopy(tag.getIntArray("cook_progress"), 0, cookProgress, 0, INPUT_SLOTS);
+        }
+        fuelTicksLeft = tag.getInt("fuel_ticks_left");
+        fuelTicksTotal = tag.getInt("fuel_ticks_total");
+    }
+
+    // ---- Client sync ----
+
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+        return tag;
+    }
+
+    @Nullable
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
 }

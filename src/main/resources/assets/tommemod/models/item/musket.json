@@ -23,6 +23,16 @@
       "rotation": [ -15, 80, -25 ],
       "translation": [ 1.13, 4, 1 ],
       "scale": [ 1.6, 1.6, 1 ]
+    },
+    "gui": {
+      "rotation": [0, 0, 0],
+      "translation": [-2, 2, 0],
+      "scale": [1.5, 1.5, 1.5]
+    },
+    "ground": {
+      "rotation": [0, 0, 0],
+      "translation": [0, 3, 0],
+      "scale": [1.6, 1.6, 1.0]
     }
   }
 }

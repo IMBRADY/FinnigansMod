@@ -37,7 +37,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.DIAMOND_PIKE.get());
                         pOutput.accept(ModItems.NETHERITE_PIKE.get());
 
-                        pOutput.accept(ModItems.WOOD_DAGGER.get());
+                        pOutput.accept(ModItems.WOODEN_DAGGER.get());
                         pOutput.accept(ModItems.STONE_DAGGER.get());
                         pOutput.accept(ModItems.IRON_DAGGER.get());
                         pOutput.accept(ModItems.GOLD_DAGGER.get());
@@ -49,6 +49,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.HARMONY.get());
                         pOutput.accept(ModItems.FEATHERLIGHT.get());
                         pOutput.accept(ModItems.INVERTED_SWORD.get());
+                        pOutput.accept(ModItems.LIGHTNING_ROD_SWORD.get());
                     })
                     .build());
 

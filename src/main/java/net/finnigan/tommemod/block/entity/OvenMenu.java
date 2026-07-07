@@ -21,22 +21,29 @@ public class OvenMenu extends AbstractContainerMenu {
 
         IItemHandler handler = blockEntity.getItemHandler();
 
-        // 4 input slots (top row)
+        // 4 input slots — single row, top-left, 16x16, 18px pitch
         for (int i = 0; i < 4; i++) {
-            this.addSlot(new SlotItemHandler(handler, i, 26 + i * 20, 17));
+            this.addSlot(new SlotItemHandler(handler, i, 29 + i * 18, 17));
         }
-        // 4 output slots (below inputs, non-insertable)
+
+        // fuel slot — single 16x16 slot, below the inputs
+        this.addSlot(new SlotItemHandler(handler, 8, 56, 53));
+
+        // 4 output slots — 2x2 grid, 24x24 boxes, icon centered within each, non-insertable
         for (int i = 0; i < 4; i++) {
             int slotIndex = 4 + i;
-            this.addSlot(new SlotItemHandler(handler, slotIndex, 26 + i * 20, 53) {
+            int col = i % 2;
+            int row = i / 2;
+            int x = 116 + col * 26;
+            int y = 22 + row * 26;
+
+            this.addSlot(new SlotItemHandler(handler, slotIndex, x, y) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
                     return false;
                 }
             });
         }
-        // fuel slot
-        this.addSlot(new SlotItemHandler(handler, 8, 116, 53));
 
         // player inventory
         for (int row = 0; row < 3; row++) {
@@ -52,7 +59,6 @@ public class OvenMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        // Basic shift-click support; can refine later
         Slot sourceSlot = slots.get(index);
         if (!sourceSlot.hasItem()) return ItemStack.EMPTY;
         ItemStack sourceStack = sourceSlot.getItem();
