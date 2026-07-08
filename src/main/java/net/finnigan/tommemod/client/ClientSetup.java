@@ -9,6 +9,8 @@ import net.finnigan.tommemod.menu.ModMenuTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -32,6 +34,11 @@ public class ClientSetup {
                     (stack, level, entity, seed) ->
                             entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F);
             MenuScreens.register(ModMenuTypes.OVEN_MENU.get(), OvenScreen::new);
+            SpawnPlacements.register(
+                    ModEntityTypes.JELLYFISH.get(),
+                    SpawnPlacements.Type.IN_WATER,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    JellyfishEntity::checkSurfaceWaterAnimalSpawnRules);
         });
     }
     @SubscribeEvent

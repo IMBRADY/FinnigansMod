@@ -1,11 +1,9 @@
 package net.finnigan.tommemod.entity.custom;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -14,8 +12,12 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
-
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
+import java.util.List;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -28,6 +30,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class JellyfishEntity extends WaterAnimal implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
+    private int stingCooldown = 0;
     private static final int MAX_DEPTH_BELOW_SURFACE = 3; // how close jellyfish come to surface
 
     public JellyfishEntity(EntityType<? extends WaterAnimal> type, Level level) {
@@ -88,6 +91,13 @@ public class JellyfishEntity extends WaterAnimal implements GeoEntity {
         return PlayState.CONTINUE;
     }
 
+    public static boolean checkSurfaceWaterAnimalSpawnRules(
+            EntityType<? extends JellyfishEntity> type, ServerLevelAccessor level,
+            MobSpawnType reason, BlockPos pos, RandomSource random) {
+        return pos.getY() >= level.getSeaLevel() - 13
+                && pos.getY() <= level.getSeaLevel() - 1
+                && level.getFluidState(pos).is(net.minecraft.tags.FluidTags.WATER);
+    }
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
@@ -97,6 +107,28 @@ public class JellyfishEntity extends WaterAnimal implements GeoEntity {
         float diff = Mth.wrapDegrees(target - current);
         diff = Mth.clamp(diff, -maxChange, maxChange);
         return current + diff;
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (this.stingCooldown > 0) {
+            this.stingCooldown--;
+        }
+
+        if (!this.level().isClientSide && this.stingCooldown == 0) {
+            List<Player> players = this.level().getEntitiesOfClass(
+                    Player.class, this.getBoundingBox().inflate(0.2D));
+
+            for (Player player : players) {
+                if (!player.isCreative() && !player.isSpectator()) {
+                    player.addEffect(new MobEffectInstance(MobEffects.POISON, 40, 2));
+                    this.stingCooldown = 20;
+                    break;
+                }
+            }
+        }
     }
 
     static class JellyfishMoveControl extends MoveControl {
@@ -109,6 +141,7 @@ public class JellyfishEntity extends WaterAnimal implements GeoEntity {
 
         @Override
         public void tick() {
+
             if (this.operation != Operation.MOVE_TO) {
                 jellyfish.setDeltaMovement(jellyfish.getDeltaMovement().scale(0.98D));
                 return;
