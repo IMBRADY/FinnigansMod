@@ -27,6 +27,11 @@
 
   "entity.minecraft.villager.tommemod.baker": "Baker",
   "entity.tommemod.jellyfish": "Jellyfish",
+  "entity.tommemod.butterfly": "Butterfly",
+  "entity.tommemod.mushling": "Mushling",
+
+  "item.tommemod.mushroom_meat": "Mushroom Meat",
+  "item.tommemod.cooked_mushroom_meat": "Cooked Mushroom Meat",
 
   "item.tommemod.musket": "Musket",
 

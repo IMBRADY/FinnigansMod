@@ -50,6 +50,9 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.FEATHERLIGHT.get());
                         pOutput.accept(ModItems.INVERTED_SWORD.get());
                         pOutput.accept(ModItems.LIGHTNING_ROD_SWORD.get());
+
+                        pOutput.accept(ModItems.MUSHROOM_MEAT.get());
+                        pOutput.accept(ModItems.COOKED_MUSHROOM_MEAT.get());
                     })
                     .build());
 

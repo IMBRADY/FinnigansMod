@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smoking",
+  "ingredient": {
+    "item": "tommemod:mushling_meat"
+  },
+  "result": "tommemod:cooked_mushroom_meat",
+  "experience": 0.35,
+  "cookingtime": 100
+}

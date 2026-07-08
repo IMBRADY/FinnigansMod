@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 
 @Mod.EventBusSubscriber(modid = "tommemod", bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientModEvents {
-
+// NOTE: It is very likely that we can merge this file with ClientModEvents, taking note that some functions are bus events and others are subscriber events - brady
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(

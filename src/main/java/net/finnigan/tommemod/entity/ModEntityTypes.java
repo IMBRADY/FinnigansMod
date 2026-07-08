@@ -1,9 +1,6 @@
 package net.finnigan.tommemod.entity;
 
-import net.finnigan.tommemod.entity.custom.DynamiteEntity;
-import net.finnigan.tommemod.entity.custom.GiantSwordEntity;
-import net.finnigan.tommemod.entity.custom.JellyfishEntity;
-import net.finnigan.tommemod.entity.custom.MusicNoteEntity;
+import net.finnigan.tommemod.entity.custom.*;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.registries.DeferredRegister;
@@ -40,5 +37,16 @@ public class ModEntityTypes {
     public static final RegistryObject<EntityType<JellyfishEntity>> JELLYFISH =
             ENTITY_TYPES.register("jellyfish", () -> EntityType.Builder.of(JellyfishEntity::new, MobCategory.WATER_CREATURE)
                     .sized(0.6f, 2.0f) // Width, Height of hitbox
+                    .clientTrackingRange(8)
                     .build("jellyfish"));
+    public static final RegistryObject<EntityType<ButterflyEntity>> BUTTERFLY =
+            ENTITY_TYPES.register("butterfly", () -> EntityType.Builder.of(ButterflyEntity::new, MobCategory.CREATURE)
+                    .sized(0.4f, 0.3f)
+                    .clientTrackingRange(8) // Distance in chunks when mob renders (large mobs = large number)
+                    .build("butterfly"));
+    public static final RegistryObject<EntityType<MushlingEntity>> MUSHLING =
+            ENTITY_TYPES.register("mushling", () -> EntityType.Builder.of(MushlingEntity::new, MobCategory.CREATURE)
+                    .sized(1.0f, 2.0f)
+                    .clientTrackingRange(8)
+                    .build("mushling"));
 }

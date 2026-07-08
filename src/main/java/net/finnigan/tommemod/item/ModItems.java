@@ -3,6 +3,9 @@ package net.finnigan.tommemod.item;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.entity.custom.ModdedSwordItem;
 import net.finnigan.tommemod.item.custom.*;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tiers;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -192,6 +195,21 @@ public class ModItems {
                             -1.0F,
                             new Item.Properties().stacksTo(1)
                     ));
+
+    public static final RegistryObject<Item> MUSHROOM_MEAT = ITEMS.register("mushroom_meat",
+            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(2)
+                    .saturationMod(0.4f)
+                    .effect(() -> new MobEffectInstance(MobEffects.BLINDNESS, 100, 0), 1.0f)
+                    .effect(() -> new MobEffectInstance(MobEffects.POISON, 40, 0), 1.0f)
+                    .meat()
+                    .build())));
+    public static final RegistryObject<Item> COOKED_MUSHROOM_MEAT = ITEMS.register("cooked_mushroom_meat",
+            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(6)
+                    .saturationMod(9.6f)
+                    .meat()
+                    .build())));
 
 
     public static void register(IEventBus eventBus) {
