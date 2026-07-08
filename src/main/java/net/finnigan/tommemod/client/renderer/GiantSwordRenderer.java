@@ -41,7 +41,7 @@ public class GiantSwordRenderer extends EntityRenderer<GiantSwordEntity> {
 
     @Override
     public net.minecraft.resources.ResourceLocation getTextureLocation(GiantSwordEntity entity) {
-        return net.minecraft.resources.ResourceLocation.withDefaultNamespace("textures/misc/white.png");
+        return new net.minecraft.resources.ResourceLocation("minecraft", "textures/misc/white.png");
         // Renderer requires a texture override even when unused since ItemStack rendering supplies its own
     }
 }

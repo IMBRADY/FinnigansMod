@@ -19,8 +19,7 @@ public class ModEntityTypes {
             ENTITY_TYPES.register("dynamite",
                     () -> EntityType.Builder
                             .<DynamiteEntity>of(
-                                    DynamiteEntity::new,
-                                    MobCategory.MISC)
+                                    DynamiteEntity::new, MobCategory.MISC)
                             .sized(0.25F, 0.25F)
                             .clientTrackingRange(4)
                             .updateInterval(10)

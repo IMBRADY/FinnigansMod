@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Inventory;
 public class OvenScreen extends AbstractContainerScreen<OvenMenu> {
 
     private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(TommeMod.MOD_ID, "textures/gui/oven_gui.png");
+            new ResourceLocation(TommeMod.MOD_ID, "textures/gui/oven_gui.png");
 
     // ---- Flame icon source rect, taken from the sprite sheet area outside the visible 176px GUI ----
     private static final int FLAME_SRC_X = 176;
