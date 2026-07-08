@@ -2,6 +2,7 @@ package net.finnigan.tommemod.entity;
 
 import net.finnigan.tommemod.entity.custom.DynamiteEntity;
 import net.finnigan.tommemod.entity.custom.GiantSwordEntity;
+import net.finnigan.tommemod.entity.custom.JellyfishEntity;
 import net.finnigan.tommemod.entity.custom.MusicNoteEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -36,4 +37,8 @@ public class ModEntityTypes {
                     .updateInterval(1)
                     .build("giant_sword")
     );
+    public static final RegistryObject<EntityType<JellyfishEntity>> JELLYFISH =
+            ENTITY_TYPES.register("jellyfish", () -> EntityType.Builder.of(JellyfishEntity::new, MobCategory.WATER_CREATURE)
+                    .sized(0.6f, 2.0f) // Width, Height of hitbox
+                    .build("jellyfish"));
 }
