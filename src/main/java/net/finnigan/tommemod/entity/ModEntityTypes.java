@@ -46,7 +46,7 @@ public class ModEntityTypes {
                     .build("butterfly"));
     public static final RegistryObject<EntityType<MushlingEntity>> MUSHLING =
             ENTITY_TYPES.register("mushling", () -> EntityType.Builder.of(MushlingEntity::new, MobCategory.CREATURE)
-                    .sized(1.0f, 2.0f)
+                    .sized(0.8f, 0.8f)
                     .clientTrackingRange(8)
                     .build("mushling"));
 }

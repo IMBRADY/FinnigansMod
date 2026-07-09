@@ -66,18 +66,38 @@ public class OvenBlockEntity extends BlockEntity implements MenuProvider {
 
         boolean dirty = false;
 
+        // --- Determine fuel need: check single-slot AND combo recipes ---
         boolean hasValidInput = false;
         for (int i = 0; i < INPUT_SLOTS; i++) {
             ItemStack input = entity.itemHandler.getStackInSlot(i);
             ItemStack output = entity.itemHandler.getStackInSlot(INPUT_SLOTS + i);
-
             Optional<net.minecraft.world.item.crafting.SmokingRecipe> recipeOpt = level.getRecipeManager()
                     .getRecipeFor(RecipeType.SMOKING, new net.minecraft.world.SimpleContainer(input), level);
-
             if (!input.isEmpty() && recipeOpt.isPresent()
                     && canInsertResult(output, recipeOpt.get().getResultItem(level.registryAccess()))) {
                 hasValidInput = true;
                 break;
+            }
+        }
+        // combo also counts as valid fuel-consuming input
+        int comboSlotA = -1, comboSlotB = -1;
+        net.finnigan.tommemod.recipe.CombiningRecipe activeCombo = null;
+        outerFind:
+        for (int i = 0; i < INPUT_SLOTS; i++) {
+            for (int j = i + 1; j < INPUT_SLOTS; j++) {
+                ItemStack a = entity.itemHandler.getStackInSlot(i);
+                ItemStack b = entity.itemHandler.getStackInSlot(j);
+                if (a.isEmpty() || b.isEmpty()) continue;
+                net.minecraft.world.SimpleContainer testContainer = new net.minecraft.world.SimpleContainer(a, b);
+                Optional<net.finnigan.tommemod.recipe.CombiningRecipe> comboOpt = level.getRecipeManager()
+                        .getRecipeFor(net.finnigan.tommemod.recipe.ModRecipes.COMBINING_TYPE.get(), testContainer, level);
+                if (comboOpt.isPresent()) {
+                    comboSlotA = i;
+                    comboSlotB = j;
+                    activeCombo = comboOpt.get();
+                    hasValidInput = true;
+                    break outerFind;
+                }
             }
         }
 
@@ -98,7 +118,13 @@ public class OvenBlockEntity extends BlockEntity implements MenuProvider {
             dirty = true;
         }
 
+        // --- Single-slot smoking, SKIPPING any slot reserved by an active combo ---
         for (int i = 0; i < INPUT_SLOTS; i++) {
+            if (i == comboSlotA || i == comboSlotB) {
+                entity.cookProgress[i] = 0;
+                continue;
+            }
+
             ItemStack input = entity.itemHandler.getStackInSlot(i);
             ItemStack output = entity.itemHandler.getStackInSlot(INPUT_SLOTS + i);
 
@@ -126,53 +152,38 @@ public class OvenBlockEntity extends BlockEntity implements MenuProvider {
             }
         }
 
-        if (dirty) entity.setChanged();
-        /*
-        boolean comboFound = false;
-        outer:
-        for (int i = 0; i < INPUT_SLOTS; i++) {
-            for (int j = i + 1; j < INPUT_SLOTS; j++) {
-                ItemStack stackA = entity.itemHandler.getStackInSlot(i);
-                ItemStack stackB = entity.itemHandler.getStackInSlot(j);
-                if (stackA.isEmpty() || stackB.isEmpty()) continue;
+        // --- Combo cooking ---
+        if (activeCombo != null) {
+            ItemStack stackA = entity.itemHandler.getStackInSlot(comboSlotA);
+            ItemStack stackB = entity.itemHandler.getStackInSlot(comboSlotB);
+            ItemStack comboResult = activeCombo.getResultItem(level.registryAccess());
 
-                net.minecraft.world.SimpleContainer testContainer = new net.minecraft.world.SimpleContainer(stackA, stackB);
-                Optional<net.finnigan.tommemod.recipe.CombiningRecipe> comboOpt = level.getRecipeManager()
-                        .getRecipeFor(net.finnigan.tommemod.recipe.ModRecipes.COMBINING_TYPE, testContainer, level);
-
-                if (comboOpt.isPresent()) {
-                    ItemStack comboResult = comboOpt.get().getResultItem(level.registryAccess());
-                    // find an output slot that can accept the result
-                    for (int o = 0; o < OUTPUT_SLOTS; o++) {
-                        ItemStack existingOutput = entity.itemHandler.getStackInSlot(INPUT_SLOTS + o);
-                        if (canInsertResult(existingOutput, comboResult)) {
-                            comboFound = true;
-
-                            if (isLit) {
-                                entity.comboProgress++;
-                                if (entity.comboProgress >= COMBO_COOK_TIME) {
-                                    entity.comboProgress = 0;
-                                    ItemStack finalResult = comboResult.copy();
-                                    if (existingOutput.isEmpty()) {
-                                        entity.itemHandler.setStackInSlot(INPUT_SLOTS + o, finalResult);
-                                    } else {
-                                        existingOutput.grow(finalResult.getCount());
-                                    }
-                                    stackA.shrink(1);
-                                    stackB.shrink(1);
-                                }
-                                dirty = true;
+            for (int o = 0; o < OUTPUT_SLOTS; o++) {
+                ItemStack existingOutput = entity.itemHandler.getStackInSlot(INPUT_SLOTS + o);
+                if (canInsertResult(existingOutput, comboResult)) {
+                    if (isLit) {
+                        entity.comboProgress++;
+                        if (entity.comboProgress >= COMBO_COOK_TIME) {
+                            entity.comboProgress = 0;
+                            ItemStack finalResult = comboResult.copy();
+                            if (existingOutput.isEmpty()) {
+                                entity.itemHandler.setStackInSlot(INPUT_SLOTS + o, finalResult);
+                            } else {
+                                existingOutput.grow(finalResult.getCount());
                             }
-                            break outer;
+                            stackA.shrink(1);
+                            stackB.shrink(1);
                         }
+                        dirty = true;
                     }
+                    break;
                 }
             }
-        }
-        if (!comboFound) {
+        } else {
             entity.comboProgress = 0;
         }
-        */
+
+        if (dirty) entity.setChanged();
     }
 
     private static boolean canInsertResult(ItemStack output, ItemStack result) {

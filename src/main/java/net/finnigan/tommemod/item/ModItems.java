@@ -208,6 +208,7 @@ public class ModItems {
             () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
                     .nutrition(6)
                     .saturationMod(9.6f)
+                    .effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 30, 0), 1.0f)
                     .meat()
                     .build())));
 
