@@ -29,9 +29,11 @@
   "entity.tommemod.jellyfish": "Jellyfish",
   "entity.tommemod.butterfly": "Butterfly",
   "entity.tommemod.mushling": "Mushling",
+  "entity.tommemod.end_lantern": "End Lantern",
 
   "item.tommemod.mushroom_meat": "Mushroom Meat",
   "item.tommemod.cooked_mushroom_meat": "Cooked Mushroom Meat",
+  "item.tommemod.end_lantern": "End Lantern",
 
   "item.tommemod.musket": "Musket",
 

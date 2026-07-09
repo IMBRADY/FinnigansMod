@@ -8,6 +8,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import static net.finnigan.tommemod.TommeMod.MOD_ID;
+import net.finnigan.tommemod.entity.custom.EndLanternEntity;
+
 
 public class ModEntityTypes {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
@@ -49,4 +51,9 @@ public class ModEntityTypes {
                     .sized(0.8f, 0.8f)
                     .clientTrackingRange(8)
                     .build("mushling"));
+    public static final RegistryObject<EntityType<EndLanternEntity>> END_LANTERN =
+            ENTITY_TYPES.register("end_lantern", () -> EntityType.Builder.of(EndLanternEntity::new, MobCategory.CREATURE)
+                    .sized(0.8f, 1.5f)
+                    .clientTrackingRange(8)
+                    .build("end_lantern"));
 }

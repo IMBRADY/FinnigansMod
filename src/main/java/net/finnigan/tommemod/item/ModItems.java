@@ -113,6 +113,8 @@ public class ModItems {
             () -> new MusketItem(new Item.Properties()));
     public static final RegistryObject<Item> BULLET = ITEMS.register("bullet",
             () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> END_LANTERN = ITEMS.register("end_lantern",
+            () -> new Item(new Item.Properties()));
 
     public static final RegistryObject<Item> IRON_CLEAVER =
             ITEMS.register("iron_cleaver", // has no cool sound effect, needs transformations updated

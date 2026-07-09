@@ -4,6 +4,7 @@ import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.client.screen.OvenScreen;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.entity.custom.ButterflyEntity;
+import net.finnigan.tommemod.entity.custom.EndLanternEntity;
 import net.finnigan.tommemod.entity.custom.JellyfishEntity;
 import net.finnigan.tommemod.entity.custom.MushlingEntity;
 import net.finnigan.tommemod.item.ModItems;
@@ -48,6 +49,7 @@ public class ClientSetup {
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(ModEntityTypes.JELLYFISH.get(), JellyfishEntity.createAttributes().build());
         event.put(ModEntityTypes.BUTTERFLY.get(), ButterflyEntity.createAttributes().build());
+        event.put(ModEntityTypes.END_LANTERN.get(), EndLanternEntity.createAttributes().build());
         event.put(ModEntityTypes.MUSHLING.get(), MushlingEntity.createAttributes().build());
     }
 
@@ -58,6 +60,7 @@ public class ClientSetup {
             event.registerEntityRenderer(ModEntityTypes.JELLYFISH.get(), JellyfishRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.BUTTERFLY.get(), ButterflyRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.MUSHLING.get(), MushlingRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.END_LANTERN.get(), EndLanternRenderer::new);
         }
     }
 
