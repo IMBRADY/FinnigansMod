@@ -23,7 +23,6 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraft.core.Direction;
-
 import javax.annotation.Nullable;
 import java.util.Optional;
 
@@ -33,6 +32,9 @@ public class OvenBlockEntity extends BlockEntity implements MenuProvider {
     private static final int OUTPUT_SLOTS = 4;
     private static final int FUEL_SLOT = 8;
     public static final int COOK_TIME = 100;
+
+    private int comboProgress = 0;
+    private static final int COMBO_COOK_TIME = 200;
 
     private final ItemStackHandler itemHandler = new ItemStackHandler(9) {
         @Override
@@ -125,6 +127,52 @@ public class OvenBlockEntity extends BlockEntity implements MenuProvider {
         }
 
         if (dirty) entity.setChanged();
+        /*
+        boolean comboFound = false;
+        outer:
+        for (int i = 0; i < INPUT_SLOTS; i++) {
+            for (int j = i + 1; j < INPUT_SLOTS; j++) {
+                ItemStack stackA = entity.itemHandler.getStackInSlot(i);
+                ItemStack stackB = entity.itemHandler.getStackInSlot(j);
+                if (stackA.isEmpty() || stackB.isEmpty()) continue;
+
+                net.minecraft.world.SimpleContainer testContainer = new net.minecraft.world.SimpleContainer(stackA, stackB);
+                Optional<net.finnigan.tommemod.recipe.CombiningRecipe> comboOpt = level.getRecipeManager()
+                        .getRecipeFor(net.finnigan.tommemod.recipe.ModRecipes.COMBINING_TYPE, testContainer, level);
+
+                if (comboOpt.isPresent()) {
+                    ItemStack comboResult = comboOpt.get().getResultItem(level.registryAccess());
+                    // find an output slot that can accept the result
+                    for (int o = 0; o < OUTPUT_SLOTS; o++) {
+                        ItemStack existingOutput = entity.itemHandler.getStackInSlot(INPUT_SLOTS + o);
+                        if (canInsertResult(existingOutput, comboResult)) {
+                            comboFound = true;
+
+                            if (isLit) {
+                                entity.comboProgress++;
+                                if (entity.comboProgress >= COMBO_COOK_TIME) {
+                                    entity.comboProgress = 0;
+                                    ItemStack finalResult = comboResult.copy();
+                                    if (existingOutput.isEmpty()) {
+                                        entity.itemHandler.setStackInSlot(INPUT_SLOTS + o, finalResult);
+                                    } else {
+                                        existingOutput.grow(finalResult.getCount());
+                                    }
+                                    stackA.shrink(1);
+                                    stackB.shrink(1);
+                                }
+                                dirty = true;
+                            }
+                            break outer;
+                        }
+                    }
+                }
+            }
+        }
+        if (!comboFound) {
+            entity.comboProgress = 0;
+        }
+        */
     }
 
     private static boolean canInsertResult(ItemStack output, ItemStack result) {

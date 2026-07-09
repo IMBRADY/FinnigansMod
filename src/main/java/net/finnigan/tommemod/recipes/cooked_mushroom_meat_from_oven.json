@@ -1,0 +1,14 @@
+{
+  "type": "tommemod:combining",
+  "ingredient_a": {
+    "tag": "forge:mushrooms"
+  },
+  "ingredient_b": {
+    "item": "minecraft:beef"
+  },
+  "result": {
+    "item": "tommemod:cooked_mushroom_meat",
+    "count": 1
+  },
+  "cookingtime": 200
+}
