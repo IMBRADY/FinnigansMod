@@ -30,6 +30,12 @@ public class ModItems {
                     22,
                     -2.6f,
                     new Item.Properties()));
+    public static final RegistryObject<Item> RANSEUR_OF_UNDEAD = ITEMS.register("ranseur_of_undead",
+            () -> new RanseurOfUndeadSwordItem(
+                    Tiers.NETHERITE,
+                    20,
+                    -2.6f,
+                    new Item.Properties()));
     public static final RegistryObject<LightningRodSwordItem> LIGHTNING_ROD_SWORD = ITEMS.register("lightning_rod_sword", () ->
             new LightningRodSwordItem(Tiers.NETHERITE,
                     20,

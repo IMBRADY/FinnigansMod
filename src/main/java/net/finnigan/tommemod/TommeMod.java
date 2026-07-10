@@ -7,6 +7,7 @@ import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.item.ModCreativeModTabs;
 import net.finnigan.tommemod.item.ModItems;
 import net.finnigan.tommemod.menu.ModMenuTypes;
+import net.finnigan.tommemod.network.ModNetwork;
 import net.finnigan.tommemod.recipe.ModRecipes;
 import net.finnigan.tommemod.villager.ModPoiTypes;
 import net.finnigan.tommemod.villager.ModVillagers;
@@ -44,6 +45,8 @@ public class TommeMod
         ModBlocks.BLOCKS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModMenuTypes.MENUS.register(modEventBus);
+
+        ModNetwork.register();
 
         ModPoiTypes.POI_TYPES.register(modEventBus);
         ModVillagers.PROFESSIONS.register(modEventBus);

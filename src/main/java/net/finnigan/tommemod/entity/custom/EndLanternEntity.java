@@ -1,9 +1,9 @@
 package net.finnigan.tommemod.entity.custom;
 
 import net.finnigan.tommemod.item.ModItems;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
@@ -12,6 +12,7 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomFlyingGoal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -40,6 +41,11 @@ public class EndLanternEntity extends PathfinderMob implements GeoEntity {
                 .add(Attributes.FLYING_SPEED, 0.4D)
                 .add(Attributes.MOVEMENT_SPEED, 0.2D)
                 .add(Attributes.FOLLOW_RANGE, 16.0D);
+    }
+
+    public static boolean checkEndLanternSpawnRules(EntityType<EndLanternEntity> type, ServerLevelAccessor level,
+                                                    MobSpawnType spawnType, BlockPos pos, RandomSource random) {
+        return Mob.checkMobSpawnRules(type, level, spawnType, pos, random);
     }
 
     @Override

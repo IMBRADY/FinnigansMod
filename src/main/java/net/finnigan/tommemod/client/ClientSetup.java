@@ -1,6 +1,8 @@
 package net.finnigan.tommemod.client;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.client.renderer.GiantSwordRenderer;
+import net.finnigan.tommemod.client.renderer.MusicNoteRenderer;
 import net.finnigan.tommemod.client.screen.OvenScreen;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.entity.custom.ButterflyEntity;
@@ -10,20 +12,21 @@ import net.finnigan.tommemod.entity.custom.MushlingEntity;
 import net.finnigan.tommemod.item.ModItems;
 import net.finnigan.tommemod.menu.ModMenuTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 @Mod.EventBusSubscriber(modid = "tommemod", bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public class ClientSetup {
+public class ClientSetup { // .MOD file, idk im too lazy to research but it doesnt do stuff every tick
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
@@ -45,12 +48,28 @@ public class ClientSetup {
                     JellyfishEntity::checkSurfaceWaterAnimalSpawnRules);
         });
     }
+
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(ModEntityTypes.JELLYFISH.get(), JellyfishEntity.createAttributes().build());
         event.put(ModEntityTypes.BUTTERFLY.get(), ButterflyEntity.createAttributes().build());
         event.put(ModEntityTypes.END_LANTERN.get(), EndLanternEntity.createAttributes().build());
         event.put(ModEntityTypes.MUSHLING.get(), MushlingEntity.createAttributes().build());
+    }
+
+    @SubscribeEvent
+    public static void registerSpawnPlacements(SpawnPlacementRegisterEvent event) {
+        event.register(ModEntityTypes.MUSHLING.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                MushlingEntity::checkMushlingSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
+
+        event.register(ModEntityTypes.END_LANTERN.get(),
+                SpawnPlacements.Type.NO_RESTRICTIONS,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                EndLanternEntity::checkEndLanternSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
     }
 
     @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -61,15 +80,9 @@ public class ClientSetup {
             event.registerEntityRenderer(ModEntityTypes.BUTTERFLY.get(), ButterflyRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.MUSHLING.get(), MushlingRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.END_LANTERN.get(), EndLanternRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.DYNAMITE.get(), ThrownItemRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.MUSIC_NOTE.get(), MusicNoteRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.GIANT_SWORD.get(), GiantSwordRenderer::new);
         }
-    }
-
-    @SubscribeEvent
-    public static void registerSpawnPlacements(SpawnPlacementRegisterEvent event) {
-        event.register(ModEntityTypes.MUSHLING.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                MushlingEntity::checkMushlingSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
     }
 }
