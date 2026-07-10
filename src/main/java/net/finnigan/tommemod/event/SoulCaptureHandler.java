@@ -6,7 +6,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -19,7 +21,7 @@ import java.util.Random;
 public class SoulCaptureHandler {
 
     private static final Random RANDOM = new Random();
-    private static final double REFERENCE_HEALTH = 10.0; // zombie-tier baseline
+    private static final double REFERENCE_HEALTH = 40;
     private static final double BASE_CHANCE = 0.5;
     private static final double MIN_CHANCE = 0.01;
     private static final double MAX_CHANCE = 0.9;
@@ -29,6 +31,7 @@ public class SoulCaptureHandler {
         LivingEntity victim = event.getEntity();
         if (!(event.getSource().getEntity() instanceof Player player)) return;
         if (victim.level().isClientSide) return;
+        if (victim.getMobType() != MobType.UNDEAD) return;
 
         ItemStack weapon = player.getMainHandItem();
         if (!(weapon.getItem() instanceof RanseurOfUndeadSwordItem)) return;

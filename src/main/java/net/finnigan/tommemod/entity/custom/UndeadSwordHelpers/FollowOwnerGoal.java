@@ -1,4 +1,4 @@
-package net.finnigan.tommemod.entity.custom;
+package net.finnigan.tommemod.entity.custom.UndeadSwordHelpers;
 
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;

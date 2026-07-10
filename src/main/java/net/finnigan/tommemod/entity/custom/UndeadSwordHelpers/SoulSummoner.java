@@ -1,4 +1,4 @@
-package net.finnigan.tommemod.entity.custom;
+package net.finnigan.tommemod.entity.custom.UndeadSwordHelpers;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -22,6 +22,14 @@ import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
+import net.minecraft.world.entity.ai.goal.RangedCrossbowAttackGoal;
+import net.minecraft.world.entity.monster.Blaze;
+import net.minecraft.world.entity.monster.Guardian;
+import net.minecraft.world.entity.monster.Illusioner;
+import net.minecraft.world.entity.monster.Pillager;
+import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.monster.Witch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +54,7 @@ public class SoulSummoner {
         AttributeInstance speed = mob.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speed != null && speed.getModifier(SOUL_BUFF_SPEED_UUID) == null) {
             speed.addPermanentModifier(new AttributeModifier(
-                    SOUL_BUFF_SPEED_UUID, "Soul buff speed", 0.15, AttributeModifier.Operation.MULTIPLY_BASE));
+                    SOUL_BUFF_SPEED_UUID, "Soul buff speed", 0.05, AttributeModifier.Operation.MULTIPLY_BASE));
         }
 
         AttributeInstance damage = mob.getAttribute(Attributes.ATTACK_DAMAGE);
@@ -81,6 +89,9 @@ public class SoulSummoner {
         double offsetX = (level.random.nextDouble() - 0.5) * 3;
         double offsetZ = (level.random.nextDouble() - 0.5) * 3;
         mob.moveTo(owner.getX() + offsetX, owner.getY(), owner.getZ() + offsetZ, owner.getYRot(), 0);
+        if (mob instanceof Blaze) {
+            mob.setNoGravity(true);
+        }
 
         if (soulData.contains("CustomName")) {
             mob.setCustomName(Component.literal(soulData.getString("CustomName")));
@@ -114,7 +125,27 @@ public class SoulSummoner {
         targetSelector.removeAllGoals(goal -> true);
 
         goalSelector.addGoal(0, new FloatGoal(mob));
-        goalSelector.addGoal(1, new MeleeAttackGoal(mob, 1.2, true));
+
+        // --- Attack behavior: pick based on mob type ---
+        if (mob instanceof Skeleton skeleton) {
+            goalSelector.addGoal(1, new RangedBowAttackGoal<>(skeleton, 1.0, 20, 15.0F));
+        } else if (mob instanceof Illusioner illusioner) {
+            goalSelector.addGoal(1, new RangedBowAttackGoal<>(illusioner, 1.0, 20, 15.0F));
+        } else if (mob instanceof Pillager pillager) {
+            goalSelector.addGoal(1, new RangedCrossbowAttackGoal<>(pillager, 1.0, 8.0F));
+        } else if (mob instanceof Blaze) {
+            goalSelector.addGoal(1, new SoulFireballAttackGoal(mob));
+            goalSelector.addGoal(2, new FollowOwnerGoal(mob, owner, 2.0, 10.0f));
+            goalSelector.addGoal(3, new SoulFlyingStrollGoal(mob, 1.0));
+            goalSelector.addGoal(4, new WaterAvoidingRandomStrollGoal(mob, 1.0));
+        } else if (mob instanceof Witch) {
+            goalSelector.addGoal(1, new SoulWitchAttackGoal(mob));
+        } else if (mob instanceof Guardian) {
+            // No goal needed — Guardian's beam attack fires automatically once it has a target.
+        } else {
+            goalSelector.addGoal(1, new MeleeAttackGoal(mob, 1.2, true));
+        }
+
         goalSelector.addGoal(2, new FollowOwnerGoal(mob, owner, 2.0, 10.0f));
         goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(mob, 1.0));
 

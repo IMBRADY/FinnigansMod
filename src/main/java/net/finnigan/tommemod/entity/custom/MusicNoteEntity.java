@@ -1,16 +1,14 @@
 package net.finnigan.tommemod.entity.custom;
 
 import net.finnigan.tommemod.entity.ModEntityTypes;
-import net.finnigan.tommemod.event.SoulAllyProtectionHandler;
+import net.finnigan.tommemod.entity.custom.UndeadSwordHelpers.SoulSummoner;
 import net.finnigan.tommemod.item.ModItems;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.animal.Wolf;
-import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;

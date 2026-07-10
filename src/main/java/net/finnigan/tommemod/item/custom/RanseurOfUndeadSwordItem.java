@@ -1,6 +1,6 @@
 package net.finnigan.tommemod.item.custom;
 
-import net.finnigan.tommemod.entity.custom.SoulSummoner;
+import net.finnigan.tommemod.entity.custom.UndeadSwordHelpers.SoulSummoner;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +20,7 @@ import java.util.List;
 
 public class RanseurOfUndeadSwordItem extends SwordItem {
 
-    public static final int MAX_SOULS = 3;
+    public static final int MAX_SOULS = 5;
     private static final int COOLDOWN_TICKS = 20; // 1 second
 
     public RanseurOfUndeadSwordItem(Tier tier, int attackDamage, float attackSpeed, Properties properties) {
