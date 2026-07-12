@@ -59,6 +59,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.SEER_SWORD.get());
                         pOutput.accept(ModItems.AQUATANA.get());
                         pOutput.accept(ModItems.FIRE_KATANA.get());
+                        pOutput.accept(ModItems.BLOSSOM_KATANA.get());
 
                         // FOOD
                         pOutput.accept(ModItems.MUSHROOM_MEAT.get());

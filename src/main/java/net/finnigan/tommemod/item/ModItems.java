@@ -65,6 +65,12 @@ public class ModItems {
                     20,
                     -2.4F,
                     new Item.Properties()));
+    public static final RegistryObject<Item> BLOSSOM_KATANA = ITEMS.register("blossom_katana",
+            () -> new BlossomKatanaItem(
+                    Tiers.NETHERITE,
+                    20,
+                    -2.4F,
+                    new Item.Properties()));
     public static final RegistryObject<Item> FIRE_KATANA = ITEMS.register("fire_katana",
             () -> new FireKatanaItem(
                     Tiers.NETHERITE,

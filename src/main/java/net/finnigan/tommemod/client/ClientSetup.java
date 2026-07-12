@@ -12,6 +12,7 @@ import net.finnigan.tommemod.entity.custom.EndLanternEntity;
 import net.finnigan.tommemod.entity.custom.JellyfishEntity;
 import net.finnigan.tommemod.entity.custom.MushlingEntity;
 import net.finnigan.tommemod.item.ModItems;
+import net.finnigan.tommemod.item.custom.BlossomKatanaItem;
 import net.finnigan.tommemod.menu.ModMenuTypes;
 import net.finnigan.tommemod.particle.ModParticleTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -40,7 +41,6 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                         if (entity == null || entity.getUseItem() != stack) return 0.0F;
                         return (stack.getUseDuration() - entity.getUseItemRemainingTicks()) / 50.0F;
                     });
-
             ItemProperties.register(ModItems.LONGBOW.get(), new ResourceLocation("pulling"),
                     (stack, level, entity, seed) ->
                             entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F);
@@ -51,7 +51,15 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                     Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     JellyfishEntity::checkSurfaceWaterAnimalSpawnRules);
         });
-    }
+        event.enqueueWork(() -> {
+            ItemProperties.register(
+                    ModItems.BLOSSOM_KATANA.get(),
+                    new ResourceLocation(TommeMod.MOD_ID, "active"),
+                    (stack, level, entity, seed) ->
+                            BlossomKatanaItem.isAuraActive(stack, level) ? 1.0F : 0.0F
+                );
+            });
+        }
 
     @SubscribeEvent
     public static void registerParticleFactories(RegisterParticleProvidersEvent event) {

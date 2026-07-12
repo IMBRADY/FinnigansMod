@@ -51,6 +51,7 @@ public class AquatanaItem extends SwordItem {
         return AQUATANA_VARIANTS[random.nextInt(AQUATANA_VARIANTS.length)].get();
     }
 
+
     @Override
     public boolean isDamageable(ItemStack stack) {
         return false;
