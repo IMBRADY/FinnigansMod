@@ -4,6 +4,7 @@ import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.client.particle.AquatanaParticle;
 import net.finnigan.tommemod.client.particle.FireRingParticle;
 import net.finnigan.tommemod.client.renderer.GiantSwordRenderer;
+import net.finnigan.tommemod.client.renderer.GrappleHookRenderer;
 import net.finnigan.tommemod.client.renderer.MusicNoteRenderer;
 import net.finnigan.tommemod.client.screen.OvenScreen;
 import net.finnigan.tommemod.entity.ModEntityTypes;
@@ -109,6 +110,8 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.DYNAMITE.get(), ThrownItemRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.MUSIC_NOTE.get(), MusicNoteRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.GIANT_SWORD.get(), GiantSwordRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.GRAPPLE_HOOK.get(), GrappleHookRenderer::new);
+
         }
     }
 }

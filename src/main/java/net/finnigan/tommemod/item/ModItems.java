@@ -24,6 +24,17 @@ public class ModItems {
     public static final RegistryObject<Item> DYNAMITE = ITEMS.register("dynamite",
             () -> new DynamiteItem(new Item.Properties()));
 
+    public static final RegistryObject<Item> SANGUIS_GLADIO = ITEMS.register("sanguis_gladio",
+            () -> new SanguisGladioItem(
+                    Tiers.NETHERITE,
+                    25,
+                    -2.4F,
+                    new Item.Properties()));
+    public static final RegistryObject<Item> ARACKOPESH = ITEMS.register("arackopesh",
+            () -> new ArackopeshItem(Tiers.NETHERITE,
+                    20,
+                    -2.6F,
+                    new Item.Properties()));
     public static final RegistryObject<Item> SEER_SWORD = ITEMS.register("seer_sword",
             () -> new SeerSwordItem(
                     Tiers.NETHERITE,

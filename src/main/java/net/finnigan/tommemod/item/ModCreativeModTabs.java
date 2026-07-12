@@ -60,6 +60,8 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.AQUATANA.get());
                         pOutput.accept(ModItems.FIRE_KATANA.get());
                         pOutput.accept(ModItems.BLOSSOM_KATANA.get());
+                        pOutput.accept(ModItems.SANGUIS_GLADIO.get());
+                        pOutput.accept(ModItems.ARACKOPESH.get());
 
                         // FOOD
                         pOutput.accept(ModItems.MUSHROOM_MEAT.get());

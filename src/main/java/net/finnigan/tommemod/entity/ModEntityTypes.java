@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.entity;
 
 import net.finnigan.tommemod.entity.custom.*;
+import net.finnigan.tommemod.entity.custom.ArackopeshHelpers.GrappleHookEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.registries.DeferredRegister;
@@ -56,4 +57,10 @@ public class ModEntityTypes {
                     .sized(0.8f, 1.5f)
                     .clientTrackingRange(8)
                     .build("end_lantern"));
+    public static final RegistryObject<EntityType<GrappleHookEntity>> GRAPPLE_HOOK = ENTITY_TYPES.register("grapple_hook",
+            () -> EntityType.Builder.<GrappleHookEntity>of(GrappleHookEntity::new, MobCategory.MISC)
+                    .sized(0.25F, 0.25F)
+                    .clientTrackingRange(64)
+                    .updateInterval(10)
+                    .build("grapple_hook"));
 }
