@@ -14,7 +14,7 @@ public class KeyBindings {
     public static final KeyMapping RELEASE_SOULS_CONFIRM = new KeyMapping(
             "key.tommemod.release_souls_confirm",
             InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_T,
+            GLFW.GLFW_KEY_Y,
             "key.categories.tommemod"
     );
 

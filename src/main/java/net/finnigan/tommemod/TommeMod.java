@@ -8,6 +8,7 @@ import net.finnigan.tommemod.item.ModCreativeModTabs;
 import net.finnigan.tommemod.item.ModItems;
 import net.finnigan.tommemod.menu.ModMenuTypes;
 import net.finnigan.tommemod.network.ModNetwork;
+import net.finnigan.tommemod.particle.ModParticleTypes;
 import net.finnigan.tommemod.recipe.ModRecipes;
 import net.finnigan.tommemod.villager.ModPoiTypes;
 import net.finnigan.tommemod.villager.ModVillagers;
@@ -48,6 +49,7 @@ public class TommeMod
 
         ModNetwork.register();
 
+        ModParticleTypes.PARTICLE_TYPES.register(modEventBus);
         ModPoiTypes.POI_TYPES.register(modEventBus);
         ModVillagers.PROFESSIONS.register(modEventBus);
 

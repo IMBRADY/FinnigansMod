@@ -23,6 +23,11 @@ public class RanseurOfUndeadSwordItem extends SwordItem {
     public static final int MAX_SOULS = 5;
     private static final int COOLDOWN_TICKS = 20; // 1 second
 
+    @Override
+    public boolean isDamageable(ItemStack stack) {
+        return false;
+    }
+
     public RanseurOfUndeadSwordItem(Tier tier, int attackDamage, float attackSpeed, Properties properties) {
         super(tier, attackDamage, attackSpeed, properties);
     }

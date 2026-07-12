@@ -21,5 +21,9 @@ public class ModNetwork {
                 ConfirmKeyPacket::encode,
                 ConfirmKeyPacket::decode,
                 ConfirmKeyPacket::handle);
+        CHANNEL.registerMessage(id++, ConfirmKeyPacket.class,
+                ConfirmKeyPacket::encode, ConfirmKeyPacket::decode, ConfirmKeyPacket::handle);
+        CHANNEL.registerMessage(id++, SetPlayerRotationPacket.class,
+                SetPlayerRotationPacket::encode, SetPlayerRotationPacket::decode, SetPlayerRotationPacket::handle);
     }
 }

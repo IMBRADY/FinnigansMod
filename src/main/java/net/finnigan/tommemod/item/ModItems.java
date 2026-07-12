@@ -21,9 +21,15 @@ public class ModItems {
             () -> new LongbowItem(new Item.Properties()
                     .durability(450) // tweak durability vs vanilla bow's 384
             ));
-
     public static final RegistryObject<Item> DYNAMITE = ITEMS.register("dynamite",
             () -> new DynamiteItem(new Item.Properties()));
+
+    public static final RegistryObject<Item> SEER_SWORD = ITEMS.register("seer_sword",
+            () -> new SeerSwordItem(
+                    Tiers.NETHERITE,
+                    20,
+                    -2.6F,
+                    new Item.Properties()));
     public static final RegistryObject<Item> HARMONY = ITEMS.register("harmony",
             () -> new HarmonyItem(
                     Tiers.NETHERITE,
@@ -52,6 +58,18 @@ public class ModItems {
             new InvertedSwordItem(Tiers.NETHERITE,
                     20,
                     -2.6F,
+                    new Item.Properties()));
+    public static final RegistryObject<Item> AQUATANA = ITEMS.register("aquatana",
+            () -> new AquatanaItem(
+                    Tiers.NETHERITE,
+                    20,
+                    -2.4F,
+                    new Item.Properties()));
+    public static final RegistryObject<Item> FIRE_KATANA = ITEMS.register("fire_katana",
+            () -> new FireKatanaItem(
+                    Tiers.NETHERITE,
+                    20,
+                    -2.4F,
                     new Item.Properties()));
 
     public static final RegistryObject<PikeItem> WOODEN_PIKE = ITEMS.register("wooden_pike", () ->

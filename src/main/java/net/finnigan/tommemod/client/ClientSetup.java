@@ -1,6 +1,8 @@
 package net.finnigan.tommemod.client;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.client.particle.AquatanaParticle;
+import net.finnigan.tommemod.client.particle.FireRingParticle;
 import net.finnigan.tommemod.client.renderer.GiantSwordRenderer;
 import net.finnigan.tommemod.client.renderer.MusicNoteRenderer;
 import net.finnigan.tommemod.client.screen.OvenScreen;
@@ -11,6 +13,7 @@ import net.finnigan.tommemod.entity.custom.JellyfishEntity;
 import net.finnigan.tommemod.entity.custom.MushlingEntity;
 import net.finnigan.tommemod.item.ModItems;
 import net.finnigan.tommemod.menu.ModMenuTypes;
+import net.finnigan.tommemod.particle.ModParticleTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -19,6 +22,7 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -47,6 +51,20 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                     Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     JellyfishEntity::checkSurfaceWaterAnimalSpawnRules);
         });
+    }
+
+    @SubscribeEvent
+    public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(ModParticleTypes.AQUATANA_PARTICLE.get(), AquatanaParticle.Provider::new);
+        event.registerSpriteSet(ModParticleTypes.FIRE_LARGE_1.get(), FireRingParticle.Provider::new);
+        event.registerSpriteSet(ModParticleTypes.FIRE_LARGE_2.get(), FireRingParticle.Provider::new);
+        event.registerSpriteSet(ModParticleTypes.FIRE_SMALL_1.get(), FireRingParticle.Provider::new);
+        event.registerSpriteSet(ModParticleTypes.FIRE_SMALL_2.get(), FireRingParticle.Provider::new);
+        for (var particle : new net.minecraftforge.registries.RegistryObject[]{
+                ModParticleTypes.WAVE_1, ModParticleTypes.WAVE_2, ModParticleTypes.WAVE_3, ModParticleTypes.WAVE_4, ModParticleTypes.WAVE_5,
+                ModParticleTypes.FOAM_1, ModParticleTypes.FOAM_2, ModParticleTypes.FOAM_3, ModParticleTypes.FOAM_4, ModParticleTypes.FOAM_5}) {
+            event.registerSpriteSet((net.minecraft.core.particles.ParticleType) particle.get(), AquatanaParticle.Provider::new);
+        }
     }
 
     @SubscribeEvent

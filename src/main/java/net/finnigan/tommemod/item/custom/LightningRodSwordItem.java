@@ -34,6 +34,11 @@ public class LightningRodSwordItem extends SwordItem {
 
     private static final int CHAIN_HOPS_FROM_BEAM = 4; // extra jumps beyond the direct beam hits
 
+    @Override
+    public boolean isDamageable(ItemStack stack) {
+        return false;
+    }
+
     public LightningRodSwordItem(Tier tier, int attackDamage, float attackSpeed, Item.Properties properties) {
         super(tier, attackDamage, attackSpeed, properties);
     }

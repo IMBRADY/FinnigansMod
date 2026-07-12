@@ -21,7 +21,7 @@ import java.util.Random;
 public class SoulCaptureHandler {
 
     private static final Random RANDOM = new Random();
-    private static final double REFERENCE_HEALTH = 40;
+    private static final double REFERENCE_HEALTH = 10; // proportional to capture chance
     private static final double BASE_CHANCE = 0.5;
     private static final double MIN_CHANCE = 0.01;
     private static final double MAX_CHANCE = 0.9;
@@ -32,6 +32,7 @@ public class SoulCaptureHandler {
         if (!(event.getSource().getEntity() instanceof Player player)) return;
         if (victim.level().isClientSide) return;
         if (victim.getMobType() != MobType.UNDEAD) return;
+        // if (victim instanceof WitherBoss) return;
 
         ItemStack weapon = player.getMainHandItem();
         if (!(weapon.getItem() instanceof RanseurOfUndeadSwordItem)) return;
