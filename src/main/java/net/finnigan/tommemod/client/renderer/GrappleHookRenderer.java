@@ -39,13 +39,20 @@ public class GrappleHookRenderer extends EntityRenderer<GrappleHookEntity> {
             return;
         }
 
-        Vec3 start = owner.getEyePosition(partialTicks).add(0, -0.2, 0);
-        Vec3 end = entity.position();
+        // Entity's own interpolated render position — this is the (0,0,0) point of poseStack right now
+        Vec3 entityRenderPos = entity.getPosition(partialTicks);
+
+        Vec3 worldStart = owner.getEyePosition(partialTicks).add(0, -0.2, 0);
+        Vec3 worldEnd = entity.position();
+
+        // Convert both points to be relative to the entity's own render origin
+        Vec3 start = worldStart.subtract(entityRenderPos);
+        Vec3 end = worldEnd.subtract(entityRenderPos);
 
         renderChain(poseStack, buffer, start, end);
         renderHandTip(poseStack, buffer, packedLight, end);
 
-        super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+        super.render(entity, entityYaw, partialTicks, poseStack, buffer, buffer instanceof net.minecraft.client.renderer.MultiBufferSource ? packedLight : packedLight);
     }
 
     @Override

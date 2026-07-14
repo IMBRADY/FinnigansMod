@@ -182,6 +182,14 @@ public class ArackopeshItem extends SwordItem {
             BlockPos spawnPos = center.offset(RANDOM.nextInt(3) - 1, 0, RANDOM.nextInt(3) - 1);
             spider.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, 0, 0);
             spider.addTag(SoulSummoner.SOUL_ALLY_TAG);
+            spider.getPersistentData().putUUID("tommemod_soul_owner", player.getUUID());
+
+            spider.targetSelector.addGoal(0, new net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal(spider));
+            spider.goalSelector.addGoal(2, new net.minecraft.world.entity.ai.goal.MeleeAttackGoal(spider, 1.2, true));
+            spider.targetSelector.addGoal(1, new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal<>(
+                    spider, net.minecraft.world.entity.monster.Monster.class, true,
+                    target -> !target.getTags().contains(SoulSummoner.SOUL_ALLY_TAG) // never target other allies
+            ));
 
             serverLevel.addFreshEntity(spider);
             owned.add(spider.getUUID());

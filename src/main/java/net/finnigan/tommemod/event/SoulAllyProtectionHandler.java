@@ -17,6 +17,7 @@ public class SoulAllyProtectionHandler {
         LivingEntity target = event.getEntity();
         if (!target.getTags().contains(SoulSummoner.SOUL_ALLY_TAG)) return;
         if (!(event.getSource().getEntity() instanceof Player attacker)) return;
+        if (!target.getPersistentData().hasUUID("tommemod_soul_owner")) return;
 
         if (attacker.getUUID().equals(target.getPersistentData().getUUID("tommemod_soul_owner"))) {
             event.setCanceled(true);
@@ -27,6 +28,7 @@ public class SoulAllyProtectionHandler {
         LivingEntity target = event.getEntity();
         if (!target.getTags().contains(SoulSummoner.SOUL_ALLY_TAG)) return;
         if (!(event.getSource().getEntity() instanceof Player attacker)) return;
+        if (!target.getPersistentData().hasUUID("tommemod_soul_owner")) return;
 
         if (attacker.getUUID().equals(target.getPersistentData().getUUID("tommemod_soul_owner"))) {
             event.setCanceled(true);
