@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.network;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.network.packet.SyncAccessoryPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -25,5 +26,7 @@ public class ModNetwork {
                 ConfirmKeyPacket::encode, ConfirmKeyPacket::decode, ConfirmKeyPacket::handle);
         CHANNEL.registerMessage(id++, SetPlayerRotationPacket.class,
                 SetPlayerRotationPacket::encode, SetPlayerRotationPacket::decode, SetPlayerRotationPacket::handle);
+        CHANNEL.registerMessage(id++, SyncAccessoryPacket.class,
+                SyncAccessoryPacket::encode, SyncAccessoryPacket::new, SyncAccessoryPacket::handle);
     }
 }
