@@ -18,12 +18,14 @@ public class AccessoryEffectEvents {
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         Player player = event.player;
-        player.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(h -> {
-            ItemStack totem = h.getStackInSlot(AccessoryHandler.SLOT_TOTEM_ACCESSORY);
-            if (!totem.isEmpty()) {
-                applyTotemBuff(player, totem);
-            }
-        });
+        if (player.isFallFlying()) {
+            player.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(h -> {
+                ItemStack elytra = h.getStackInSlot(AccessoryHandler.SLOT_ELYTRA);
+                if (!elytra.isEmpty() && !player.level().isClientSide && player.tickCount % 20 == 0) {
+                    elytra.hurtAndBreak(1, player, p -> {}); // simple 1-durability-per-second tick; tune rate to taste
+                }
+            });
+        }
     }
 
     private static void applyTotemBuff(Player player, ItemStack totem) {

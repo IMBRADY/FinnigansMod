@@ -2,6 +2,8 @@ package net.finnigan.tommemod.event;
 
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.client.JellyfishRenderer;
+import net.finnigan.tommemod.client.renderer.layer.AccessoryElytraLayer;
+import net.finnigan.tommemod.client.renderer.layer.AccessoryHeadLayer;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.entity.custom.JellyfishEntity;
 import net.finnigan.tommemod.item.custom.LongbowItem;

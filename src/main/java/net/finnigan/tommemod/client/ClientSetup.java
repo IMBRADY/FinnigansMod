@@ -6,6 +6,8 @@ import net.finnigan.tommemod.client.particle.FireRingParticle;
 import net.finnigan.tommemod.client.renderer.GiantSwordRenderer;
 import net.finnigan.tommemod.client.renderer.GrappleHookRenderer;
 import net.finnigan.tommemod.client.renderer.MusicNoteRenderer;
+import net.finnigan.tommemod.client.renderer.layer.AccessoryElytraLayer;
+import net.finnigan.tommemod.client.renderer.layer.AccessoryHeadLayer;
 import net.finnigan.tommemod.client.screen.OvenScreen;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.entity.custom.ButterflyEntity;
@@ -18,6 +20,7 @@ import net.finnigan.tommemod.menu.ModMenuTypes;
 import net.finnigan.tommemod.particle.ModParticleTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.SpawnPlacements;
@@ -97,6 +100,17 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 EndLanternEntity::checkEndLanternSpawnRules,
                 SpawnPlacementRegisterEvent.Operation.REPLACE);
+    }
+
+    @SubscribeEvent
+    public static void onAddLayers(EntityRenderersEvent.AddLayers event) {
+        for (String skinName : event.getSkins()) {
+            PlayerRenderer renderer = event.getSkin(skinName);
+            if (renderer != null) {
+                renderer.addLayer(new AccessoryHeadLayer<>(renderer));
+                renderer.addLayer(new AccessoryElytraLayer<>(renderer, event.getEntityModels()));
+            }
+        }
     }
 
     @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)

@@ -11,7 +11,8 @@
   ],
   "client": [
     "InventoryScreenMixin",
-    "CreativeModeInventoryScreenMixin"
+    "CreativeModeInventoryScreenMixin",
+    "LocalPlayerElytraMixin"
   ],
   "server": [
   ],
