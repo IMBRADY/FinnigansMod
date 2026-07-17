@@ -3,6 +3,7 @@ package net.finnigan.tommemod.client;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.client.particle.AquatanaParticle;
 import net.finnigan.tommemod.client.particle.FireRingParticle;
+import net.finnigan.tommemod.client.renderer.BossCrabRenderer;
 import net.finnigan.tommemod.client.renderer.GiantSwordRenderer;
 import net.finnigan.tommemod.client.renderer.GrappleHookRenderer;
 import net.finnigan.tommemod.client.renderer.MusicNoteRenderer;
@@ -10,6 +11,7 @@ import net.finnigan.tommemod.client.renderer.layer.AccessoryElytraLayer;
 import net.finnigan.tommemod.client.renderer.layer.AccessoryHeadLayer;
 import net.finnigan.tommemod.client.screen.OvenScreen;
 import net.finnigan.tommemod.entity.ModEntityTypes;
+import net.finnigan.tommemod.entity.custom.Bosses.BossCrab.BossCrabEntity;
 import net.finnigan.tommemod.entity.custom.ButterflyEntity;
 import net.finnigan.tommemod.entity.custom.EndLanternEntity;
 import net.finnigan.tommemod.entity.custom.JellyfishEntity;
@@ -85,6 +87,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
         event.put(ModEntityTypes.BUTTERFLY.get(), ButterflyEntity.createAttributes().build());
         event.put(ModEntityTypes.END_LANTERN.get(), EndLanternEntity.createAttributes().build());
         event.put(ModEntityTypes.MUSHLING.get(), MushlingEntity.createAttributes().build());
+        event.put(ModEntityTypes.BOSS_CRAB.get(), BossCrabEntity.createAttributes().build());
     }
 
     @SubscribeEvent
@@ -125,7 +128,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.MUSIC_NOTE.get(), MusicNoteRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.GIANT_SWORD.get(), GiantSwordRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.GRAPPLE_HOOK.get(), GrappleHookRenderer::new);
-
+            event.registerEntityRenderer(ModEntityTypes.BOSS_CRAB.get(), BossCrabRenderer::new);
         }
     }
 }

@@ -1,0 +1,12 @@
+{
+  "boss_crab_land": {
+    "subtitle": "subtitles.entity.boss_crab.land",
+    "sounds": [
+      {
+        "name": "tommemod:boss_crab_land",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  }
+}

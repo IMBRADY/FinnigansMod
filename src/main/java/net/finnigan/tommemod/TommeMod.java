@@ -10,6 +10,7 @@ import net.finnigan.tommemod.menu.ModMenuTypes;
 import net.finnigan.tommemod.network.ModNetwork;
 import net.finnigan.tommemod.particle.ModParticleTypes;
 import net.finnigan.tommemod.recipe.ModRecipes;
+import net.finnigan.tommemod.sound.ModSounds;
 import net.finnigan.tommemod.villager.ModPoiTypes;
 import net.finnigan.tommemod.villager.ModVillagers;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -43,6 +44,7 @@ public class TommeMod
         ModItems.register(modEventBus);
         ModRecipes.register(modEventBus);
 
+        ModSounds.SOUND_EVENTS.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModMenuTypes.MENUS.register(modEventBus);

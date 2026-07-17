@@ -2,6 +2,7 @@ package net.finnigan.tommemod.entity;
 
 import net.finnigan.tommemod.entity.custom.*;
 import net.finnigan.tommemod.entity.custom.ArackopeshHelpers.GrappleHookEntity;
+import net.finnigan.tommemod.entity.custom.Bosses.BossCrab.BossCrabEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.registries.DeferredRegister;
@@ -15,6 +16,11 @@ import net.finnigan.tommemod.entity.custom.EndLanternEntity;
 public class ModEntityTypes {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
             DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MOD_ID);
+
+    public static final RegistryObject<EntityType<BossCrabEntity>> BOSS_CRAB =
+            ENTITY_TYPES.register("boss_crab", () -> EntityType.Builder.of(BossCrabEntity::new, MobCategory.MONSTER)
+                    .sized(3.6f, 2.0f) // hitbox
+                    .build("boss_crab"));
 
     public static final RegistryObject<EntityType<DynamiteEntity>> DYNAMITE =
             ENTITY_TYPES.register("dynamite",
@@ -35,8 +41,7 @@ public class ModEntityTypes {
                     .sized(1.5F, 4.0F) // adjust to match giant sword's visual
                     .clientTrackingRange(64)
                     .updateInterval(1)
-                    .build("giant_sword")
-    );
+                    .build("giant_sword"));
     public static final RegistryObject<EntityType<JellyfishEntity>> JELLYFISH =
             ENTITY_TYPES.register("jellyfish", () -> EntityType.Builder.of(JellyfishEntity::new, MobCategory.WATER_CREATURE)
                     .sized(0.6f, 2.0f) // Width, Height of hitbox
