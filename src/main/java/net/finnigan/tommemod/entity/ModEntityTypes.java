@@ -20,6 +20,7 @@ public class ModEntityTypes {
     public static final RegistryObject<EntityType<BossCrabEntity>> BOSS_CRAB =
             ENTITY_TYPES.register("boss_crab", () -> EntityType.Builder.of(BossCrabEntity::new, MobCategory.MONSTER)
                     .sized(3.6f, 2.0f) // hitbox
+                    .updateInterval(1)
                     .build("boss_crab"));
 
     public static final RegistryObject<EntityType<DynamiteEntity>> DYNAMITE =
@@ -28,8 +29,8 @@ public class ModEntityTypes {
                             .<DynamiteEntity>of(
                                     DynamiteEntity::new, MobCategory.MISC)
                             .sized(0.25F, 0.25F)
-                            .clientTrackingRange(4)
-                            .updateInterval(10)
+                            .clientTrackingRange(4) //how close (in blocks) entity sends packets to player (if player outside range, entity could pop out of existence (not necessarily despawn) if range too big, takes up too much bandwidth)
+                            .updateInterval(10) //how frequently (in ticks) entity updates (high num = less cpu usage, more choppy)
                             .build("dynamite"));
     public static final RegistryObject<EntityType<MusicNoteEntity>> MUSIC_NOTE =
             ENTITY_TYPES.register("music_note1",
@@ -68,4 +69,10 @@ public class ModEntityTypes {
                     .clientTrackingRange(64)
                     .updateInterval(10)
                     .build("grapple_hook"));
+    public static final RegistryObject<EntityType<CapybaraEntity>> CAPYBARA =
+            ENTITY_TYPES.register("capybara", () -> EntityType.Builder.of(CapybaraEntity::new, MobCategory.CREATURE)
+                    .sized(0.8F, 0.6F)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("capybara"));
 }

@@ -1,5 +1,6 @@
 package net.finnigan.tommemod.client;
 
+import net.finnigan.tommemod.client.model.JellyfishModel;
 import net.finnigan.tommemod.entity.custom.JellyfishEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;

@@ -33,6 +33,7 @@ public class EndLanternEntity extends PathfinderMob implements GeoEntity {
         super(entityType, level);
         this.moveControl = new FlyingMoveControl(this, 10, true);
         this.setNoGravity(true);
+        this.xpReward = 5;
     }
 
     public static AttributeSupplier.Builder createAttributes() {

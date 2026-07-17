@@ -37,6 +37,7 @@ public class JellyfishEntity extends WaterAnimal implements GeoEntity {
         super(type, level);
         this.moveControl = new JellyfishMoveControl(this);
         this.setPathfindingMalus(net.minecraft.world.level.pathfinder.BlockPathTypes.WATER, 0.0F);
+        this.xpReward = 3;
     }
 
 

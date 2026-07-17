@@ -1,4 +1,4 @@
-package net.finnigan.tommemod.client;
+package net.finnigan.tommemod.client.model;
 
 import net.finnigan.tommemod.entity.custom.JellyfishEntity;
 import net.minecraft.resources.ResourceLocation;

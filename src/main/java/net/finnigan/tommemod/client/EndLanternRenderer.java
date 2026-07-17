@@ -1,6 +1,6 @@
 package net.finnigan.tommemod.client;
 
-import net.finnigan.tommemod.client.EndLanternModel;
+import net.finnigan.tommemod.client.model.EndLanternModel;
 import net.finnigan.tommemod.entity.custom.EndLanternEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;

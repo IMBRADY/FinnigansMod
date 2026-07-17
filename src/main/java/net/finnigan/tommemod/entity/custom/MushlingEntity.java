@@ -41,6 +41,7 @@ public class MushlingEntity extends PathfinderMob implements GeoEntity {
 
     public MushlingEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
+        this.xpReward = 5;
     }
 
     @Override

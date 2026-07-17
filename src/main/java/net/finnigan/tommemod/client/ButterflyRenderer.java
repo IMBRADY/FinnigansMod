@@ -1,6 +1,6 @@
 package net.finnigan.tommemod.client;
 
-import net.finnigan.tommemod.client.ButterflyModel;
+import net.finnigan.tommemod.client.model.ButterflyModel;
 import net.finnigan.tommemod.entity.custom.ButterflyEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;

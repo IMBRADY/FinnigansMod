@@ -36,6 +36,7 @@ public class ButterflyEntity extends PathfinderMob implements GeoEntity {
 
     public ButterflyEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
+        this.xpReward = 20;
         this.moveControl = new FlyingMoveControl(this, 20, true);
         this.setNoGravity(true);
     }
