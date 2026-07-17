@@ -20,12 +20,15 @@ public class AccessoryHandler extends ItemStackHandler {
 
     @Override
     public boolean isItemValid(int slot, ItemStack stack) {
-        return switch (slot) {
+        boolean result = switch (slot) {
             case SLOT_HEAD_ACCESSORY -> AccessoryItems.isHeadAccessory(stack);
             case SLOT_ELYTRA -> AccessoryItems.isElytraLike(stack);
             case SLOT_TOTEM_ACCESSORY -> AccessoryItems.isTotemAccessory(stack);
             default -> false;
         };
+        com.mojang.logging.LogUtils.getLogger().info(
+                "[tommemod] isItemValid check: slot={}, item={}, result={}", slot, stack.getItem(), result);
+        return result;
     }
 
     @Override

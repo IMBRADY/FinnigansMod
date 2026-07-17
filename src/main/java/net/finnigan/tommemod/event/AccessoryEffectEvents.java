@@ -3,29 +3,47 @@ package net.finnigan.tommemod.event;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.capability.accessory.AccessoryHandler;
 import net.finnigan.tommemod.capability.accessory.ModCapabilities;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import top.theillusivec4.caelus.api.CaelusApi;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID)
 public class AccessoryEffectEvents {
+
+    private static final UUID ACCESSORY_ELYTRA_MODIFIER_ID = UUID.fromString("a1b2c3d4-0000-0000-0000-000000000001"); // any fixed UUID unique to this mod
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         Player player = event.player;
-        if (player.isFallFlying()) {
-            player.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(h -> {
-                ItemStack elytra = h.getStackInSlot(AccessoryHandler.SLOT_ELYTRA);
-                if (!elytra.isEmpty() && !player.level().isClientSide && player.tickCount % 20 == 0) {
-                    elytra.hurtAndBreak(1, player, p -> {}); // simple 1-durability-per-second tick; tune rate to taste
-                }
-            });
-        }
+
+        player.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(h -> {
+            ItemStack elytra = h.getStackInSlot(AccessoryHandler.SLOT_ELYTRA);
+
+            AttributeInstance flightAttribute = player.getAttribute(CaelusApi.getInstance().getFlightAttribute());
+            if (flightAttribute == null) return;
+
+            flightAttribute.removeModifier(ACCESSORY_ELYTRA_MODIFIER_ID);
+
+            if (!elytra.isEmpty() && elytra.canElytraFly(player)) {
+                flightAttribute.addTransientModifier(new AttributeModifier(
+                        ACCESSORY_ELYTRA_MODIFIER_ID, "tommemod accessory elytra", 1.0D, AttributeModifier.Operation.ADDITION));
+            }
+
+            // durability damage while gliding, since vanilla only damages the chest-slot elytra
+            if (player.isFallFlying() && !player.level().isClientSide && !elytra.isEmpty() && player.tickCount % 20 == 0) {
+                elytra.hurtAndBreak(1, player, p -> {});
+            }
+        });
     }
 
     private static void applyTotemBuff(Player player, ItemStack totem) {
@@ -48,5 +66,21 @@ public class AccessoryEffectEvents {
                 player.drop(newStack, false);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerDeath(net.minecraftforge.event.entity.living.LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof Player player) || player.level().isClientSide) return;
+        if (player.level().getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_KEEPINVENTORY)) return;
+
+        player.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(h -> {
+            for (int slot = 0; slot < 3; slot++) {
+                ItemStack stack = h.getStackInSlot(slot);
+                if (!stack.isEmpty()) {
+                    player.drop(stack, true, false);
+                    h.setStackInSlot(slot, ItemStack.EMPTY);
+                }
+            }
+        });
     }
 }

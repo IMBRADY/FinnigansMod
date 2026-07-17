@@ -32,7 +32,7 @@ public class AccessoryHeadLayer<T extends AbstractClientPlayer, M extends Player
             poseStack.pushPose();
             // VERIFY: getParentModel() must be castable to HeadedModel (PlayerModel implements this in vanilla)
             ((HeadedModel) getParentModel()).getHead().translateAndRotate(poseStack);
-            poseStack.translate(0.0D, -0.20D, 0.0D); // pushes it up above the skull rather than clipping into it — tweak to taste
+            poseStack.translate(2.0D, -0.15D, 0.0D); // pushes it up above the skull rather than clipping into it — tweak to taste
             poseStack.scale(0.7F, -0.7F, 0.7F); // banners render "inside-out" by default; negative Y/Z flips it right-side-up above the head
 
             // VERIFY: renderStatic's exact overload/arg order in your ItemRenderer — this is the most likely spot to need adjustment

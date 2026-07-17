@@ -37,10 +37,14 @@ public class CapabilityHandler {
     @SubscribeEvent
     public static void clone(PlayerEvent.Clone event) {
         if (!event.isWasDeath()) return;
-        event.getOriginal().getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(oldHandler -> {
-            event.getEntity().getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(newHandler -> {
-                newHandler.deserializeNBT(oldHandler.serializeNBT());
-            });
-        });
+
+        boolean keepInventory = event.getEntity().level().getGameRules()
+                .getBoolean(net.minecraft.world.level.GameRules.RULE_KEEPINVENTORY);
+
+        if (keepInventory) {
+            event.getOriginal().getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(oldHandler ->
+                    event.getEntity().getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(newHandler ->
+                            newHandler.deserializeNBT(oldHandler.serializeNBT())));
+        }
     }
 }

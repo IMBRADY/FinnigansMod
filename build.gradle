@@ -137,6 +137,10 @@ repositories {
             includeGroup("com.eliotlash.mclib")
         }
     }
+    maven {
+        name = 'C4 Maven'
+        url = 'https://maven.theillusivec4.top/'
+    }
 }
 
 dependencies {
@@ -147,6 +151,7 @@ dependencies {
     // then special handling is done to allow a setup of a vanilla dependency without the use of an external repository.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.20.1:${geckolib_version}")
+    implementation fg.deobf("top.theillusivec4.caelus:caelus-forge:3.2.0+1.20.1")
     implementation("com.eliotlash.mclib:mclib:20")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'

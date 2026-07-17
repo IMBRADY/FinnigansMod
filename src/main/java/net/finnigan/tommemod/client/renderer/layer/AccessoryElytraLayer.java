@@ -34,7 +34,9 @@ public class AccessoryElytraLayer<T extends AbstractClientPlayer, M extends Huma
 
         player.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(handler -> {
             ItemStack elytra = handler.getStackInSlot(AccessoryHandler.SLOT_ELYTRA);
-            if (elytra.isEmpty() || !player.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) return;
+            ItemStack chestItem = player.getItemBySlot(EquipmentSlot.CHEST);
+
+            if (elytra.isEmpty() || chestItem.getItem() instanceof net.minecraft.world.item.ElytraItem) return;
 
             poseStack.pushPose();
             poseStack.translate(0.0D, 0.0D, 0.125D);

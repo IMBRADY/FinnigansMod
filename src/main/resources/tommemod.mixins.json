@@ -7,12 +7,13 @@
   "mixins": [
     "InventoryMenuMixin",
     "AbstractContainerMenuAccessor",
-    "PlayerElytraMixin"
+    "LivingEntityTotemMixin"
   ],
   "client": [
     "InventoryScreenMixin",
-    "CreativeModeInventoryScreenMixin",
-    "LocalPlayerElytraMixin"
+    "CreativeInventoryPositionMixin",
+    "CreativeInventoryRenderMixin",
+    "AbstractContainerScreenAccessor"
   ],
   "server": [
   ],
