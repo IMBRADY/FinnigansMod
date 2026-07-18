@@ -75,4 +75,10 @@ public class ModEntityTypes {
                     .clientTrackingRange(8)
                     .updateInterval(3)
                     .build("capybara"));
+    public static final RegistryObject<EntityType<MantaEntity>> MANTA = ENTITY_TYPES.register("manta",
+            () -> EntityType.Builder.of(MantaEntity::new, MobCategory.WATER_AMBIENT)
+                    .sized(1.1f, 0.3f)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("manta"));
 }

@@ -45,11 +45,6 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                     (stack, level, entity, seed) ->
                             entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F);
             MenuScreens.register(ModMenuTypes.OVEN_MENU.get(), OvenScreen::new);
-            SpawnPlacements.register(
-                    ModEntityTypes.JELLYFISH.get(),
-                    SpawnPlacements.Type.IN_WATER,
-                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    JellyfishEntity::checkSurfaceWaterAnimalSpawnRules);
         });
         event.enqueueWork(() -> {
             ItemProperties.register(
@@ -83,8 +78,11 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
         event.put(ModEntityTypes.MUSHLING.get(), MushlingEntity.createAttributes().build());
         event.put(ModEntityTypes.BOSS_CRAB.get(), BossCrabEntity.createAttributes().build());
         event.put(ModEntityTypes.CAPYBARA.get(), CapybaraEntity.createAttributes().build());
+        event.put(ModEntityTypes.MANTA.get(), CapybaraEntity.createAttributes().build());
     }
 
+    // IMPORTANT
+    // FOR MULTIPLAYER SERVERS MOB SPAWNS MUST GO IN HERE OR ELSE THEY WILL NOT SPAWN!!!
     @SubscribeEvent
     public static void registerSpawnPlacements(SpawnPlacementRegisterEvent event) {
         event.register(ModEntityTypes.MUSHLING.get(),
@@ -92,11 +90,25 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 MushlingEntity::checkMushlingSpawnRules,
                 SpawnPlacementRegisterEvent.Operation.REPLACE);
-
+        event.register(ModEntityTypes.CAPYBARA.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                CapybaraEntity::checkCapybaraSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
         event.register(ModEntityTypes.END_LANTERN.get(),
                 SpawnPlacements.Type.NO_RESTRICTIONS,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 EndLanternEntity::checkEndLanternSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
+        event.register(ModEntityTypes.MANTA.get(),
+                SpawnPlacements.Type.IN_WATER,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                MantaEntity::checkMantaSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
+        event.register(ModEntityTypes.JELLYFISH.get(),
+                SpawnPlacements.Type.IN_WATER,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                JellyfishEntity::checkSurfaceWaterAnimalSpawnRules,
                 SpawnPlacementRegisterEvent.Operation.REPLACE);
     }
 
@@ -125,6 +137,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.GRAPPLE_HOOK.get(), GrappleHookRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.BOSS_CRAB.get(), BossCrabRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.CAPYBARA.get(), CapybaraRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.MANTA.get(), MantaRenderer::new);
         }
     }
 }
