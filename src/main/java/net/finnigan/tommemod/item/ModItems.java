@@ -3,6 +3,7 @@ package net.finnigan.tommemod.item;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.entity.custom.ModdedSwordItem;
 import net.finnigan.tommemod.item.custom.*;
+import net.finnigan.tommemod.item.custom.totems.*;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
@@ -149,6 +150,19 @@ public class ModItems {
                     new Item.Properties()
             )
     );
+
+    public static final RegistryObject<Item> TOTEM_OF_LUCKY_DICE = ITEMS.register("totem_of_lucky_dice",
+            () -> new TotemOfLuckyDiceItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_THE_SUN = ITEMS.register("totem_of_the_sun",
+            () -> new TotemOfTheSunItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_THE_MOON = ITEMS.register("totem_of_the_moon",
+            () -> new TotemOfTheMoonItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_TRIGGER_FINGER = ITEMS.register("totem_of_trigger_finger",
+            () -> new TotemOfTriggerfingerItem(new Item.Properties().stacksTo(1))); // pending your cooldown code
+    public static final RegistryObject<Item> TOTEM_OF_WRATH = ITEMS.register("totem_of_wrath",
+            () -> new TotemOfWrathItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_DOUBLE_STRIKE = ITEMS.register("totem_of_double_strike",
+            () -> new TotemOfDoublestrikeItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> MUSKET = ITEMS.register("musket",
             () -> new MusketItem(new Item.Properties()));

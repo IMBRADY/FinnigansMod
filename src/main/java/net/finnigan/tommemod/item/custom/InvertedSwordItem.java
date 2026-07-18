@@ -2,6 +2,7 @@ package net.finnigan.tommemod.item.custom;
 
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.entity.custom.GiantSwordEntity;
+import net.finnigan.tommemod.item.custom.totems.TotemUtil;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -56,7 +57,7 @@ public class InvertedSwordItem extends SwordItem {
                     SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 0.5F, 0.7F);
         }
 
-        player.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, COOLDOWN_TICKS));
         player.swing(hand);
         return InteractionResultHolder.success(stack);
     }

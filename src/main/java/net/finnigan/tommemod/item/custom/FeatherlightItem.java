@@ -2,6 +2,7 @@ package net.finnigan.tommemod.item.custom;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import net.finnigan.tommemod.item.custom.totems.TotemUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -24,6 +25,7 @@ import java.util.UUID;
 public class FeatherlightItem extends SwordItem {
 
     private static final UUID SPEED_MODIFIER_UUID = UUID.fromString("b2c1a6e4-5f3e-4a2d-9c1a-7e6f8d2b1a90");
+    private static final int COOLDOWN_TICKS = 30;
 
     public FeatherlightItem(Tier tier, int attackDamageModifier, float attackSpeedModifier, Properties properties) {
         super(tier, attackDamageModifier, attackSpeedModifier, properties);
@@ -91,7 +93,7 @@ public class FeatherlightItem extends SwordItem {
                     SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1.0F, 1.2F);
         }
 
-        player.getCooldowns().addCooldown(this, 30);
+        player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, COOLDOWN_TICKS));
 
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }

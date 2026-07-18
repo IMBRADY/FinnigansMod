@@ -2,6 +2,7 @@ package net.finnigan.tommemod.item.custom;
 
 import net.finnigan.tommemod.entity.custom.ArackopeshHelpers.GrappleHookEntity;
 import net.finnigan.tommemod.entity.custom.UndeadSwordHelpers.SoulSummoner;
+import net.finnigan.tommemod.item.custom.totems.TotemUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -23,6 +24,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
+
+import static net.minecraft.world.level.block.SculkSensorBlock.COOLDOWN_TICKS;
 
 public class ArackopeshItem extends SwordItem {
 
@@ -97,7 +100,7 @@ public class ArackopeshItem extends SwordItem {
             var entity = serverLevel.getEntity(hookId);
             if (entity != null) entity.discard(); // triggers GrappleHookEntity.remove() -> cleans up the map
         }
-        player.getCooldowns().addCooldown(this, GRAPPLE_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, GRAPPLE_COOLDOWN_TICKS));
     }
 
     public static void clearHookFor(UUID ownerUUID) {
@@ -137,7 +140,7 @@ public class ArackopeshItem extends SwordItem {
             hook.shoot(look.x, look.y, look.z, 2.2F, 0.5F); // speed, inaccuracy
             level.addFreshEntity(hook);
 
-            player.getCooldowns().addCooldown(this, GRAPPLE_COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, GRAPPLE_COOLDOWN_TICKS));
             level.playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.FISHING_BOBBER_THROW, SoundSource.PLAYERS, 1.0F, 0.8F);
         }
@@ -196,7 +199,7 @@ public class ArackopeshItem extends SwordItem {
             SPIDER_EXPIRY.put(spider.getUUID(), serverLevel.getGameTime() + SPIDER_LIFETIME_TICKS);
         }
 
-        player.getCooldowns().addCooldown(this, WEB_SUMMON_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, WEB_SUMMON_COOLDOWN_TICKS));
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.SPIDER_AMBIENT, SoundSource.PLAYERS, 1.0F, 0.7F);
 

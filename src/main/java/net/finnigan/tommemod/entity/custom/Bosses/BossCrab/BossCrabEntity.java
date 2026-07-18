@@ -4,6 +4,7 @@ import net.finnigan.tommemod.sound.ModSounds;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
@@ -129,7 +130,11 @@ public class BossCrabEntity extends Monster implements GeoEntity {
     protected void registerGoals() {
         // Movement + attacks are fully custom in customServerAiStep(). Only target
         // acquisition uses a vanilla goal.
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true, false));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false,
+                (LivingEntity target) -> {
+                    if (!(target instanceof Player player)) return false;
+                    return !player.isSpectator() && !player.isCreative();
+                }));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
     }
 

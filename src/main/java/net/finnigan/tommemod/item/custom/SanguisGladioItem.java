@@ -1,5 +1,6 @@
 package net.finnigan.tommemod.item.custom;
 
+import net.finnigan.tommemod.item.custom.totems.TotemUtil;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -107,7 +108,7 @@ public class SanguisGladioItem extends SwordItem {
         if (!level.isClientSide) {
             stack.getOrCreateTag().putInt(TAG_KILLS, kills - ABILITY_COST_KILLS);
             player.heal(HEAL_AMOUNT);
-            player.getCooldowns().addCooldown(this, ABILITY_COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, ABILITY_COOLDOWN_TICKS));
         }
 
         level.playSound(null, player.getX(), player.getY(), player.getZ(),

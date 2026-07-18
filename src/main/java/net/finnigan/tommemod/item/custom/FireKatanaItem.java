@@ -2,6 +2,7 @@ package net.finnigan.tommemod.item.custom;
 
 import net.finnigan.tommemod.entity.custom.UndeadSwordHelpers.SoulSummoner;
 import net.finnigan.tommemod.item.custom.FireKatanaHelpers.FireZoneManager;
+import net.finnigan.tommemod.item.custom.totems.TotemUtil;
 import net.finnigan.tommemod.particle.ModParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.server.level.ServerLevel;
@@ -69,7 +70,7 @@ public class FireKatanaItem extends SwordItem {
 
         if (!level.isClientSide) {
             performFireRing((ServerLevel) level, player);
-            player.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, COOLDOWN_TICKS));
         }
 
         return InteractionResultHolder.success(stack);

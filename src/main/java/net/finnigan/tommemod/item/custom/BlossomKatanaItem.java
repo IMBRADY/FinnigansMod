@@ -2,6 +2,7 @@ package net.finnigan.tommemod.item.custom;
 
 import net.finnigan.tommemod.entity.custom.UndeadSwordHelpers.SoulSummoner;
 import net.finnigan.tommemod.item.custom.BlossomKatanaHelpers.BlossomAuraEvents;
+import net.finnigan.tommemod.item.custom.totems.TotemUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -47,7 +48,7 @@ public class BlossomKatanaItem extends SwordItem {
 
         if (!level.isClientSide) {
             triggerBlossomAura(level, player);
-            player.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, COOLDOWN_TICKS));
 
             // Stamp the expiry time so the client can read it for the texture swap
             stack.getOrCreateTag().putLong(TAG_AURA_END_TIME, level.getGameTime() + DURATION_TICKS);

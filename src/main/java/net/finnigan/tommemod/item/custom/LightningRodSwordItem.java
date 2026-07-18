@@ -1,5 +1,6 @@
 package net.finnigan.tommemod.item.custom;
 
+import net.finnigan.tommemod.item.custom.totems.TotemUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -93,7 +94,7 @@ public class LightningRodSwordItem extends SwordItem {
                     SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 0.5F, 1.0F);
         }
 
-        player.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, COOLDOWN_TICKS));
         player.swing(hand);
         return InteractionResultHolder.success(stack);
     }

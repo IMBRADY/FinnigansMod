@@ -18,11 +18,13 @@ public class ModCreativeModTabs {
             () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.DYNAMITE.get()))
                     .title(Component.translatable("creativetab.modded_items_tab"))
                     .displayItems((pParameters, pOutput) -> {
-                        // MISC
-                        pOutput.accept(ModItems.END_LANTERN.get());
-                        pOutput.accept(ModItems.BULLET.get());
-                        pOutput.accept(ModItems.DYNAMITE.get());
-                        pOutput.accept(ModItems.FIN.get());
+                        // TOTEMS
+                        pOutput.accept(ModItems.TOTEM_OF_LUCKY_DICE.get());
+                        pOutput.accept(ModItems.TOTEM_OF_THE_MOON.get());
+                        pOutput.accept(ModItems.TOTEM_OF_THE_SUN.get());
+                        pOutput.accept(ModItems.TOTEM_OF_DOUBLE_STRIKE.get());
+                        pOutput.accept(ModItems.TOTEM_OF_WRATH.get());
+                        pOutput.accept(ModItems.TOTEM_OF_TRIGGER_FINGER.get());
 
                         // WEAPONS
                         pOutput.accept(ModItems.LONGBOW.get());
@@ -67,6 +69,12 @@ public class ModCreativeModTabs {
                         // FOOD
                         pOutput.accept(ModItems.MUSHROOM_MEAT.get());
                         pOutput.accept(ModItems.COOKED_MUSHROOM_MEAT.get());
+
+                        // MISC
+                        pOutput.accept(ModItems.END_LANTERN.get());
+                        pOutput.accept(ModItems.BULLET.get());
+                        pOutput.accept(ModItems.DYNAMITE.get());
+                        pOutput.accept(ModItems.FIN.get());
                     })
                     .build());
 

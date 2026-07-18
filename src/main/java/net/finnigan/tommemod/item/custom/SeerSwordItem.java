@@ -1,5 +1,6 @@
 package net.finnigan.tommemod.item.custom;
 
+import net.finnigan.tommemod.item.custom.totems.TotemUtil;
 import net.finnigan.tommemod.network.ModNetwork;
 import net.finnigan.tommemod.network.SetPlayerRotationPacket;
 import net.minecraft.core.particles.ParticleTypes;
@@ -55,7 +56,7 @@ public class SeerSwordItem extends SwordItem {
                 teleportForward(player);
             }
 
-            player.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, COOLDOWN_TICKS));
         }
 
         return InteractionResultHolder.success(stack);

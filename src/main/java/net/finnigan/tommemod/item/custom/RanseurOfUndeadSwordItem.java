@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.item.custom;
 
 import net.finnigan.tommemod.entity.custom.UndeadSwordHelpers.SoulSummoner;
+import net.finnigan.tommemod.item.custom.totems.TotemUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -123,7 +124,7 @@ public class RanseurOfUndeadSwordItem extends SwordItem {
 
         if (!activeSummons.isEmpty()) {
             recall(stack, serverLevel, player);
-            player.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, COOLDOWN_TICKS));
             return InteractionResultHolder.success(stack);
         }
 
@@ -147,7 +148,7 @@ public class RanseurOfUndeadSwordItem extends SwordItem {
 
         player.displayClientMessage(Component.literal("The blade unleashes " + summoned.size() + " soul(s)!")
                 .withStyle(ChatFormatting.DARK_PURPLE), true);
-        player.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, COOLDOWN_TICKS));
         return InteractionResultHolder.success(stack);
     }
 

@@ -2,6 +2,7 @@ package net.finnigan.tommemod.item.custom;
 
 import net.finnigan.tommemod.entity.custom.MusicNoteEntity;
 import net.finnigan.tommemod.entity.custom.NoteSpawnScheduler;
+import net.finnigan.tommemod.item.custom.totems.TotemUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -17,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class HarmonyItem extends SwordItem {
 
+    private static final int COOLDOWN_TICKS = 40;
     public HarmonyItem(Tier tier, int attackDamageModifier, float attackSpeedModifier, Properties properties) {
         super(tier, attackDamageModifier, attackSpeedModifier, properties);
     }
@@ -45,7 +47,7 @@ public class HarmonyItem extends SwordItem {
             spawnMusicNotes(level, player);
         }
 
-        player.getCooldowns().addCooldown(this, 60);
+        player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, COOLDOWN_TICKS));
 
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }

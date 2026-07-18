@@ -2,6 +2,7 @@ package net.finnigan.tommemod.item.custom;
 
 import net.finnigan.tommemod.entity.custom.UndeadSwordHelpers.SoulSummoner;
 import net.finnigan.tommemod.item.custom.AquatanaHelpers.DashTrailManager;
+import net.finnigan.tommemod.item.custom.totems.TotemUtil;
 import net.finnigan.tommemod.particle.ModParticleTypes;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -77,7 +78,7 @@ public class AquatanaItem extends SwordItem {
 
         if (!level.isClientSide) {
             performDash((ServerLevel) level, player);
-            player.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, COOLDOWN_TICKS));
         }
 
         return InteractionResultHolder.success(stack);

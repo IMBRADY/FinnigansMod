@@ -1,6 +1,12 @@
 {
   "replace": false,
   "values": [
-    "minecraft:totem_of_undying"
+    "minecraft:totem_of_undying",
+    "tommemod:totem_of_lucky_dice",
+    "tommemod:totem_of_the_sun",
+    "tommemod:totem_of_the_moon",
+    "tommemod:totem_of_triggerfinger",
+    "tommemod:totem_of_wrath",
+    "tommemod:totem_of_doublestrike"
   ]
 }

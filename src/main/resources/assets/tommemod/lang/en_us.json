@@ -23,6 +23,13 @@
   "item.tommemod.diamond_dagger": "Diamond Dagger",
   "item.tommemod.netherite_dagger": "Netherite Dagger",
 
+  "item.tommemod.totem_of_lucky_dice": "Totem of Lucky Dice",
+  "item.tommemod.totem_of_the_sun": "Totem of the Sun",
+  "item.tommemod.totem_of_the_moon": "Totem of the Moon",
+  "item.tommemod.totem_of_double_strike": "Totem of Double Strike",
+  "item.tommemod.totem_of_wrath": "Totem of Wrath",
+  "item.tommemod.totem_of_triggerfinger": "Totem of Trigger Finger",
+
   "block.tommemod.oven": "Oven",
   "item.tommemod.oven": "Oven",
 
@@ -34,6 +41,7 @@
   "entity.tommemod.boss_crab": "Boss Crab",
   "entity.tommemod.capybara": "Capybara",
   "entity.tommemod.manta": "Manta",
+  "entity.tommemod.tiger": "Tiger",
 
   "item.tommemod.mushroom_meat": "Mushroom Meat",
   "item.tommemod.cooked_mushroom_meat": "Cooked Mushroom Meat",
