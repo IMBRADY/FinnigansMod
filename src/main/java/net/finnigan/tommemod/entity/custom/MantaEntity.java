@@ -46,6 +46,16 @@ public class MantaEntity extends WaterAnimal implements GeoEntity {
     }
 
     @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        return super.getDimensions(pose);
+    }
+
+    @Override
+    protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
+        return dimensions.height * 0.95F; // default is usually ~0.85; raise/lower this ratio
+    }
+
+    @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new RandomSwimmingGoal(this, 8.0, 10));
         this.goalSelector.addGoal(1, new RandomLookAroundGoal(this));

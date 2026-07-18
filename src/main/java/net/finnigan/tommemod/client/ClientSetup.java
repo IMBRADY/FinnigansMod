@@ -78,7 +78,8 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
         event.put(ModEntityTypes.MUSHLING.get(), MushlingEntity.createAttributes().build());
         event.put(ModEntityTypes.BOSS_CRAB.get(), BossCrabEntity.createAttributes().build());
         event.put(ModEntityTypes.CAPYBARA.get(), CapybaraEntity.createAttributes().build());
-        event.put(ModEntityTypes.MANTA.get(), CapybaraEntity.createAttributes().build());
+        event.put(ModEntityTypes.MANTA.get(), MantaEntity.createAttributes().build());
+        event.put(ModEntityTypes.TIGER.get(), TigerEntity.createAttributes().build());
     }
 
     // IMPORTANT
@@ -110,6 +111,11 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 JellyfishEntity::checkSurfaceWaterAnimalSpawnRules,
                 SpawnPlacementRegisterEvent.Operation.REPLACE);
+        event.register(ModEntityTypes.TIGER.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                TigerEntity::checkTigerSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
     }
 
     @SubscribeEvent
@@ -138,6 +144,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.BOSS_CRAB.get(), BossCrabRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.CAPYBARA.get(), CapybaraRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.MANTA.get(), MantaRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.TIGER.get(), TigerRenderer::new);
         }
     }
 }
