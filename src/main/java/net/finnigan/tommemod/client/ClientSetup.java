@@ -220,40 +220,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
         event.put(ModEntityTypes.MANTA.get(), MantaEntity.createAttributes().build());
         event.put(ModEntityTypes.TIGER.get(), TigerEntity.createAttributes().build());
         event.put(ModEntityTypes.BIRDIE.get(), BirdieEntity.createAttributes().build());
-    }
-
-    @SubscribeEvent
-    public static void registerSpawnPlacements(SpawnPlacementRegisterEvent event) {
-        event.register(ModEntityTypes.MUSHLING.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                MushlingEntity::checkMushlingSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.CAPYBARA.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                CapybaraEntity::checkCapybaraSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.END_LANTERN.get(),
-                SpawnPlacements.Type.NO_RESTRICTIONS,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                EndLanternEntity::checkEndLanternSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.MANTA.get(),
-                SpawnPlacements.Type.IN_WATER,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                MantaEntity::checkMantaSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.JELLYFISH.get(),
-                SpawnPlacements.Type.IN_WATER,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                JellyfishEntity::checkSurfaceWaterAnimalSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.TIGER.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                TigerEntity::checkTigerSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
+        event.put(ModEntityTypes.SEAGULL.get(), SeagullEntity.createAttributes().build());
     }
 
     @SubscribeEvent
@@ -284,6 +251,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.MANTA.get(), MantaRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.TIGER.get(), TigerRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.BIRDIE.get(), BirdieRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.SEAGULL.get(), SeagullRenderer::new);
         }
     }
 }

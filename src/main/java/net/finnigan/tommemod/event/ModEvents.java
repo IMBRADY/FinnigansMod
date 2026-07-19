@@ -75,5 +75,10 @@ public class ModEvents {
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 BirdieEntity::checkBirdieSpawnRules,
                 SpawnPlacementRegisterEvent.Operation.REPLACE);
+        event.register(ModEntityTypes.SEAGULL.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                SeagullEntity::checkSeagullSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
     }
 }

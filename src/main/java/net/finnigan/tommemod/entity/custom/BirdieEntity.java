@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.ServerLevelAccessor;;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -62,9 +64,9 @@ public class BirdieEntity extends Animal implements GeoEntity {
 
     public static AttributeSupplier.Builder createAttributes() {
         return Animal.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 6.0)
+                .add(Attributes.MAX_HEALTH, 4.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.25)
-                .add(Attributes.FLYING_SPEED, 0.6);
+                .add(Attributes.FLYING_SPEED, 0.8);
     }
 
     @Override
@@ -301,6 +303,13 @@ public class BirdieEntity extends Animal implements GeoEntity {
                 pickNewTarget();
             } else {
                 Vec3 motion = diff.normalize().scale(0.18);
+                Vec3 nextPos = pos.add(motion.scale(4.0)); // look a little ahead, not just one tick's worth
+
+                if (isPathBlocked(pos, nextPos)) {
+                    pickNewTarget();
+                    return;
+                }
+
                 birdie.setDeltaMovement(motion);
                 birdie.move(MoverType.SELF, birdie.getDeltaMovement());
                 birdie.getLookControl().setLookAt(targetX, targetY, targetZ);
@@ -311,6 +320,12 @@ public class BirdieEntity extends Animal implements GeoEntity {
                 birdie.setFlying(false);
                 groundedCooldown = 20 + birdie.random.nextInt(40);
             }
+        }
+
+        private boolean isPathBlocked(Vec3 from, Vec3 to) {
+            ClipContext clipContext = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, birdie);
+            HitResult hit = birdie.level().clip(clipContext);
+            return hit.getType() == HitResult.Type.BLOCK;
         }
 
         private void faceMovementDirection(Vec3 motion) {
@@ -334,9 +349,8 @@ public class BirdieEntity extends Animal implements GeoEntity {
             double angle = birdie.random.nextDouble() * Math.PI * 2;
             double dist = 4.0 + birdie.random.nextDouble() * 6.0;
             targetX = pos.x + Math.cos(angle) * dist;
-            targetY = pos.y + (birdie.random.nextDouble() - 0.3) * 3.0;
+            targetY = pos.y + 1.0 + birdie.random.nextDouble() * 3.0; // lean upward, away from obstacles
             targetZ = pos.z + Math.sin(angle) * dist;
         }
     }
-
 }
