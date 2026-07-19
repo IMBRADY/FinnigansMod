@@ -5,8 +5,16 @@
     "tommemod:totem_of_lucky_dice",
     "tommemod:totem_of_the_sun",
     "tommemod:totem_of_the_moon",
-    "tommemod:totem_of_triggerfinger",
+    "tommemod:totem_of_trigger_finger",
     "tommemod:totem_of_wrath",
-    "tommemod:totem_of_doublestrike"
+    "tommemod:totem_of_double_strike",
+    "tommemod:totem_of_fasting",
+    "tommemod:totem_of_maintenance",
+    "tommemod:totem_of_night_vision",
+    "tommemod:totem_of_the_undead",
+    "tommemod:totem_of_the_phoenix",
+    "tommemod:totem_of_bloodlust",
+    "tommemod:totem_of_kinship",
+    "tommemod:totem_of_first_aid"
   ]
 }

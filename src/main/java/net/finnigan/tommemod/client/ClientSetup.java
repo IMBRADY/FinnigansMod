@@ -20,6 +20,9 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -45,6 +48,139 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                     (stack, level, entity, seed) ->
                             entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F);
             MenuScreens.register(ModMenuTypes.OVEN_MENU.get(), OvenScreen::new);
+            ItemProperties.register(Items.ENCHANTED_BOOK, new ResourceLocation(TommeMod.MOD_ID, "enchant_type"),
+                    (stack, level, entity, seed) -> {
+                        if (stack.isEmpty()) return 0.0F;
+                        net.minecraft.nbt.CompoundTag tag = stack.getTag();
+                        if (tag != null) {
+                            String listKey = tag.contains("StoredEnchantments", 9) ? "StoredEnchantments" : "Enchantments";
+                            net.minecraft.nbt.ListTag list = tag.getList(listKey, 10);
+                            for (int i = 0; i < list.size(); i++) {
+                                net.minecraft.nbt.CompoundTag enchant = list.getCompound(i);
+                                String id = enchant.getString("id");
+
+                                // Assign a unique number to each enchantment type
+                                if ("minecraft:bane_of_arthropods".equals(id)) {
+                                    return 1.0F;
+                                }
+                                if ("minecraft:aqua_affinity".equals(id)) {
+                                    return 2.0F;
+                                }
+                                if ("minecraft:blast_protection".equals(id)) {
+                                    return 3.0F;
+                                }
+                                if ("minecraft:channeling".equals(id)) {
+                                    return 4.0F;
+                                }
+                                if ("minecraft:curse_of_binding".equals(id)) {
+                                    return 5.0F;
+                                }
+                                if ("minecraft:curse_of_vanishing".equals(id)) {
+                                    return 6.0F;
+                                }
+                                if ("minecraft:depth_strider".equals(id)) {
+                                    return 7.0F;
+                                }
+                                if ("minecraft:efficiency".equals(id)) {
+                                    return 8.0F;
+                                }
+                                if ("minecraft:feather_falling".equals(id)) {
+                                    return 9.0F;
+                                }
+                                if ("minecraft:fire_aspect".equals(id)) {
+                                    return 10.0F;
+                                }
+                                if ("minecraft:fire_protection".equals(id)) {
+                                    return 11.0F;
+                                }
+                                if ("minecraft:flame".equals(id)) {
+                                    return 12.0F;
+                                }
+                                if ("minecraft:fortune".equals(id)) {
+                                    return 13.0F;
+                                }
+                                if ("minecraft:frost_walker".equals(id)) {
+                                    return 14.0F;
+                                }
+                                if ("minecraft:glowing".equals(id)) {
+                                    return 15.0F;
+                                }
+                                if ("minecraft:impailing".equals(id)) {
+                                    return 16.0F;
+                                }
+                                if ("minecraft:infinity".equals(id)) {
+                                    return 17.0F;
+                                }
+                                if ("minecraft:knockback".equals(id)) {
+                                    return 18.0F;
+                                }
+                                if ("minecraft:looting".equals(id)) {
+                                    return 19.0F;
+                                }
+                                if ("minecraft:loyalty".equals(id)) {
+                                    return 20.0F;
+                                }
+                                if ("minecraft:luck_of_the_sea".equals(id)) {
+                                    return 21.0F;
+                                }
+                                if ("minecraft:lure".equals(id)) {
+                                    return 22.0F;
+                                }
+                                if ("minecraft:mending".equals(id)) {
+                                    return 23.0F;
+                                }
+                                if ("minecraft:multishot".equals(id)) {
+                                    return 24.0F;
+                                }
+                                if ("minecraft:piercing".equals(id)) {
+                                    return 25.0F;
+                                }
+                                if ("minecraft:power".equals(id)) {
+                                    return 26.0F;
+                                }
+                                if ("minecraft:projectile_protection".equals(id)) {
+                                    return 27.0F;
+                                }
+                                if ("minecraft:protection".equals(id)) {
+                                    return 28.0F;
+                                }
+                                if ("minecraft:punch".equals(id)) {
+                                    return 29.0F;
+                                }
+                                if ("minecraft:quick_charge".equals(id)) {
+                                    return 30.0F;
+                                }
+                                if ("minecraft:respiration".equals(id)) {
+                                    return 31.0F;
+                                }
+                                if ("minecraft:riptide".equals(id)) {
+                                    return 32.0F;
+                                }
+                                if ("minecraft:sharpness".equals(id)) {
+                                    return 33.0F;
+                                }
+                                if ("minecraft:silk_touch".equals(id)) {
+                                    return 34.0F;
+                                }
+                                if ("minecraft:smite".equals(id)) {
+                                    return 35.0F;
+                                }
+                                if ("minecraft:soul_speed".equals(id)) {
+                                    return 36.0F;
+                                }
+                                if ("minecraft:sweeping_edge".equals(id)) {
+                                    return 37.0F;
+                                }
+                                if ("minecraft:thorns".equals(id)) {
+                                    return 38.0F;
+                                }
+                                if ("minecraft:unbreaking".equals(id)) {
+                                    return 39.0F;
+                                }
+                            }
+                        }
+                        return 0.0F;
+                    });
         });
         event.enqueueWork(() -> {
             ItemProperties.register(
@@ -70,6 +206,9 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
         }
     }
 
+    // IMPORTANT
+    // FOR MULTIPLAYER SERVERS MOB SPAWNS MUST GO IN HERE OR ELSE THEY WILL NOT SPAWN!!!
+
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(ModEntityTypes.JELLYFISH.get(), JellyfishEntity.createAttributes().build());
@@ -80,10 +219,9 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
         event.put(ModEntityTypes.CAPYBARA.get(), CapybaraEntity.createAttributes().build());
         event.put(ModEntityTypes.MANTA.get(), MantaEntity.createAttributes().build());
         event.put(ModEntityTypes.TIGER.get(), TigerEntity.createAttributes().build());
+        event.put(ModEntityTypes.BIRDIE.get(), BirdieEntity.createAttributes().build());
     }
 
-    // IMPORTANT
-    // FOR MULTIPLAYER SERVERS MOB SPAWNS MUST GO IN HERE OR ELSE THEY WILL NOT SPAWN!!!
     @SubscribeEvent
     public static void registerSpawnPlacements(SpawnPlacementRegisterEvent event) {
         event.register(ModEntityTypes.MUSHLING.get(),
@@ -145,6 +283,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.CAPYBARA.get(), CapybaraRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.MANTA.get(), MantaRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.TIGER.get(), TigerRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.BIRDIE.get(), BirdieRenderer::new);
         }
     }
 }

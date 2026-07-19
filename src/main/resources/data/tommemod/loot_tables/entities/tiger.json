@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "tommemod:beef",
+          "name": "tommemod:raw_beef",
           "functions": [
             {
               "function": "minecraft:set_count",

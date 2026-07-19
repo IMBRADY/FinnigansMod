@@ -163,6 +163,24 @@ public class ModItems {
             () -> new TotemOfWrathItem(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> TOTEM_OF_DOUBLE_STRIKE = ITEMS.register("totem_of_double_strike",
             () -> new TotemOfDoublestrikeItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_BLOODLUST = ITEMS.register("totem_of_bloodlust",
+            () -> new TotemOfBloodlustItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_THE_UNDEAD = ITEMS.register("totem_of_the_undead",
+            () -> new TotemOfTheUndeadItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_FASTING = ITEMS.register("totem_of_fasting",
+            () -> new TotemOfFastingItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_MAINTENANCE = ITEMS.register("totem_of_maintenance",
+            () -> new TotemOfMaintenanceItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_GREED = ITEMS.register("totem_of_greed",
+            () -> new TotemOfGreedItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_NIGHT_VISION = ITEMS.register("totem_of_night_vision",
+            () -> new TotemOfNightVisionItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_THE_PHOENIX = ITEMS.register("totem_of_the_phoenix",
+            () -> new TotemOfThePhoenixItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_FIRST_AID = ITEMS.register("totem_of_first_aid",
+            () -> new TotemOfFirstAidItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_KINSHIP = ITEMS.register("totem_of_kinship",
+            () -> new TotemOfKinshipItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> MUSKET = ITEMS.register("musket",
             () -> new MusketItem(new Item.Properties()));
@@ -270,6 +288,9 @@ public class ModItems {
                     .effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 30, 0), 1.0f)
                     .meat()
                     .build())));
+    public static final RegistryObject<Item> BIRD_MEAT = ITEMS.register("bird_meat",
+            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(2).saturationMod(0.3F).build())));
 
 
     public static void register(IEventBus eventBus) {

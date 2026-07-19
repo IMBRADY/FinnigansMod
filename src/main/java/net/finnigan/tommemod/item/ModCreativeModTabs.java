@@ -25,6 +25,15 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.TOTEM_OF_DOUBLE_STRIKE.get());
                         pOutput.accept(ModItems.TOTEM_OF_WRATH.get());
                         pOutput.accept(ModItems.TOTEM_OF_TRIGGER_FINGER.get());
+                        pOutput.accept(ModItems.TOTEM_OF_MAINTENANCE.get());
+                        pOutput.accept(ModItems.TOTEM_OF_BLOODLUST.get());
+                        pOutput.accept(ModItems.TOTEM_OF_FASTING.get());
+                        pOutput.accept(ModItems.TOTEM_OF_THE_UNDEAD.get());
+                        pOutput.accept(ModItems.TOTEM_OF_GREED.get());
+                        pOutput.accept(ModItems.TOTEM_OF_NIGHT_VISION.get());
+                        pOutput.accept(ModItems.TOTEM_OF_THE_PHOENIX.get());
+                        pOutput.accept(ModItems.TOTEM_OF_KINSHIP.get());
+                        pOutput.accept(ModItems.TOTEM_OF_FIRST_AID.get());
 
                         // WEAPONS
                         pOutput.accept(ModItems.LONGBOW.get());

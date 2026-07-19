@@ -7,7 +7,9 @@
   "mixins": [
     "InventoryMenuMixin",
     "AbstractContainerMenuAccessor",
-    "LivingEntityTotemMixin"
+    "LivingEntityTotemMixin",
+    "ItemStackDurabilityMixin",
+    "PlayerExhaustionMixin"
   ],
   "client": [
     "InventoryScreenMixin",

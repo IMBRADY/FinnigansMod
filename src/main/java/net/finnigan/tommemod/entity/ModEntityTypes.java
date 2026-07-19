@@ -87,4 +87,10 @@ public class ModEntityTypes {
                     .clientTrackingRange(8)
                     .updateInterval(3)
                     .build("tiger"));
+    public static final RegistryObject<EntityType<BirdieEntity>> BIRDIE = ENTITY_TYPES.register("birdie",
+            () -> EntityType.Builder.of(BirdieEntity::new, MobCategory.CREATURE)
+                    .sized(0.5f, 0.5f)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("birdie"));
 }
