@@ -36,8 +36,8 @@
   "item.tommemod.totem_of_the_phoenix": "Totem of the Phoenix",
   "item.tommemod.totem_of_greed": "Totem of Greed",
   "item.tommemod.totem_of_maintenance": "Totem of Maintenance",
-  "item.tommemod.totem_kinship": "Totem of Kinship",
-  "item.tommemod.totem_first_aid": "Totem of First Aid",
+  "item.tommemod.totem_of_kinship": "Totem of Kinship",
+  "item.tommemod.totem_of_first_aid": "Totem of First Aid",
 
   "block.tommemod.oven": "Oven",
   "item.tommemod.oven": "Oven",
@@ -57,6 +57,8 @@
   "item.tommemod.mushroom_meat": "Mushroom Meat",
   "item.tommemod.cooked_mushroom_meat": "Cooked Mushroom Meat",
   "item.tommemod.bird_meat": "Bird Meat",
+  "item.tommemod.cooked_bird_meat": "Bird Meat",
+
   "item.tommemod.end_lantern": "End Lantern",
 
   "item.tommemod.musket": "Musket",

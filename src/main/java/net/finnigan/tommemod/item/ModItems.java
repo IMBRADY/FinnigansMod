@@ -290,7 +290,15 @@ public class ModItems {
                     .build())));
     public static final RegistryObject<Item> BIRD_MEAT = ITEMS.register("bird_meat",
             () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(2).saturationMod(0.3F).build())));
+                    .saturationMod(0.4f)
+                    .nutrition(2)
+                    .build())));
+    public static final RegistryObject<Item> COOKED_BIRD_MEAT = ITEMS.register("cooked_bird_meat",
+            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .saturationMod(4.0f)
+                    .nutrition(5)
+                    .build())));
+
 
 
     public static void register(IEventBus eventBus) {

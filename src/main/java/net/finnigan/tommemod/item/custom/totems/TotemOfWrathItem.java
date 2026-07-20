@@ -31,8 +31,17 @@ public class TotemOfWrathItem extends Item implements ITotemEffect {
     @Override
     public void onPlayerTick(Player player, ItemStack totemStack) {
         if (player.level().isClientSide) return;
+        boolean justEquipped = isFirstApplication(player);
         apply(player, Attributes.ATTACK_DAMAGE, DAMAGE_ID, "Totem of Wrath damage", DAMAGE_MULT);
         apply(player, Attributes.MAX_HEALTH, HEALTH_ID, "Totem of Wrath health", HEALTH_MULT);
+        if (justEquipped) {
+            player.setHealth(player.getHealth() * 0.7F);
+        }
+    }
+
+    private boolean isFirstApplication(Player player) {
+        AttributeInstance instance = player.getAttribute(Attributes.MAX_HEALTH);
+        return instance != null && instance.getModifier(HEALTH_ID) == null;
     }
 
     public static void clearModifiers(Player player) {

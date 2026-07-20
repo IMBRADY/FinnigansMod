@@ -4,6 +4,10 @@ import net.finnigan.tommemod.capability.accessory.AccessoryHandler;
 import net.finnigan.tommemod.capability.accessory.ModCapabilities;
 import net.finnigan.tommemod.item.custom.ITotemEffect;
 import net.finnigan.tommemod.item.custom.totems.*;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,6 +15,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraftforge.event.TickEvent;
@@ -36,16 +41,18 @@ public class TotemEffectEvents {
 
         player.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(handler -> {
             ItemStack totemStack = handler.getStackInSlot(AccessoryHandler.SLOT_TOTEM_ACCESSORY);
+            Item equipped = totemStack.isEmpty() ? null : totemStack.getItem();
 
-            // Clear both passive totem effects first, then reapply whichever is actually equipped.
-            TotemOfTheSunItem.clearModifiers(player);
-            TotemOfTheMoonItem.clearModifiers(player);
+            // Only clear a totem's effect when it is NOT the one currently equipped.
+            if (!(equipped instanceof TotemOfTheSunItem)) TotemOfTheSunItem.clearModifiers(player);
+            if (!(equipped instanceof TotemOfTheMoonItem)) TotemOfTheMoonItem.clearModifiers(player);
+            if (!(equipped instanceof TotemOfWrathItem)) TotemOfWrathItem.clearModifiers(player);
 
-            if (!totemStack.isEmpty() && totemStack.getItem() instanceof ITotemEffect totemEffect) {
+            if (!totemStack.isEmpty() && equipped instanceof ITotemEffect totemEffect) {
                 totemEffect.onPlayerTick(player, totemStack);
             }
 
-            if (!(totemStack.getItem() instanceof TotemOfKinshipItem)) {
+            if (!(equipped instanceof TotemOfKinshipItem)) {
                 TotemOfKinshipItem.clearAllForPlayer(player, player.level());
             }
         });
@@ -146,7 +153,28 @@ public class TotemEffectEvents {
             if (totemStack.getItem() instanceof TotemOfDoublestrikeItem doublestrike
                     && doublestrike.rollDoubleStrike(attacker)) {
                 LivingEntity target = event.getEntity();
+
+                int previousInvulnerableTime = target.invulnerableTime;
+                target.invulnerableTime = 0;
                 target.hurt(event.getSource(), event.getAmount());
+                target.invulnerableTime = previousInvulnerableTime;
+                if (target.level() instanceof ServerLevel serverLevel) {
+                    // Play crit attack sound at target position
+                    serverLevel.playSound(
+                            null,
+                            target.getX(), target.getY(), target.getZ(),
+                            SoundEvents.ANVIL_LAND,
+                            SoundSource.PLAYERS,
+                            0.3F, 0.5F
+                    );
+
+                    // Spawn critical hit and sweep attack particles around the target
+                    serverLevel.sendParticles(
+                            ParticleTypes.DRAGON_BREATH,
+                            target.getX(), target.getY(0.5), target.getZ(),
+                            15, 0.3, 0.5, 0.3, 0.1
+                    );
+                }
             }
         });
     }

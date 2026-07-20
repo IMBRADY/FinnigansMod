@@ -79,6 +79,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.MUSHROOM_MEAT.get());
                         pOutput.accept(ModItems.COOKED_MUSHROOM_MEAT.get());
                         pOutput.accept((ModItems.BIRD_MEAT.get()));
+                        pOutput.accept((ModItems.COOKED_BIRD_MEAT.get()));
 
                         // MISC
                         pOutput.accept(ModItems.END_LANTERN.get());

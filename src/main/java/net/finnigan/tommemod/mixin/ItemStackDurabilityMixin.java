@@ -22,7 +22,7 @@ public abstract class ItemStackDurabilityMixin {
         return player.getCapability(ModCapabilities.ACCESSORY_HANDLER).map(handler -> {
             ItemStack totemStack = handler.getStackInSlot(AccessoryHandler.SLOT_TOTEM_ACCESSORY);
             if (totemStack.getItem() instanceof TotemOfMaintenanceItem) {
-                return Math.max(0, amount / 2); // -50% durability loss
+                return Math.max(1, amount / 2); // -50% durability loss
             }
             return amount;
         }).orElse(amount);
