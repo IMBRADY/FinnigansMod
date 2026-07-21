@@ -99,4 +99,16 @@ public class ModEntityTypes {
                     .clientTrackingRange(8)
                     .updateInterval(3)
                     .build("seagull"));
+    public static final RegistryObject<EntityType<DungeonCrabEntity>> DUNGEON_CRAB = ENTITY_TYPES.register("dungeon_crab",
+            () -> EntityType.Builder.of(DungeonCrabEntity::new, MobCategory.MONSTER)
+                    .sized(1.0f, 1.0f)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("dungeon_crab"));
+    public static final RegistryObject<EntityType<LivingArmorEntity>> LIVING_ARMOR =
+            ENTITY_TYPES.register("living_armor", () -> EntityType.Builder.of(LivingArmorEntity::new, MobCategory.MONSTER)
+                    .sized(0.8F, 2.2F)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("living_armor"));
 }

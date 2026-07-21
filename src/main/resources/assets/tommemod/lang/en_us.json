@@ -3,6 +3,7 @@
   "item.tommemod.bullet": "Bullet",
   "item.tommemod.longbow": "Longbow",
   "item.tommemod.fin": "Fin",
+  "item.tommemod.ancient_armor_fragment": "Ancient Armor Fragment",
 
   "item.tommemod.iron_cleaver": "Iron Cleaver",
   "item.tommemod.gold_cleaver": "Gold Cleaver",
@@ -53,6 +54,8 @@
   "entity.tommemod.tiger": "Tiger",
   "entity.tommemod.birdie": "Birdie",
   "entity.tommemod.seagull": "Seagull",
+  "entity.tommemod.dungeon_crab": "Dungeon Crab",
+  "entity.tommemod.living_armor": "Living Armor",
 
   "item.tommemod.mushroom_meat": "Mushroom Meat",
   "item.tommemod.cooked_mushroom_meat": "Cooked Mushroom Meat",

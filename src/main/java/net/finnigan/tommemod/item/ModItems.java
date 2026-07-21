@@ -190,6 +190,8 @@ public class ModItems {
             () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> FIN = ITEMS.register("fin",
             () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> ANCIENT_ARMOR_FRAGMENT = ITEMS.register("ancient_armor_fragment",
+            () -> new Item(new Item.Properties()));
 
     public static final RegistryObject<Item> IRON_CLEAVER =
             ITEMS.register("iron_cleaver", // has no cool sound effect, needs transformations updated

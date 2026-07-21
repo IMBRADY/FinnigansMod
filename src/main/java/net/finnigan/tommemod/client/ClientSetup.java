@@ -221,6 +221,8 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
         event.put(ModEntityTypes.TIGER.get(), TigerEntity.createAttributes().build());
         event.put(ModEntityTypes.BIRDIE.get(), BirdieEntity.createAttributes().build());
         event.put(ModEntityTypes.SEAGULL.get(), SeagullEntity.createAttributes().build());
+        event.put(ModEntityTypes.DUNGEON_CRAB.get(), DungeonCrabEntity.createAttributes().build());
+        event.put(ModEntityTypes.LIVING_ARMOR.get(), LivingArmorEntity.createAttributes().build());
     }
 
     @SubscribeEvent
@@ -252,6 +254,8 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.TIGER.get(), TigerRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.BIRDIE.get(), BirdieRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.SEAGULL.get(), SeagullRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.DUNGEON_CRAB.get(), DungeonCrabRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.LIVING_ARMOR.get(), LivingArmorRenderer::new);
         }
     }
 }

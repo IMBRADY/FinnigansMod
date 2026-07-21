@@ -86,6 +86,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.BULLET.get());
                         pOutput.accept(ModItems.DYNAMITE.get());
                         pOutput.accept(ModItems.FIN.get());
+                        pOutput.accept(ModItems.ANCIENT_ARMOR_FRAGMENT.get());
                     })
                     .build());
 

@@ -80,5 +80,14 @@ public class ModEvents {
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 SeagullEntity::checkSeagullSpawnRules,
                 SpawnPlacementRegisterEvent.Operation.REPLACE);
+        event.register(ModEntityTypes.DUNGEON_CRAB.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.WORLD_SURFACE,
+                DungeonCrabEntity::checkDungeonCrabSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
+        SpawnPlacements.register(ModEntityTypes.LIVING_ARMOR.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                LivingArmorEntity::checkLivingArmorSpawnRules);
     }
 }
