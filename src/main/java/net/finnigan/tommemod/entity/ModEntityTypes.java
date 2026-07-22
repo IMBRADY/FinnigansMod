@@ -1,6 +1,8 @@
 package net.finnigan.tommemod.entity;
 
 import net.finnigan.tommemod.entity.custom.*;
+import net.finnigan.tommemod.entity.custom.AmethystCutlassHelpers.AmethystBeamEntity;
+import net.finnigan.tommemod.entity.custom.AmethystCutlassHelpers.CrystalFragmentEntity;
 import net.finnigan.tommemod.entity.custom.ArackopeshHelpers.GrappleHookEntity;
 import net.finnigan.tommemod.entity.custom.Bosses.BossCrab.BossCrabEntity;
 import net.minecraft.world.entity.EntityType;
@@ -23,6 +25,13 @@ public class ModEntityTypes {
                     .updateInterval(1)
                     .build("boss_crab"));
 
+    public static final RegistryObject<EntityType<AmethystBeamEntity>> AMETHYST_BEAM =
+            ENTITY_TYPES.register("amethyst_beam", () -> EntityType.Builder.<AmethystBeamEntity>of(AmethystBeamEntity::new, MobCategory.MISC)
+                    .sized(0.1F, 0.1F)
+                    .noSave()
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .build("amethyst_beam"));
     public static final RegistryObject<EntityType<DynamiteEntity>> DYNAMITE =
             ENTITY_TYPES.register("dynamite",
                     () -> EntityType.Builder
@@ -111,4 +120,10 @@ public class ModEntityTypes {
                     .clientTrackingRange(8)
                     .updateInterval(3)
                     .build("living_armor"));
+    public static final RegistryObject<EntityType<CrystalFragmentEntity>> CRYSTAL_FRAGMENT =
+            ENTITY_TYPES.register("crystal_fragment", () -> EntityType.Builder.<CrystalFragmentEntity>of(CrystalFragmentEntity::new, MobCategory.MISC)
+                    .sized(0.25F, 0.25F)
+                    .clientTrackingRange(4)
+                    .updateInterval(10)
+                    .build("crystal_fragment"));
 }

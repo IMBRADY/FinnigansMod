@@ -43,6 +43,8 @@
     { "predicate": { "tommemod:enchant_type": 37.0 }, "model": "tommemod:item/sweeping_edge" },
     { "predicate": { "tommemod:enchant_type": 38.0 }, "model": "tommemod:item/thorns" },
     { "predicate": { "tommemod:enchant_type": 39.0 }, "model": "tommemod:item/unbreaking" },
-    { "predicate": { "tommemod:enchant_type": 40.0 }, "model": "tommemod:item/swift_sneak" }
+    { "predicate": { "tommemod:enchant_type": 40.0 }, "model": "tommemod:item/swift_sneak" },
+    { "predicate": { "tommemod:enchant_type": 41.0 }, "model": "tommemod:item/life_steal" },
+    { "predicate": { "tommemod:enchant_type": 42.0 }, "model": "tommemod:item/poison" }
   ]
 }

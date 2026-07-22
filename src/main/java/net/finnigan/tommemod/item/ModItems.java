@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.item;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.enchantment.LifestealEnchantment;
 import net.finnigan.tommemod.entity.custom.ModdedSwordItem;
 import net.finnigan.tommemod.item.custom.*;
 import net.finnigan.tommemod.item.custom.totems.*;
@@ -9,10 +10,13 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tiers;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+
+import static net.finnigan.tommemod.enchantment.ModEnchantments.ENCHANTMENTS;
 
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS =
@@ -25,6 +29,12 @@ public class ModItems {
     public static final RegistryObject<Item> DYNAMITE = ITEMS.register("dynamite",
             () -> new DynamiteItem(new Item.Properties()));
 
+    public static final RegistryObject<Item> AMETHYST_CUTLASS = ITEMS.register("amethyst_cutlass",
+            () -> new AmethystCutlassItem(
+                    Tiers.NETHERITE,
+                    25,
+                    -2.4F,
+                    new Item.Properties()));
     public static final RegistryObject<Item> SANGUIS_GLADIO = ITEMS.register("sanguis_gladio",
             () -> new SanguisGladioItem(
                     Tiers.NETHERITE,
@@ -300,6 +310,7 @@ public class ModItems {
                     .saturationMod(4.0f)
                     .nutrition(5)
                     .build())));
+
 
 
 

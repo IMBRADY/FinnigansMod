@@ -10,6 +10,11 @@
   "item.tommemod.diamond_cleaver": "Diamond Cleaver",
   "item.tommemod.netherite_cleaver": "Netherite Cleaver",
 
+  "enchantment.tommemod.life_steal": "Life Steal",
+  "item.tommemod.life_steal": "Life Steal",
+  "enchantment.tommemod.poison": "Poison",
+  "item.tommemod.poison": "Poison",
+
   "item.tommemod.wooden_pike": "Wooden Pike",
   "item.tommemod.stone_pike": "Stone Pike",
   "item.tommemod.iron_pike": "Iron Pike",
@@ -78,6 +83,7 @@
   "item.tommemod.blossom_katana": "Blossom Katana",
   "item.tommemod.sanguis_gladio": "Sanguis Gladio",
   "item.tommemod.arackopesh": "Arackopesh",
+  "item.tommemod.amethyst_cutlass": "Amethyst Cutlass",
 
   "creativetab.tutorial_tab": "What You've Been Waiting For...",
 

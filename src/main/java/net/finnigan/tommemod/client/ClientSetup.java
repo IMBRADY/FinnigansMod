@@ -177,6 +177,15 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                                 if ("minecraft:unbreaking".equals(id)) {
                                     return 39.0F;
                                 }
+                                if ("minecraft:swift_sneak".equals(id)) {
+                                    return 40.0F;
+                                }
+                                if ("tommemod:life_steal".equals(id)) {
+                                    return 41.0F;
+                                }
+                                if ("tommemod:poison".equals(id)) {
+                                    return 42.0F;
+                                }
                             }
                         }
                         return 0.0F;
@@ -256,6 +265,9 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.SEAGULL.get(), SeagullRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.DUNGEON_CRAB.get(), DungeonCrabRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.LIVING_ARMOR.get(), LivingArmorRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.CRYSTAL_FRAGMENT.get(),
+                    ctx -> new ThrownItemRenderer<>(ctx, 1.0F, true));
+            event.registerEntityRenderer(ModEntityTypes.AMETHYST_BEAM.get(), AmethystBeamRenderer::new);
         }
     }
 }

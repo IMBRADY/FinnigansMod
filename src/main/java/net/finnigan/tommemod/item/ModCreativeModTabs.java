@@ -74,12 +74,15 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.BLOSSOM_KATANA.get());
                         pOutput.accept(ModItems.SANGUIS_GLADIO.get());
                         pOutput.accept(ModItems.ARACKOPESH.get());
+                        pOutput.accept(ModItems.AMETHYST_CUTLASS.get());
 
                         // FOOD
                         pOutput.accept(ModItems.MUSHROOM_MEAT.get());
                         pOutput.accept(ModItems.COOKED_MUSHROOM_MEAT.get());
                         pOutput.accept((ModItems.BIRD_MEAT.get()));
                         pOutput.accept((ModItems.COOKED_BIRD_MEAT.get()));
+
+                        // ENCHANTS
 
                         // MISC
                         pOutput.accept(ModItems.END_LANTERN.get());

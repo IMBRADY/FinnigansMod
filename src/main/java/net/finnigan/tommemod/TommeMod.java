@@ -3,6 +3,7 @@ package net.finnigan.tommemod;
 import com.mojang.logging.LogUtils;
 import net.finnigan.tommemod.block.ModBlocks;
 import net.finnigan.tommemod.block.entity.ModBlockEntities;
+import net.finnigan.tommemod.enchantment.ModEnchantments;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.item.ModCreativeModTabs;
 import net.finnigan.tommemod.item.ModItems;
@@ -43,6 +44,7 @@ public class TommeMod
         ModEntityTypes.ENTITY_TYPES.register(modEventBus);
         ModItems.register(modEventBus);
         ModRecipes.register(modEventBus);
+        ModEnchantments.ENCHANTMENTS.register(modEventBus);
 
         ModSounds.SOUND_EVENTS.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);
