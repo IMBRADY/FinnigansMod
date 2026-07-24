@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.entity.custom.AmethystCutlassHelpers;
 
 import net.finnigan.tommemod.item.ModItems;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -9,6 +10,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -31,6 +34,32 @@ public class AmethystBeamEntity extends Entity implements GeoEntity {
     private static final double MAX_RANGE = 40.0D;
     private static final float BEAM_DAMAGE = 3.0F;
     private static final int DAMAGE_TICK_RATE = 4;
+    private BlockPos lastLightPos = null;
+
+    private static final EntityDataAccessor<Integer> OWNER_ID =
+            SynchedEntityData.defineId(AmethystBeamEntity.class, EntityDataSerializers.INT);
+
+    @Override
+    protected void defineSynchedData() {
+        this.entityData.define(LENGTH, (float) MAX_RANGE);
+        this.entityData.define(OWNER_ID, -1);
+    }
+
+    public void setOwner(LivingEntity owner) {
+        this.owner = owner;
+        this.entityData.set(OWNER_ID, owner.getId());
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+        super.onSyncedDataUpdated(key);
+        if (OWNER_ID.equals(key)) {
+            int id = this.entityData.get(OWNER_ID);
+            if (id != -1 && this.level().getEntity(id) instanceof LivingEntity living) {
+                this.owner = living;
+            }
+        }
+    }
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private static final RawAnimation BEAM_ANIM = RawAnimation.begin().thenLoop("animation"); // match your .animation.json name
@@ -70,25 +99,16 @@ public class AmethystBeamEntity extends Entity implements GeoEntity {
         return this.getBoundingBox().inflate(MAX_RANGE);
     }
 
-    public void setOwner(LivingEntity owner) {
-        this.owner = owner;
-    }
-
     public float getLength() {
         return this.entityData.get(LENGTH);
-    }
-
-    @Override
-    protected void defineSynchedData() {
-        this.entityData.define(LENGTH, (float) MAX_RANGE);
     }
 
     @Override
     public void tick() {
         super.tick();
 
-        if (this.level().isClientSide) {
-            return; // client doesn't have `owner` — position/rotation sync automatically via network tracking
+        if (!this.level().isClientSide) {
+            updateLight();
         }
 
         boolean stillChanneling = owner != null && owner.isAlive()
@@ -124,6 +144,31 @@ public class AmethystBeamEntity extends Entity implements GeoEntity {
         }
 
         age++;
+    }
+
+    private void updateLight() {
+        BlockPos currentPos = this.blockPosition();
+        if (currentPos.equals(lastLightPos)) return;
+
+        if (lastLightPos != null && this.level().getBlockState(lastLightPos).is(Blocks.LIGHT)) {
+            this.level().setBlock(lastLightPos, Blocks.AIR.defaultBlockState(), 3);
+        }
+
+        if (this.level().getBlockState(currentPos).isAir()) {
+            this.level().setBlock(currentPos,
+                    Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, 15), 3);
+            lastLightPos = currentPos;
+        }
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        if (!this.level().isClientSide && lastLightPos != null) {
+            if (this.level().getBlockState(lastLightPos).is(Blocks.LIGHT)) {
+                this.level().setBlock(lastLightPos, Blocks.AIR.defaultBlockState(), 3);
+            }
+        }
+        super.remove(reason);
     }
 
     private void dealDamageAlongBeam(Vec3 start, Vec3 end) {

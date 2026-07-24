@@ -73,7 +73,7 @@ public class AmethystCutlassEvents {
             fragment.setDamage(damage);
 
             double dx = (attacker.getRandom().nextDouble() - 0.5D) * 2.0D;
-            double dy = (attacker.getRandom().nextDouble() - 0.5D) + 0.3D;
+            double dy = 0.3D;
             double dz = (attacker.getRandom().nextDouble() - 0.5D) * 2.0D;
             fragment.shoot(dx, dy, dz, 1.2F, 1.0F);
 

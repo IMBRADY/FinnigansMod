@@ -13,4 +13,8 @@ public class ModSounds {
 
     public static final RegistryObject<SoundEvent> BOSS_CRAB_LAND = SOUND_EVENTS.register("boss_crab_land",
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(TommeMod.MOD_ID, "boss_crab_land")));
+    public static final RegistryObject<SoundEvent> AMETHYST_BEAM =
+            SOUND_EVENTS.register("amethyst_beam",
+                    () -> SoundEvent.createVariableRangeEvent(
+                            new ResourceLocation(TommeMod.MOD_ID, "amethyst_beam")));
 }

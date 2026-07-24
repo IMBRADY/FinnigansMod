@@ -8,5 +8,15 @@
         "pitch": 1.0
       }
     ]
+  },
+  "amethyst_beam": {
+    "subtitle": "subtitles.item.amethyst_beam.use",
+    "sounds": [
+      {
+        "name": "tommemod:amethyst_beam",
+        "volume": 1.0,
+        "pitch": 0.8
+      }
+    ]
   }
 }

@@ -3,6 +3,8 @@ package net.finnigan.tommemod.item.custom;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.entity.custom.AmethystCutlassHelpers.AmethystBeamEntity;
 import net.finnigan.tommemod.particle.ModParticleTypes;
+import net.finnigan.tommemod.sound.ModSounds;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -24,6 +26,7 @@ public class AmethystCutlassItem extends SwordItem {
     private static final int BEAM_TICK_RATE = 10;      // damage tick every 0.5s
     private static final double BEAM_RANGE = 20.0D;
     private static final float BEAM_DAMAGE = 4.0F;
+    private static final int SOUND_LENGTH_TICKS = 50;
 
     public AmethystCutlassItem(Tier tier, int attackDamage, float attackSpeed, Properties properties) {
         super(tier, attackDamage, attackSpeed, properties);
@@ -36,12 +39,14 @@ public class AmethystCutlassItem extends SwordItem {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        System.out.println("[tommemod] AmethystCutlassItem.use() called, client=" + level.isClientSide);
         player.startUsingItem(hand);
         if (!level.isClientSide) {
             AmethystBeamEntity beam = new AmethystBeamEntity(ModEntityTypes.AMETHYST_BEAM.get(), level);
             beam.setOwner(player);
             beam.setPos(player.getEyePosition(1.0F).x, player.getEyePosition(1.0F).y, player.getEyePosition(1.0F).z);
             level.addFreshEntity(beam);
+            System.out.println("[tommemod] beam spawned: " + beam.getUUID());
         }
         return InteractionResultHolder.consume(player.getItemInHand(hand));
     }
@@ -49,14 +54,6 @@ public class AmethystCutlassItem extends SwordItem {
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
         return UseAnim.BOW;
-    }
-
-    @Override
-    public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
-        int elapsed = BEAM_ACTIVE_TICKS - remainingUseDuration;
-        if (elapsed % BEAM_TICK_RATE == 0) {
-            fireBeam(level, livingEntity);
-        }
     }
 
     private void fireBeam(Level level, LivingEntity user) {
