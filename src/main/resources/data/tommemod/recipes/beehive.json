@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PPP",
+    "PHP",
+    "PPP"
+  ],
+  "key": {
+    "P": { "tag": "minecraft:planks" },
+    "H": { "item": "minecraft:honeycomb" }
+  },
+  "result": {
+    "item": "tommemod:beehive",
+    "count": 1
+  }
+}

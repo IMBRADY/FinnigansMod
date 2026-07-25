@@ -46,9 +46,11 @@
   "item.tommemod.totem_of_first_aid": "Totem of First Aid",
 
   "block.tommemod.oven": "Oven",
+  "block.tommemod.beehive": "Beehive",
   "item.tommemod.oven": "Oven",
 
   "entity.minecraft.villager.tommemod.baker": "Baker",
+  "entity.minecraft.villager.tommemod.beekeeper": "Beekeeper",
   "entity.tommemod.jellyfish": "Jellyfish",
   "entity.tommemod.butterfly": "Butterfly",
   "entity.tommemod.mushling": "Mushling",
@@ -61,11 +63,21 @@
   "entity.tommemod.seagull": "Seagull",
   "entity.tommemod.dungeon_crab": "Dungeon Crab",
   "entity.tommemod.living_armor": "Living Armor",
+  "entity.tommemod.duck": "Duck",
+  "entity.tommemod.crab": "Crab",
+  "entity.tommemod.hermit_crab": "Hermit Crab",
 
   "item.tommemod.mushroom_meat": "Mushroom Meat",
   "item.tommemod.cooked_mushroom_meat": "Cooked Mushroom Meat",
   "item.tommemod.bird_meat": "Bird Meat",
   "item.tommemod.cooked_bird_meat": "Bird Meat",
+  "item.tommemod.duck_feather": "Duck Feather",
+  "item.tommemod.crab_legs": "Crab Legs",
+  "item.tommemod.stinger": "Stinger",
+  "item.tommemod.bee_wings": "Bee Wings",
+  "item.tommemod.premium_honey": "Premium Honey",
+  "item.tommemod.better_buzz": "Better Buzz",
+  "item.tommemod.bee_nade": "Bee-Nade",
 
   "item.tommemod.end_lantern": "End Lantern",
 

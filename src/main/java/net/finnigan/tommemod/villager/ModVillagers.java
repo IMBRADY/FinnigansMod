@@ -22,4 +22,12 @@ public class ModVillagers {
                     ImmutableSet.of(), // requestedItems
                     ImmutableSet.of(), // secondaryPoi
                     SoundEvents.VILLAGER_WORK_FARMER));
+
+    public static final RegistryObject<VillagerProfession> BEEKEEPER = PROFESSIONS.register("beekeeper",
+            () -> new VillagerProfession("beekeeper",
+                    holder -> holder.value() == ModPoiTypes.BEEHIVE_POI.get(),
+                    holder -> holder.value() == ModPoiTypes.BEEHIVE_POI.get(),
+                    ImmutableSet.of(), // requestedItems
+                    ImmutableSet.of(), // secondaryPoi
+                    SoundEvents.BEE_LOOP));
 }

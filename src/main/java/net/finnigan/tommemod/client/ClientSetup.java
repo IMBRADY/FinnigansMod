@@ -232,6 +232,9 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
         event.put(ModEntityTypes.SEAGULL.get(), SeagullEntity.createAttributes().build());
         event.put(ModEntityTypes.DUNGEON_CRAB.get(), DungeonCrabEntity.createAttributes().build());
         event.put(ModEntityTypes.LIVING_ARMOR.get(), LivingArmorEntity.createAttributes().build());
+        event.put(ModEntityTypes.DUCK.get(), DuckEntity.createAttributes().build());
+        event.put(ModEntityTypes.CRAB.get(), CrabEntity.createAttributes().build());
+        event.put(ModEntityTypes.HERMIT_CRAB.get(), HermitCrabEntity.createAttributes().build());
     }
 
     @SubscribeEvent
@@ -265,9 +268,11 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.SEAGULL.get(), SeagullRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.DUNGEON_CRAB.get(), DungeonCrabRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.LIVING_ARMOR.get(), LivingArmorRenderer::new);
-            event.registerEntityRenderer(ModEntityTypes.CRYSTAL_FRAGMENT.get(),
-                    ctx -> new ThrownItemRenderer<>(ctx, 1.0F, true));
             event.registerEntityRenderer(ModEntityTypes.AMETHYST_BEAM.get(), AmethystBeamRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.DUCK.get(), DuckRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.CRAB.get(), CrabRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.HERMIT_CRAB.get(), HermitCrabRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.BEE_NADE.get(), ThrownItemRenderer::new);
         }
     }
 }

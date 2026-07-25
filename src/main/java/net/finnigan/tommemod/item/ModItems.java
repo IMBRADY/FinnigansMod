@@ -310,6 +310,29 @@ public class ModItems {
                     .saturationMod(4.0f)
                     .nutrition(5)
                     .build())));
+    public static final RegistryObject<Item> DUCK_FEATHER = ITEMS.register("duck_feather",
+            () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> CRAB_LEGS = ITEMS.register("crab_legs",
+            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(3)
+                    .saturationMod(0.3f)
+                    .fast()
+                    .build())));
+
+    public static final RegistryObject<Item> STINGER = ITEMS.register("stinger",
+            () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> BEE_WINGS = ITEMS.register("bee_wings",
+            () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> PREMIUM_HONEY = ITEMS.register("premium_honey",
+            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(6)
+                    .saturationMod(0.8f)
+                    .effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 100, 0), 1.0f)
+                    .build())));
+    public static final RegistryObject<Item> BETTER_BUZZ = ITEMS.register("better_buzz",
+            () -> new BetterBuzzItem(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> BEE_NADE = ITEMS.register("bee_nade",
+            () -> new BeeNadeItem(new Item.Properties()));
 
 
 

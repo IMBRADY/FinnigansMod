@@ -15,4 +15,7 @@ public class ModPoiTypes {
 
     public static final RegistryObject<PoiType> OVEN_POI = POI_TYPES.register("oven_poi", // Dedicate mod block
             () -> new PoiType(Set.copyOf(ModBlocks.OVEN.get().getStateDefinition().getPossibleStates()), 1, 1)); // How many villagers can claim job block
+
+    public static final RegistryObject<PoiType> BEEHIVE_POI = POI_TYPES.register("beehive_poi",
+            () -> new PoiType(Set.copyOf(ModBlocks.BEEHIVE.get().getStateDefinition().getPossibleStates()), 1, 1));
 }

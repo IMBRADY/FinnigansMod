@@ -61,6 +61,7 @@ public class ModCreativeModTabs {
 
                         // BLOCKS
                         pOutput.accept(ModBlocks.OVEN.get());
+                        pOutput.accept(ModBlocks.BEEHIVE.get());
 
                         // UNIQUES
                         pOutput.accept(ModItems.HARMONY.get());
@@ -81,6 +82,16 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.COOKED_MUSHROOM_MEAT.get());
                         pOutput.accept((ModItems.BIRD_MEAT.get()));
                         pOutput.accept((ModItems.COOKED_BIRD_MEAT.get()));
+
+                        pOutput.accept(ModItems.CRAB_LEGS.get());
+                        pOutput.accept(ModItems.PREMIUM_HONEY.get());
+                        pOutput.accept(ModItems.BETTER_BUZZ.get());
+
+                        // MISC (feathers)
+                        pOutput.accept(ModItems.DUCK_FEATHER.get());
+                        pOutput.accept(ModItems.STINGER.get());
+                        pOutput.accept(ModItems.BEE_WINGS.get());
+                        pOutput.accept(ModItems.BEE_NADE.get());
 
                         // ENCHANTS
 

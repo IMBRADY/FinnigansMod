@@ -2,7 +2,6 @@ package net.finnigan.tommemod.entity;
 
 import net.finnigan.tommemod.entity.custom.*;
 import net.finnigan.tommemod.entity.custom.AmethystCutlassHelpers.AmethystBeamEntity;
-import net.finnigan.tommemod.entity.custom.AmethystCutlassHelpers.CrystalFragmentEntity;
 import net.finnigan.tommemod.entity.custom.ArackopeshHelpers.GrappleHookEntity;
 import net.finnigan.tommemod.entity.custom.Bosses.BossCrab.BossCrabEntity;
 import net.minecraft.world.entity.EntityType;
@@ -120,10 +119,28 @@ public class ModEntityTypes {
                     .clientTrackingRange(8)
                     .updateInterval(3)
                     .build("living_armor"));
-    public static final RegistryObject<EntityType<CrystalFragmentEntity>> CRYSTAL_FRAGMENT =
-            ENTITY_TYPES.register("crystal_fragment", () -> EntityType.Builder.<CrystalFragmentEntity>of(CrystalFragmentEntity::new, MobCategory.MISC)
+    public static final RegistryObject<EntityType<DuckEntity>> DUCK =
+            ENTITY_TYPES.register("duck", () -> EntityType.Builder.of(DuckEntity::new, MobCategory.CREATURE)
+                    .sized(0.5F, 0.6F)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("duck"));
+    public static final RegistryObject<EntityType<CrabEntity>> CRAB =
+            ENTITY_TYPES.register("crab", () -> EntityType.Builder.of(CrabEntity::new, MobCategory.CREATURE)
+                    .sized(0.5F, 0.3F)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("crab"));
+    public static final RegistryObject<EntityType<HermitCrabEntity>> HERMIT_CRAB =
+            ENTITY_TYPES.register("hermit_crab", () -> EntityType.Builder.of(HermitCrabEntity::new, MobCategory.CREATURE)
+                    .sized(0.6F, 0.6F)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("hermit_crab"));
+    public static final RegistryObject<EntityType<BeeNadeEntity>> BEE_NADE =
+            ENTITY_TYPES.register("bee_nade", () -> EntityType.Builder.<BeeNadeEntity>of(BeeNadeEntity::new, MobCategory.MISC)
                     .sized(0.25F, 0.25F)
                     .clientTrackingRange(4)
                     .updateInterval(10)
-                    .build("crystal_fragment"));
+                    .build("bee_nade"));
 }

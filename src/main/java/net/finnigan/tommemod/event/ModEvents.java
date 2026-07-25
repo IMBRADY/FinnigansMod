@@ -89,5 +89,20 @@ public class ModEvents {
                 SpawnPlacements.Type.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 LivingArmorEntity::checkLivingArmorSpawnRules);
+        event.register(ModEntityTypes.DUCK.get(),
+                SpawnPlacements.Type.IN_WATER,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                DuckEntity::checkDuckSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
+        event.register(ModEntityTypes.CRAB.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                CrabEntity::checkCrabSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
+        event.register(ModEntityTypes.HERMIT_CRAB.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                HermitCrabEntity::checkHermitCrabSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
     }
 }
