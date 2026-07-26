@@ -50,16 +50,17 @@ import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.EnumSet;
+import java.util.Optional;
 
 public class HermitCrabEntity extends TamableAnimal implements GeoEntity {
 
     private static final EntityDataAccessor<Boolean> DATA_RIDING_SHOULDER =
             SynchedEntityData.defineId(HermitCrabEntity.class, EntityDataSerializers.BOOLEAN);
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private static final EntityDataAccessor<Optional<BlockPos>> DATA_FOUND_CHEST_POS =
+            SynchedEntityData.defineId(HermitCrabEntity.class, EntityDataSerializers.OPTIONAL_BLOCK_POS);
 
-    @Nullable
-    private BlockPos foundChestPos;
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public HermitCrabEntity(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
@@ -77,6 +78,7 @@ public class HermitCrabEntity extends TamableAnimal implements GeoEntity {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_RIDING_SHOULDER, false);
+        this.entityData.define(DATA_FOUND_CHEST_POS, Optional.empty());
     }
 
     public boolean isRidingShoulder() {
@@ -89,12 +91,16 @@ public class HermitCrabEntity extends TamableAnimal implements GeoEntity {
 
     @Nullable
     BlockPos getFoundChestPos() {
-        return this.foundChestPos;
+        return this.entityData.get(DATA_FOUND_CHEST_POS).orElse(null);
     }
 
     void setFoundChestPos(@Nullable BlockPos pos) {
-        this.foundChestPos = pos;
+        this.entityData.set(DATA_FOUND_CHEST_POS, Optional.ofNullable(pos));
     }
+
+    private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("crawl");
+    private static final RawAnimation FIND_ANIM = RawAnimation.begin().thenLoop("find");
+    private static final RawAnimation SIT_ANIM = RawAnimation.begin().thenPlayAndHold("sit");
 
     @Override
     protected void registerGoals() {
@@ -107,12 +113,27 @@ public class HermitCrabEntity extends TamableAnimal implements GeoEntity {
         this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
     }
 
+    // Lateral shoulder offset in blocks; larger values sit the crab further to the owner's right, out of the crosshair.
+    private static final double SHOULDER_SIDE_OFFSET = 0.45;
+
     @Override
     public void tick() {
+        boolean wasFirstTick = this.firstTick;
         super.tick();
+        if (wasFirstTick && !this.level().isClientSide && this.isNoGravity() && !this.isRidingShoulder()) {
+            // after relaunch, crab does not glitch in air
+            this.landAfterReload();
+        }
         if (this.isRidingShoulder()) {
             this.tickShoulderRide();
         }
+    }
+
+    private void landAfterReload() {
+        BlockPos landPos = this.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, this.blockPosition());
+        this.dismountShoulder(landPos);
+        this.setOrderedToSit(true);
+        this.setInSittingPose(true);
     }
 
     private void tickShoulderRide() {
@@ -123,8 +144,8 @@ public class HermitCrabEntity extends TamableAnimal implements GeoEntity {
         }
 
         float yawRad = (float) Math.toRadians(owner.getYRot());
-        double sideX = -Math.cos(yawRad) * 0.35;
-        double sideZ = -Math.sin(yawRad) * 0.35;
+        double sideX = -Math.cos(yawRad) * SHOULDER_SIDE_OFFSET;
+        double sideZ = -Math.sin(yawRad) * SHOULDER_SIDE_OFFSET;
         Vec3 target = owner.position().add(sideX, owner.getBbHeight() - 0.55, sideZ);
 
         this.setPos(target.x, target.y, target.z);
@@ -138,7 +159,7 @@ public class HermitCrabEntity extends TamableAnimal implements GeoEntity {
     private void mountShoulder(Player player) {
         this.setRidingShoulder(true);
         this.setOrderedToSit(false);
-        this.foundChestPos = null;
+        this.setFoundChestPos(null);
         this.setNoGravity(true);
         this.noPhysics = true;
         this.setDeltaMovement(Vec3.ZERO);
@@ -206,6 +227,11 @@ public class HermitCrabEntity extends TamableAnimal implements GeoEntity {
     }
 
     @Override
+    public boolean isPickable() {
+        return !this.isRidingShoulder() && super.isPickable();
+    }
+
+    @Override
     protected void pushEntities() {
     }
 
@@ -231,16 +257,21 @@ public class HermitCrabEntity extends TamableAnimal implements GeoEntity {
     private PlayState statePredicate(AnimationState<HermitCrabEntity> state) {
         boolean moving = !this.isRidingShoulder() && Math.abs(this.walkDist - this.walkDistO) > 0.0005F;
 
-        if (this.foundChestPos != null) {
-            state.getController().setAnimation(RawAnimation.begin().thenLoop("find"));
+        // Priority 1: Find treasure
+        if (this.getFoundChestPos() != null) {
+            state.getController().setAnimation(FIND_ANIM);
             return PlayState.CONTINUE;
         }
-        if (moving) {
-            state.getController().setAnimation(RawAnimation.begin().thenLoop("crawl"));
+
+        // Priority 2: Sit when ordered
+        if (this.isInSittingPose() || this.isRidingShoulder()) {
+            state.getController().setAnimation(SIT_ANIM);
             return PlayState.CONTINUE;
         }
-        if (this.isOrderedToSit() || this.isRidingShoulder()) {
-            state.getController().setAnimation(RawAnimation.begin().thenPlayAndHold("sit"));
+
+        // Priority 2: Walk
+        if (state.isMoving() && !this.isRidingShoulder()) {
+            state.getController().setAnimation(WALK_ANIM);
             return PlayState.CONTINUE;
         }
         return PlayState.STOP;

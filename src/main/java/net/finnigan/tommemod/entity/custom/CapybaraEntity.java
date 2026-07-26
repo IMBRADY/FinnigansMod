@@ -110,8 +110,6 @@ public class CapybaraEntity extends Animal implements GeoEntity {
                 .add(Attributes.FOLLOW_RANGE, 16.0D);
     }
 
-    // --- Breeding Logic ---
-
     @Override
     public boolean isFood(ItemStack stack) {
         // Defines Melon Slices as the item that triggers Love Mode / Breeding
@@ -124,8 +122,6 @@ public class CapybaraEntity extends Animal implements GeoEntity {
         // Spawns a brand new baby capybara when breeding completes
         return ModEntityTypes.CAPYBARA.get().create(level);
     }
-
-    // ----------------------
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {

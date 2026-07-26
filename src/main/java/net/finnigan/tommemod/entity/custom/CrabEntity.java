@@ -136,7 +136,6 @@ public class CrabEntity extends Animal implements GeoEntity {
         return null;
     }
 
-    // --- GeckoLib ---
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "stateController", 0, this::statePredicate)
@@ -144,26 +143,17 @@ public class CrabEntity extends Animal implements GeoEntity {
     }
 
     private PlayState statePredicate(AnimationState<CrabEntity> state) {
-        // No idle/"sit" clip exists in crab.animation.json yet, only "crawl" and "snap" —
-        // leave the current animation (bind pose, or an in-progress triggered snap) alone
-        // when stationary rather than stomping over it.
         if (state.isMoving()) {
             state.getController().setAnimation(RawAnimation.begin().thenLoop("crawl"));
+            return PlayState.CONTINUE;
         }
-        return PlayState.CONTINUE;
+        return PlayState.STOP;
     }
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
     }
-
-    // ==========================================================
-    // Crabs walk sideways: body facing is locked perpendicular to
-    // the direction of travel instead of turning to face it. Only
-    // sets velocity intent (no direct move() call) so vanilla's own
-    // travel()/gravity/friction/step-up pipeline does the actual move.
-    // ==========================================================
     private static class CrabWanderGoal extends Goal {
         private final CrabEntity crab;
         private double targetX, targetZ;

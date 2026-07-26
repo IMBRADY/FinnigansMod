@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:stronghold",
+  "biomes": "#minecraft:has_structure/stronghold",
+  "step": "surface_structures",
+  "terrain_adaptation": "bury",
+  "spawn_overrides": {
+    "monster": {
+      "bounding_box": "piece",
+      "spawns": [
+        {
+          "type": "tommemod:dungeon_crab",
+          "weight": 10,
+          "minCount": 1,
+          "maxCount": 1
+        }
+      ]
+    }
+  }
+}
