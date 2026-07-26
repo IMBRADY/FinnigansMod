@@ -235,6 +235,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
         event.put(ModEntityTypes.DUCK.get(), DuckEntity.createAttributes().build());
         event.put(ModEntityTypes.CRAB.get(), CrabEntity.createAttributes().build());
         event.put(ModEntityTypes.HERMIT_CRAB.get(), HermitCrabEntity.createAttributes().build());
+        event.put(ModEntityTypes.ELDER_VILLAGER.get(), ElderVillagerEntity.createAttributes().build());
     }
 
     @SubscribeEvent
@@ -273,6 +274,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.CRAB.get(), CrabRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.HERMIT_CRAB.get(), HermitCrabRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.BEE_NADE.get(), ThrownItemRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.ELDER_VILLAGER.get(), ElderVillagerRenderer::new);
         }
     }
 }

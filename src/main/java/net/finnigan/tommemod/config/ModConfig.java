@@ -1,0 +1,126 @@
+package net.finnigan.tommemod.config;
+
+import net.minecraftforge.common.ForgeConfigSpec;
+
+import java.util.List;
+
+public class ModConfig {
+
+    public static final ForgeConfigSpec COMMON_SPEC;
+
+    // reputation
+    public static final ForgeConfigSpec.IntValue TIER_APPRENTICE_THRESHOLD;
+    public static final ForgeConfigSpec.IntValue TIER_JOURNEYMAN_THRESHOLD;
+    public static final ForgeConfigSpec.IntValue TIER_EXPERT_THRESHOLD;
+    public static final ForgeConfigSpec.IntValue TIER_MASTER_THRESHOLD;
+    public static final ForgeConfigSpec.IntValue REPUTATION_FLOOR;
+
+    public static final ForgeConfigSpec.IntValue TRADE_GAIN;
+    public static final ForgeConfigSpec.IntValue VILLAGER_HURT_LOSS;
+    public static final ForgeConfigSpec.IntValue VILLAGER_KILLED_LOSS;
+    public static final ForgeConfigSpec.IntValue IRON_GOLEM_KILLED_LOSS;
+    public static final ForgeConfigSpec.IntValue HOSTILE_MOB_KILLED_IN_VILLAGE_GAIN;
+
+    // village (POI clustering)
+    public static final ForgeConfigSpec.IntValue POI_LINK_RADIUS;
+    public static final ForgeConfigSpec.IntValue MAX_BFS_POIS;
+    public static final ForgeConfigSpec.IntValue MAX_BFS_ITERATIONS;
+    public static final ForgeConfigSpec.IntValue MAX_VILLAGE_RADIUS_BLOCKS;
+    public static final ForgeConfigSpec.IntValue RESOLUTION_CACHE_TTL_TICKS;
+
+    // elder
+    public static final ForgeConfigSpec.IntValue MIN_NEARBY_VILLAGERS;
+
+    // chief
+    public enum DiscountType { PERCENTAGE, FLAT }
+    public static final ForgeConfigSpec.EnumValue<DiscountType> CHIEF_DISCOUNT_TYPE;
+    public static final ForgeConfigSpec.DoubleValue CHIEF_DISCOUNT_PERCENT;
+    public static final ForgeConfigSpec.IntValue CHIEF_DISCOUNT_FLAT_EMERALDS;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CHIEF_BUFF_ATTRIBUTE;
+    public static final ForgeConfigSpec.EnumValue<net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation> CHIEF_BUFF_OPERATION;
+    public static final ForgeConfigSpec.DoubleValue CHIEF_BUFF_AMOUNT_PER_VILLAGER;
+    public static final ForgeConfigSpec.DoubleValue CHIEF_BUFF_CAP;
+    public static final ForgeConfigSpec.IntValue CHIEF_BUFF_TICK_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.IntValue CHIEF_BUFF_REGION_PADDING_BLOCKS;
+
+    static {
+        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+
+        builder.push("reputation");
+        builder.comment("Every player starts as Novice (0) in every village. Tiers are always derived live from the",
+                "current reputation score, so losing reputation can demote a player back down a tier.");
+        TIER_APPRENTICE_THRESHOLD = builder.comment("Reputation needed to become Apprentice")
+                .defineInRange("tierApprenticeThreshold", 100, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        TIER_JOURNEYMAN_THRESHOLD = builder.comment("Reputation needed to become Journeyman")
+                .defineInRange("tierJourneymanThreshold", 250, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        TIER_EXPERT_THRESHOLD = builder.comment("Reputation needed to become Expert")
+                .defineInRange("tierExpertThreshold", 500, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        TIER_MASTER_THRESHOLD = builder.comment("Reputation needed to become Master")
+                .defineInRange("tierMasterThreshold", 1000, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        REPUTATION_FLOOR = builder.comment("Reputation with a village is never allowed to drop below this value")
+                .defineInRange("reputationFloor", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+
+        builder.comment("Reputation gained/lost per activity, mirroring vanilla villager gossip categories.");
+        TRADE_GAIN = builder.comment("Small gain per completed villager trade")
+                .defineInRange("tradeGain", 1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        VILLAGER_HURT_LOSS = builder.comment("Loss for non-lethally hurting a villager")
+                .defineInRange("villagerHurtLoss", -15, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        VILLAGER_KILLED_LOSS = builder.comment("Big loss for killing a villager")
+                .defineInRange("villagerKilledLoss", -50, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        IRON_GOLEM_KILLED_LOSS = builder.comment("Loss for killing an Iron Golem (a village's defender)")
+                .defineInRange("ironGolemKilledLoss", -15, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        HOSTILE_MOB_KILLED_IN_VILLAGE_GAIN = builder.comment("Small gain for killing a hostile mob while inside a village")
+                .defineInRange("hostileMobKilledInVillageGain", 3, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        builder.pop();
+
+        builder.push("village");
+        builder.comment("Villages are defined by clustering claimed POIs (beds, job sites, bells): each POI projects",
+                "a radius, and overlapping radii (within 2x that radius of each other) merge into one village.");
+        POI_LINK_RADIUS = builder.comment("Radius (blocks) each claimed POI projects; two POIs within 2x this distance link into the same village")
+                .defineInRange("poiLinkRadius", 32, 1, 256);
+        MAX_BFS_POIS = builder.comment("Safety cap: max POIs visited while resolving one village cluster")
+                .defineInRange("maxBfsPois", 4096, 16, Integer.MAX_VALUE);
+        MAX_BFS_ITERATIONS = builder.comment("Safety cap: max BFS loop iterations while resolving one village cluster")
+                .defineInRange("maxBfsIterations", 8192, 16, Integer.MAX_VALUE);
+        MAX_VILLAGE_RADIUS_BLOCKS = builder.comment("Safety cap: BFS will not expand a village past this distance from its anchor")
+                .defineInRange("maxVillageRadiusBlocks", 512, 32, Integer.MAX_VALUE);
+        RESOLUTION_CACHE_TTL_TICKS = builder.comment("How long (ticks) a resolved village lookup is cached in memory, since combat/trade events call it often")
+                .defineInRange("resolutionCacheTtlTicks", 100, 0, Integer.MAX_VALUE);
+        builder.pop();
+
+        builder.push("elder");
+        MIN_NEARBY_VILLAGERS = builder.comment("Minimum Villager population required in a village before placing an Enchanting Table will spawn its Elder Villager")
+                .defineInRange("minNearbyVillagers", 3, 0, Integer.MAX_VALUE);
+        builder.pop();
+
+        builder.push("chief");
+        CHIEF_DISCOUNT_TYPE = builder.comment("Whether the Village Chief trade discount is a percentage of each offer's price, or a flat emerald amount off")
+                .defineEnum("discountType", DiscountType.PERCENTAGE);
+        CHIEF_DISCOUNT_PERCENT = builder.comment("Discount fraction applied to trade prices for the Village Chief (used when discountType = PERCENTAGE)")
+                .defineInRange("discountPercent", 0.15, 0.0, 1.0);
+        CHIEF_DISCOUNT_FLAT_EMERALDS = builder.comment("Flat emerald discount applied to trade prices for the Village Chief (used when discountType = FLAT)")
+                .defineInRange("discountFlatEmeralds", 1, 0, Integer.MAX_VALUE);
+        CHIEF_BUFF_ATTRIBUTE = builder.comment("Attribute (registry id) buffed for the Village Chief while inside their village")
+                .defineListAllowEmpty(
+                        "buffAttributes",
+                        List.of("minecraft:generic.movement_speed", "minecraft:generic.armor_toughness", "minecraft:generic.knockback_resistance"),
+                        obj -> obj instanceof String
+                );
+        CHIEF_BUFF_OPERATION = builder.comment("How buffAmountPerVillager is applied to the buffed attribute")
+                .defineEnum("buffAttributeOperation", net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADDITION);
+        CHIEF_BUFF_AMOUNT_PER_VILLAGER = builder.comment("Buff amount granted per Villager currently in the Chief's village")
+                .defineInRange("buffAmountPerVillager", 0.005, 0.0, Double.MAX_VALUE);
+        CHIEF_BUFF_CAP = builder.comment("Maximum total buff amount regardless of village population")
+                .defineInRange("buffCap", 0.15, 0.0, Double.MAX_VALUE);
+        CHIEF_BUFF_TICK_INTERVAL_TICKS = builder.comment("How often (ticks) the Chief buff is recalculated")
+                .defineInRange("buffTickIntervalTicks", 30, 1, Integer.MAX_VALUE);
+        CHIEF_BUFF_REGION_PADDING_BLOCKS = builder.comment("Extra padding (blocks) added to a village's bounding region for buff/population purposes, so the buff doesn't flicker at the boundary")
+                .defineInRange("buffRegionPaddingBlocks", 8, 0, Integer.MAX_VALUE);
+        builder.pop();
+
+        COMMON_SPEC = builder.build();
+    }
+
+    private ModConfig() {
+    }
+}

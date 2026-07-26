@@ -143,4 +143,10 @@ public class ModEntityTypes {
                     .clientTrackingRange(4)
                     .updateInterval(10)
                     .build("bee_nade"));
+    public static final RegistryObject<EntityType<ElderVillagerEntity>> ELDER_VILLAGER =
+            ENTITY_TYPES.register("elder_villager", () -> EntityType.Builder.of(ElderVillagerEntity::new, MobCategory.MISC)
+                    .sized(0.6F, 1.95F)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("elder_villager"));
 }

@@ -3,6 +3,7 @@ package net.finnigan.tommemod;
 import com.mojang.logging.LogUtils;
 import net.finnigan.tommemod.block.ModBlocks;
 import net.finnigan.tommemod.block.entity.ModBlockEntities;
+import net.finnigan.tommemod.config.ModConfig;
 import net.finnigan.tommemod.enchantment.ModEnchantments;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.item.ModCreativeModTabs;
@@ -24,6 +25,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
@@ -56,6 +59,8 @@ public class TommeMod
         ModParticleTypes.PARTICLE_TYPES.register(modEventBus);
         ModPoiTypes.POI_TYPES.register(modEventBus);
         ModVillagers.PROFESSIONS.register(modEventBus);
+
+        ModLoadingContext.get().registerConfig(Type.COMMON, ModConfig.COMMON_SPEC);
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
