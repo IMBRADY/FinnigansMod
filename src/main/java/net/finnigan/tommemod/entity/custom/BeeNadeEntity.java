@@ -6,15 +6,16 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
+
+import java.util.Comparator;
+import java.util.List;
 
 public class BeeNadeEntity extends ThrowableItemProjectile {
 
@@ -36,11 +37,24 @@ public class BeeNadeEntity extends ThrowableItemProjectile {
         super.onHit(result);
 
         if (!this.level().isClientSide()) {
-            AABB aoe = this.getBoundingBox().inflate(3.0);
-            for (LivingEntity target : this.level().getEntitiesOfClass(LivingEntity.class, aoe,
-                    e -> e != this.getOwner() && e.isAlive())) {
-                target.hurt(this.damageSources().generic(), 2.0F);
-                target.addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0));
+            List<LivingEntity> nearby = this.level().getEntitiesOfClass(LivingEntity.class,
+                    this.getBoundingBox().inflate(6.0), e -> e != this.getOwner() && e.isAlive());
+            LivingEntity target = nearby.stream()
+                    .min(Comparator.comparingDouble(e -> e.distanceToSqr(this)))
+                    .orElse(null);
+
+            int count = 2 + this.random.nextInt(2);
+            for (int i = 0; i < count; i++) {
+                Bee bee = EntityType.BEE.create(this.level());
+                if (bee == null) continue;
+
+                bee.moveTo(this.getX(), this.getY(), this.getZ(), this.random.nextFloat() * 360.0F, 0.0F);
+                if (target != null) {
+                    bee.setPersistentAngerTarget(target.getUUID());
+                    bee.startPersistentAngerTimer();
+                    bee.setTarget(target);
+                }
+                this.level().addFreshEntity(bee);
             }
 
             if (this.level() instanceof ServerLevel serverLevel) {

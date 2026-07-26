@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "tommemod:oven_poi"
+    "tommemod:oven_poi",
+    "minecraft:beehive"
   ]
 }

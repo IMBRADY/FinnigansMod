@@ -9,7 +9,8 @@
     "AbstractContainerMenuAccessor",
     "LivingEntityTotemMixin",
     "ItemStackDurabilityMixin",
-    "PlayerExhaustionMixin"
+    "PlayerExhaustionMixin",
+    "PoiTypesMixin"
   ],
   "client": [
     "InventoryScreenMixin",

@@ -322,7 +322,7 @@ public class ModItems {
     public static final RegistryObject<Item> STINGER = ITEMS.register("stinger",
             () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> BEE_WINGS = ITEMS.register("bee_wings",
-            () -> new Item(new Item.Properties()));
+            () -> new BeeWingsItem(new Item.Properties().durability(108))); // 1/4 of elytra's 432
     public static final RegistryObject<Item> PREMIUM_HONEY = ITEMS.register("premium_honey",
             () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
                     .nutrition(6)

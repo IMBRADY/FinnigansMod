@@ -125,7 +125,7 @@ public class HermitCrabEntity extends TamableAnimal implements GeoEntity {
         float yawRad = (float) Math.toRadians(owner.getYRot());
         double sideX = -Math.cos(yawRad) * 0.35;
         double sideZ = -Math.sin(yawRad) * 0.35;
-        Vec3 target = owner.position().add(sideX, owner.getBbHeight() - 0.2, sideZ);
+        Vec3 target = owner.position().add(sideX, owner.getBbHeight() - 0.55, sideZ);
 
         this.setPos(target.x, target.y, target.z);
         this.setYRot(owner.getYRot());
@@ -172,15 +172,16 @@ public class HermitCrabEntity extends TamableAnimal implements GeoEntity {
         }
 
         if (this.isTame() && this.isOwnedBy(player)) {
-            if (player.isShiftKeyDown()) {
-                if (!this.isRidingShoulder()) {
+            if (hand == InteractionHand.MAIN_HAND && !this.level().isClientSide) {
+                if (player.isShiftKeyDown()) {
+                    if (this.isRidingShoulder()) {
+                        this.dismountShoulder(player.blockPosition());
+                    } else {
+                        this.mountShoulder(player);
+                    }
+                } else if (!this.isRidingShoulder()) {
                     this.setOrderedToSit(!this.isOrderedToSit());
                 }
-                return InteractionResult.sidedSuccess(this.level().isClientSide);
-            }
-
-            if (!this.level().isClientSide && !this.isRidingShoulder() && hand == InteractionHand.MAIN_HAND) {
-                this.mountShoulder(player);
             }
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
@@ -199,6 +200,15 @@ public class HermitCrabEntity extends TamableAnimal implements GeoEntity {
         return level.isUnobstructed(this);
     }
 
+    @Override
+    public boolean isPushable() {
+        return false;
+    }
+
+    @Override
+    protected void pushEntities() {
+    }
+
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
@@ -213,37 +223,33 @@ public class HermitCrabEntity extends TamableAnimal implements GeoEntity {
         }
     }
 
-    // --- GeckoLib ---
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "stateController", 0, this::statePredicate));
     }
 
     private PlayState statePredicate(AnimationState<HermitCrabEntity> state) {
+        boolean moving = !this.isRidingShoulder() && Math.abs(this.walkDist - this.walkDistO) > 0.0005F;
+
         if (this.foundChestPos != null) {
             state.getController().setAnimation(RawAnimation.begin().thenLoop("find"));
-        } else if (state.isMoving()) {
-            state.getController().setAnimation(RawAnimation.begin().thenLoop("crawl"));
-        } else if (this.isOrderedToSit() || this.isRidingShoulder()) {
-            // "sit" is reserved for when the owner actually commands it (or it's
-            // riding a shoulder) — plain standing-still idle holds a neutral pose
-            // instead of looping the sit animation.
-            state.getController().setAnimation(RawAnimation.begin().thenLoop("sit"));
+            return PlayState.CONTINUE;
         }
-        return PlayState.CONTINUE;
+        if (moving) {
+            state.getController().setAnimation(RawAnimation.begin().thenLoop("crawl"));
+            return PlayState.CONTINUE;
+        }
+        if (this.isOrderedToSit() || this.isRidingShoulder()) {
+            state.getController().setAnimation(RawAnimation.begin().thenPlayAndHold("sit"));
+            return PlayState.CONTINUE;
+        }
+        return PlayState.STOP;
     }
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
     }
-
-    // ==========================================================
-    // While the owner holds a buried treasure map, guides toward the
-    // marked location without wandering more than LEASH_RADIUS from
-    // the owner. Once close, hunts for the actual chest block at that
-    // x/z (maps carry no vertical info) and settles on it, playing "find".
-    // ==========================================================
     private static class TreasureSeekGoal extends Goal {
         private static final double LEASH_RADIUS = 24.0;
         private static final double CHEST_SEARCH_TRIGGER_RADIUS_SQR = 5.0 * 5.0;
@@ -275,7 +281,6 @@ public class HermitCrabEntity extends TamableAnimal implements GeoEntity {
             repathTimer = 0;
             chestSearchTimer = 0;
         }
-
         @Override
         public void stop() {
             crab.setFoundChestPos(null);

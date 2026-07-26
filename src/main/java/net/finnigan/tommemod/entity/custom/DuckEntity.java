@@ -17,9 +17,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
-import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -95,14 +92,9 @@ public class DuckEntity extends Animal implements GeoEntity {
     }
 
     @Override
-    protected PathNavigation createNavigation(Level level) {
-        return new AmphibiousPathNavigation(this, level);
-    }
-
-    @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new DuckFleeFlyGoal(this));
-        this.goalSelector.addGoal(2, new RandomStrollGoal(this, 1.0));
+        this.goalSelector.addGoal(2, new DuckWanderGoal(this));
         this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
     }
@@ -163,16 +155,21 @@ public class DuckEntity extends Animal implements GeoEntity {
     }
 
     // Sits calmly on top of the water instead of the default land-mob behavior
-    // of repeatedly hopping/bobbing (FloatGoal) to keep from sinking.
+    // of repeatedly hopping/bobbing (FloatGoal) to keep from sinking. Clamped
+    // slightly *below* the exact surface so the hitbox reliably still overlaps
+    // the fluid (isInWater() reads false if the box floats fully above it),
+    // and movement is purely horizontal-target driven (see DuckWanderGoal) so
+    // nothing is simultaneously trying to path the duck underwater and fighting
+    // this correction.
     private void floatOnWaterSurface() {
         BlockPos pos = this.blockPosition();
         net.minecraft.world.level.material.FluidState fluidState = this.level().getFluidState(pos);
         if (fluidState.isEmpty()) return;
 
-        double surfaceY = pos.getY() + fluidState.getHeight(this.level(), pos);
+        double surfaceY = pos.getY() + fluidState.getHeight(this.level(), pos) - 0.1;
         double currentY = this.getY();
-        if (Math.abs(currentY - surfaceY) > 0.05) {
-            this.setPos(this.getX(), Mth.lerp(0.3, currentY, surfaceY), this.getZ());
+        if (Math.abs(currentY - surfaceY) > 0.02) {
+            this.setPos(this.getX(), Mth.lerp(0.5, currentY, surfaceY), this.getZ());
         }
 
         Vec3 delta = this.getDeltaMovement();
@@ -207,11 +204,12 @@ public class DuckEntity extends Animal implements GeoEntity {
     }
 
     private PlayState statePredicate(AnimationState<DuckEntity> state) {
+        boolean moving = this.getDeltaMovement().horizontalDistanceSqr() > 0.0025;
         if (this.isFlying()) {
             state.getController().setAnimation(FLY_ANIM);
         } else if (this.isEating()) {
             state.getController().setAnimation(EAT_ANIM);
-        } else if (state.isMoving()) {
+        } else if (moving) {
             state.getController().setAnimation(this.isInWater() ? SWIM_ANIM : WALK_ANIM);
         } else {
             state.getController().setAnimation(IDLE_ANIM);
@@ -398,6 +396,82 @@ public class DuckEntity extends Animal implements GeoEntity {
             duck.setYRot(newYaw);
             duck.yBodyRot = newYaw;
             duck.setYHeadRot(newYaw);
+        }
+    }
+
+    // ==========================================================
+    // Casual wandering on land or in water. Only ever picks a purely
+    // horizontal target (never a specific depth/Y) and only sets
+    // horizontal velocity intent, leaving vertical placement entirely
+    // to floatOnWaterSurface()/gravity — so there's nothing fighting
+    // the surface-float correction over what Y the duck should be at.
+    // ==========================================================
+    private static class DuckWanderGoal extends Goal {
+        private final DuckEntity duck;
+        private double targetX, targetZ;
+        private int wanderTimer = 0;
+        private int idleTimer = 0;
+
+        DuckWanderGoal(DuckEntity duck) {
+            this.duck = duck;
+            this.setFlags(EnumSet.of(Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() {
+            if (idleTimer > 0) {
+                idleTimer--;
+                return false;
+            }
+            return duck.random.nextInt(20) == 0;
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return wanderTimer > 0;
+        }
+
+        @Override
+        public void start() {
+            pickTarget();
+            wanderTimer = 60 + duck.random.nextInt(100);
+        }
+
+        @Override
+        public void tick() {
+            wanderTimer--;
+            Vec3 pos = duck.position();
+            Vec3 diff = new Vec3(targetX - pos.x, 0, targetZ - pos.z);
+
+            if (diff.lengthSqr() < 0.25) {
+                wanderTimer = 0;
+                duck.setDeltaMovement(0, duck.getDeltaMovement().y, 0);
+                return;
+            }
+
+            Vec3 dir = diff.normalize();
+            double speed = 0.06;
+            duck.setDeltaMovement(dir.x * speed, duck.getDeltaMovement().y, dir.z * speed);
+
+            float targetYaw = (float) (Mth.atan2(-dir.x, dir.z) * (180.0 / Math.PI));
+            float newYaw = Mth.rotateIfNecessary(duck.getYRot(), targetYaw, 10.0F);
+            duck.setYRot(newYaw);
+            duck.yBodyRot = newYaw;
+            duck.setYHeadRot(newYaw);
+        }
+
+        @Override
+        public void stop() {
+            duck.setDeltaMovement(0, duck.getDeltaMovement().y, 0);
+            idleTimer = 40 + duck.random.nextInt(80);
+        }
+
+        private void pickTarget() {
+            Vec3 pos = duck.position();
+            double angle = duck.random.nextDouble() * Math.PI * 2;
+            double dist = 2.0 + duck.random.nextDouble() * 4.0;
+            targetX = pos.x + Math.cos(angle) * dist;
+            targetZ = pos.z + Math.sin(angle) * dist;
         }
     }
 }

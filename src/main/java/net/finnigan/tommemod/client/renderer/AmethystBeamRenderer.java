@@ -5,6 +5,8 @@ import net.finnigan.tommemod.client.model.AmethystBeamModel;
 import net.finnigan.tommemod.entity.custom.AmethystCutlassHelpers.AmethystBeamEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -23,7 +25,27 @@ public class AmethystBeamRenderer extends GeoEntityRenderer<AmethystBeamEntity> 
                           boolean isReRender, float partialTick, int packedLight, int packedOverlay,
                           float red, float green, float blue, float alpha) {
 
-        Vec3 look = animatable.getViewVector(partialTick);
+        LivingEntity owner = animatable.getOwner();
+        Vec3 look;
+        if (owner != null) {
+            // The base renderer already translated poseStack to the beam entity's own
+            // interpolated position, but that position (and rotation, read below) only gets
+            // copied from the owner once per game tick, a full tick stale relative to the
+            // owner's own smoothly-interpolated camera. Correct the translation onto the
+            // owner's live position for this exact frame, eliminating the lag/jitter.
+            Vec3 beamInterpPos = new Vec3(
+                    Mth.lerp(partialTick, animatable.xo, animatable.getX()),
+                    Mth.lerp(partialTick, animatable.yo, animatable.getY()),
+                    Mth.lerp(partialTick, animatable.zo, animatable.getZ()));
+            Vec3 liveOrigin = AmethystBeamEntity.computeOrigin(owner, partialTick);
+            Vec3 correction = liveOrigin.subtract(beamInterpPos);
+            poseStack.translate(correction.x, correction.y, correction.z);
+
+            look = owner.getViewVector(partialTick);
+        } else {
+            look = animatable.getViewVector(partialTick);
+        }
+
         Vector3f dir = new Vector3f((float) look.x, (float) look.y, (float) look.z).normalize();
         Vector3f up = new Vector3f(0.0F, 1.0F, 0.0F); // model's default length axis
 

@@ -50,6 +50,21 @@ public class AmethystBeamEntity extends Entity implements GeoEntity {
         this.entityData.set(OWNER_ID, owner.getId());
     }
 
+    public LivingEntity getOwner() {
+        return this.owner;
+    }
+
+    // Shared with AmethystBeamRenderer so the visual beam can track the owner's live,
+    // render-interpolated eye/look each frame instead of the beam entity's own position/
+    // rotation, which only get copied from the owner once per game tick (see tick() below)
+    // and were lagging a full tick behind the camera, reading as jitter whenever the player
+    // moved the camera or walked.
+    public static Vec3 computeOrigin(LivingEntity owner, float partialTick) {
+        Vec3 eyePos = owner.getEyePosition(partialTick);
+        Vec3 look = owner.getViewVector(partialTick);
+        return eyePos.add(look.scale(0.35D)).add(0, -0.35D, 0);
+    }
+
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         super.onSyncedDataUpdated(key);
@@ -120,10 +135,8 @@ public class AmethystBeamEntity extends Entity implements GeoEntity {
             return;
         }
 
-        Vec3 eyePos = owner.getEyePosition(1.0F);
+        Vec3 origin = computeOrigin(owner, 1.0F);
         Vec3 look = owner.getViewVector(1.0F);
-
-        Vec3 origin = eyePos.add(look.scale(0.35D)).add(0, -0.35D, 0); // look.scale(n) - low close it is to player, 2nd number = y offset
 
         this.setPos(origin.x, origin.y, origin.z);
         this.setYRot(owner.getYRot());

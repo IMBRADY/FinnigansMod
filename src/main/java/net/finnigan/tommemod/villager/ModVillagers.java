@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import net.finnigan.tommemod.TommeMod;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -25,8 +26,8 @@ public class ModVillagers {
 
     public static final RegistryObject<VillagerProfession> BEEKEEPER = PROFESSIONS.register("beekeeper",
             () -> new VillagerProfession("beekeeper",
-                    holder -> holder.value() == ModPoiTypes.BEEHIVE_POI.get(),
-                    holder -> holder.value() == ModPoiTypes.BEEHIVE_POI.get(),
+                    holder -> holder.is(PoiTypes.BEEHIVE),
+                    holder -> holder.is(PoiTypes.BEEHIVE),
                     ImmutableSet.of(), // requestedItems
                     ImmutableSet.of(), // secondaryPoi
                     SoundEvents.BEE_LOOP));
