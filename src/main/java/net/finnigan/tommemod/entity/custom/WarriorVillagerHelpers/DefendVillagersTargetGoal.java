@@ -6,6 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.phys.AABB;
 
@@ -46,7 +47,8 @@ public class DefendVillagersTargetGoal extends TargetGoal {
         for (LivingEntity victim : victims) {
             LivingEntity attacker = victim.getLastHurtByMob();
             if (attacker == null || !attacker.isAlive()) continue;
-            if (attacker instanceof Villager || attacker instanceof ElderVillagerEntity || attacker instanceof WarriorVillagerEntity) {
+            if (attacker instanceof Villager || attacker instanceof ElderVillagerEntity
+                    || attacker instanceof WarriorVillagerEntity || attacker instanceof IronGolem) {
                 continue;
             }
 

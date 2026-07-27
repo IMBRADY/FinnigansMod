@@ -4,6 +4,7 @@ import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.capability.reputation.ModReputationCapabilities;
 import net.finnigan.tommemod.capability.reputation.ReputationHandler;
 import net.finnigan.tommemod.config.ModConfig;
+import net.finnigan.tommemod.entity.custom.WarriorVillagerEntity;
 import net.finnigan.tommemod.village.VillageManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -11,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.AbstractVillager;
@@ -39,13 +41,16 @@ public class ReputationEvents {
 
     @SubscribeEvent
     public static void onHurt(LivingHurtEvent event) {
-        if (!(event.getEntity() instanceof AbstractVillager villager)) return;
+        LivingEntity victim = event.getEntity();
+        // WarriorVillagerEntity isn't an AbstractVillager, but hurting it costs the same reputation
+        // as hurting a regular villager - it's still one of the village's own.
+        if (!(victim instanceof AbstractVillager || victim instanceof WarriorVillagerEntity)) return;
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
 
         // Skip a killing blow here; LivingDeathEvent below awards the (larger) kill penalty instead.
-        if (villager.getHealth() - event.getAmount() <= 0) return;
+        if (victim.getHealth() - event.getAmount() <= 0) return;
 
-        applyChange(player, villager.blockPosition(), ModConfig.VILLAGER_HURT_LOSS.get());
+        applyChange(player, victim.blockPosition(), ModConfig.VILLAGER_HURT_LOSS.get());
     }
 
     @SubscribeEvent
@@ -53,7 +58,7 @@ public class ReputationEvents {
         Entity victim = event.getEntity();
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
 
-        if (victim instanceof AbstractVillager) {
+        if (victim instanceof AbstractVillager || victim instanceof WarriorVillagerEntity) {
             applyChange(player, victim.blockPosition(), ModConfig.VILLAGER_KILLED_LOSS.get());
         } else if (victim instanceof IronGolem) {
             applyChange(player, victim.blockPosition(), ModConfig.IRON_GOLEM_KILLED_LOSS.get());
