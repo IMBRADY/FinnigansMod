@@ -49,6 +49,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.GOLD_PIKE.get());
                         pOutput.accept(ModItems.DIAMOND_PIKE.get());
                         pOutput.accept(ModItems.NETHERITE_PIKE.get());
+                        pOutput.accept(ModItems.HALBERD.get());
 
                         pOutput.accept(ModItems.WOODEN_DAGGER.get());
                         pOutput.accept(ModItems.STONE_DAGGER.get());

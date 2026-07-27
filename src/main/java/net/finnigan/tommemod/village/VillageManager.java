@@ -39,6 +39,7 @@ public class VillageManager extends SavedData {
     private final Map<BlockPos, UUID> poiIndex = new HashMap<>();
     private final Map<BlockPos, UUID> anchorIndex = new HashMap<>();
     private final Map<UUID, UUID> elderByVillage = new HashMap<>();
+    private final Map<UUID, UUID> chiefByVillage = new HashMap<>();
     private final Map<BlockPos, CacheEntry> resolveCache = new HashMap<>();
 
     private record CacheEntry(Optional<UUID> villageId, long expiresAtTick) {
@@ -154,6 +155,21 @@ public class VillageManager extends SavedData {
         if (elderByVillage.remove(villageId, elderUUID)) setDirty();
     }
 
+    /**
+     * Chief status is tracked here rather than on any particular Elder entity, so it survives that
+     * Elder dying/despawning and a replacement being spawned later.
+     */
+    public Optional<UUID> getChief(UUID villageId) {
+        return Optional.ofNullable(chiefByVillage.get(villageId));
+    }
+
+    public boolean trySetChief(UUID villageId, UUID playerUUID) {
+        if (chiefByVillage.containsKey(villageId)) return false;
+        chiefByVillage.put(villageId, playerUUID);
+        setDirty();
+        return true;
+    }
+
     private UUID mergeVillages(Set<UUID> ids) {
         UUID keep = ids.stream().min(UUID::compareTo).orElseThrow();
         for (UUID discard : ids) {
@@ -166,6 +182,9 @@ public class VillageManager extends SavedData {
             }
             UUID discardElder = elderByVillage.remove(discard);
             if (discardElder != null) elderByVillage.putIfAbsent(keep, discardElder);
+
+            UUID discardChief = chiefByVillage.remove(discard);
+            if (discardChief != null) chiefByVillage.putIfAbsent(keep, discardChief);
         }
         setDirty();
         return keep;
@@ -203,6 +222,15 @@ public class VillageManager extends SavedData {
         });
         tag.put("Elders", elderList);
 
+        ListTag chiefList = new ListTag();
+        chiefByVillage.forEach((village, chief) -> {
+            CompoundTag e = new CompoundTag();
+            e.putUUID("Village", village);
+            e.putUUID("Chief", chief);
+            chiefList.add(e);
+        });
+        tag.put("Chiefs", chiefList);
+
         return tag;
     }
 
@@ -225,6 +253,12 @@ public class VillageManager extends SavedData {
         for (int i = 0; i < elderList.size(); i++) {
             CompoundTag e = elderList.getCompound(i);
             mgr.elderByVillage.put(e.getUUID("Village"), e.getUUID("Elder"));
+        }
+
+        ListTag chiefList = tag.getList("Chiefs", Tag.TAG_COMPOUND);
+        for (int i = 0; i < chiefList.size(); i++) {
+            CompoundTag e = chiefList.getCompound(i);
+            mgr.chiefByVillage.put(e.getUUID("Village"), e.getUUID("Chief"));
         }
 
         return mgr;

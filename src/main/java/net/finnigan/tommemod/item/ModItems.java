@@ -150,6 +150,16 @@ public class ModItems {
                     new Item.Properties()
             )
     );
+    public static final RegistryObject<net.finnigan.tommemod.item.custom.HalberdItem> HALBERD = ITEMS.register("halberd", () ->
+            new net.finnigan.tommemod.item.custom.HalberdItem(
+                    Tiers.IRON,
+                    3,          // attackDamageModifier
+                    -3.0F,    // attackSpeedModifier
+                    1.5,        // reachBonus (add on top of default 4.5)
+                    1.0F,       // knockbackBonus
+                    new Item.Properties()
+            )
+    );
     public static final RegistryObject<PikeItem> NETHERITE_PIKE = ITEMS.register("netherite_pike", () ->
             new PikeItem(
                     Tiers.NETHERITE,

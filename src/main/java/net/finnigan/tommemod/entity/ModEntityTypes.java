@@ -149,4 +149,10 @@ public class ModEntityTypes {
                     .clientTrackingRange(8)
                     .updateInterval(3)
                     .build("elder_villager"));
+    public static final RegistryObject<EntityType<WarriorVillagerEntity>> WARRIOR_VILLAGER =
+            ENTITY_TYPES.register("warrior_villager", () -> EntityType.Builder.of(WarriorVillagerEntity::new, MobCategory.MISC)
+                    .sized(0.6F, 1.95F)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("warrior_villager"));
 }

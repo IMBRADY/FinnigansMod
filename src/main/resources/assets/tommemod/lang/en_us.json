@@ -18,6 +18,7 @@
   "item.tommemod.wooden_pike": "Wooden Pike",
   "item.tommemod.stone_pike": "Stone Pike",
   "item.tommemod.iron_pike": "Iron Pike",
+  "item.tommemod.halberd": "Halberd",
   "item.tommemod.gold_pike": "Gold Pike",
   "item.tommemod.diamond_pike": "Diamond Pike",
   "item.tommemod.netherite_pike": "Netherite Pike",
@@ -65,6 +66,8 @@
   "entity.tommemod.duck": "Duck",
   "entity.tommemod.crab": "Crab",
   "entity.tommemod.hermit_crab": "Hermit Crab",
+  "entity.tommemod.elder_villager": "Elder Villager",
+  "entity.tommemod.warrior_villager": "Warrior Villager",
 
   "item.tommemod.mushroom_meat": "Mushroom Meat",
   "item.tommemod.cooked_mushroom_meat": "Cooked Mushroom Meat",

@@ -47,6 +47,7 @@ public class ElderVillagerSpawnEvents {
         ElderVillagerEntity elder = ModEntityTypes.ELDER_VILLAGER.get().create(level);
         if (elder == null) return;
 
+        elder.setVillageId(villageId);
         elder.moveTo(pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, 0.0F, 0.0F);
         if (!level.addFreshEntity(elder)) return;
 

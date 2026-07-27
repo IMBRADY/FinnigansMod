@@ -48,6 +48,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                     (stack, level, entity, seed) ->
                             entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F);
             MenuScreens.register(ModMenuTypes.OVEN_MENU.get(), OvenScreen::new);
+            MenuScreens.register(ModMenuTypes.WARRIOR_VILLAGER_MENU.get(), net.finnigan.tommemod.client.screen.WarriorVillagerScreen::new);
             ItemProperties.register(Items.ENCHANTED_BOOK, new ResourceLocation(TommeMod.MOD_ID, "enchant_type"),
                     (stack, level, entity, seed) -> {
                         if (stack.isEmpty()) return 0.0F;
@@ -236,6 +237,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
         event.put(ModEntityTypes.CRAB.get(), CrabEntity.createAttributes().build());
         event.put(ModEntityTypes.HERMIT_CRAB.get(), HermitCrabEntity.createAttributes().build());
         event.put(ModEntityTypes.ELDER_VILLAGER.get(), ElderVillagerEntity.createAttributes().build());
+        event.put(ModEntityTypes.WARRIOR_VILLAGER.get(), WarriorVillagerEntity.createAttributes().build());
     }
 
     @SubscribeEvent
@@ -275,6 +277,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.HERMIT_CRAB.get(), HermitCrabRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.BEE_NADE.get(), ThrownItemRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.ELDER_VILLAGER.get(), ElderVillagerRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.WARRIOR_VILLAGER.get(), WarriorVillagerRenderer::new);
         }
     }
 }

@@ -16,4 +16,15 @@ public enum ReputationTier {
     public boolean isAtLeast(ReputationTier other) {
         return this.ordinal() >= other.ordinal();
     }
+
+    /** Reputation score needed to reach the next tier, or -1 if already at Master (no next tier). */
+    public int nextThreshold() {
+        return switch (this) {
+            case NOVICE -> ModConfig.TIER_APPRENTICE_THRESHOLD.get();
+            case APPRENTICE -> ModConfig.TIER_JOURNEYMAN_THRESHOLD.get();
+            case JOURNEYMAN -> ModConfig.TIER_EXPERT_THRESHOLD.get();
+            case EXPERT -> ModConfig.TIER_MASTER_THRESHOLD.get();
+            case MASTER -> -1;
+        };
+    }
 }

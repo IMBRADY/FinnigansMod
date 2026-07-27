@@ -2,6 +2,7 @@ package net.finnigan.tommemod.network;
 
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.network.packet.SyncAccessoryPacket;
+import net.finnigan.tommemod.network.packet.SyncReputationHudPacket;
 import net.finnigan.tommemod.network.packet.SyncReputationPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
@@ -31,5 +32,7 @@ public class ModNetwork {
                 SyncAccessoryPacket::encode, SyncAccessoryPacket::new, SyncAccessoryPacket::handle);
         CHANNEL.registerMessage(id++, SyncReputationPacket.class,
                 SyncReputationPacket::encode, SyncReputationPacket::new, SyncReputationPacket::handle);
+        CHANNEL.registerMessage(id++, SyncReputationHudPacket.class,
+                SyncReputationHudPacket::encode, SyncReputationHudPacket::new, SyncReputationHudPacket::handle);
     }
 }

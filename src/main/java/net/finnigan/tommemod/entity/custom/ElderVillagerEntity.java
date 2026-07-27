@@ -3,7 +3,9 @@ package net.finnigan.tommemod.entity.custom;
 import net.finnigan.tommemod.capability.reputation.ModReputationCapabilities;
 import net.finnigan.tommemod.capability.reputation.ReputationTier;
 import net.finnigan.tommemod.village.VillageManager;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -12,6 +14,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.PoiTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -20,25 +23,39 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
+import net.minecraft.world.entity.ai.village.poi.PoiRecord;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 /**
  * A village's sole elder: no trading, gives quests (future work) and, once a player is trusted
  * enough, the option to become that village's permanent Chief. Never spawns naturally - only ever
  * placed by the Enchanting-Table trigger in ElderVillagerSpawnEvents.
+ *
+ * Approximates the normal-villager "feel" (persists like a real villager, sleeps at night, flees
+ * zombies, sticks near other villagers) using the classic Goal system rather than porting vanilla's
+ * Brain-based villager AI, which is a far larger, largely self-contained subsystem.
  */
 public class ElderVillagerEntity extends PathfinderMob {
 
-    private static final EntityDataAccessor<Optional<UUID>> DATA_CHIEF_UUID =
+    private static final EntityDataAccessor<Optional<UUID>> DATA_VILLAGE_ID =
             SynchedEntityData.defineId(ElderVillagerEntity.class, EntityDataSerializers.OPTIONAL_UUID);
 
     public ElderVillagerEntity(EntityType<? extends ElderVillagerEntity> type, Level level) {
@@ -54,38 +71,77 @@ public class ElderVillagerEntity extends PathfinderMob {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(DATA_CHIEF_UUID, Optional.empty());
+        this.entityData.define(DATA_VILLAGE_ID, Optional.empty());
+    }
+
+    @Nullable
+    public UUID getVillageId() {
+        return this.entityData.get(DATA_VILLAGE_ID).orElse(null);
+    }
+
+    public void setVillageId(@Nullable UUID villageId) {
+        this.entityData.set(DATA_VILLAGE_ID, Optional.ofNullable(villageId));
+    }
+
+    /**
+     * Normally the spawn trigger sets villageId once, up front. This fallback re-resolves and
+     * caches it lazily on first use if it's somehow missing (e.g. an Elder placed via /summon for
+     * testing rather than through the Enchanting-Table trigger), so a real, established village
+     * isn't permanently misreported as unrecognized just because that one-time set never happened.
+     */
+    @Nullable
+    private UUID resolveOrGetVillageId() {
+        UUID cached = getVillageId();
+        if (cached != null) return cached;
+        if (!(this.level() instanceof ServerLevel serverLevel)) return null;
+
+        UUID resolved = VillageManager.get(serverLevel).resolveVillage(serverLevel, this.blockPosition()).orElse(null);
+        if (resolved != null) setVillageId(resolved);
+        return resolved;
     }
 
     @Nullable
     public UUID getChiefUUID() {
-        return this.entityData.get(DATA_CHIEF_UUID).orElse(null);
+        UUID villageId = getVillageId();
+        if (villageId == null || !(this.level() instanceof ServerLevel serverLevel)) return null;
+        return VillageManager.get(serverLevel).getChief(villageId).orElse(null);
     }
 
-    public void setChiefUUID(@Nullable UUID uuid) {
-        this.entityData.set(DATA_CHIEF_UUID, Optional.ofNullable(uuid));
+    /**
+     * Chief status is permanent and lives in VillageManager (keyed by village, not by this entity),
+     * so it survives this Elder dying or despawning. Returns false if the village already has a chief.
+     */
+    public boolean trySetChief(UUID playerUUID) {
+        UUID villageId = getVillageId();
+        if (villageId == null || !(this.level() instanceof ServerLevel serverLevel)) return false;
+        return VillageManager.get(serverLevel).trySetChief(villageId, playerUUID);
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        UUID chief = getChiefUUID();
-        if (chief != null) tag.putUUID("ChiefUUID", chief);
+        UUID villageId = getVillageId();
+        if (villageId != null) tag.putUUID("VillageId", villageId);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (tag.hasUUID("ChiefUUID")) setChiefUUID(tag.getUUID("ChiefUUID"));
+        if (tag.hasUUID("VillageId")) setVillageId(tag.getUUID("VillageId"));
+    }
+
+    @Override
+    public boolean removeWhenFarAway(double distanceSqr) {
+        // Behave like a normal villager: never despawn just for being far from a player.
+        return false;
     }
 
     @Override
     public void remove(Entity.RemovalReason reason) {
         // Only free up "one Elder per village" on a permanent removal, not a chunk unload/dimension change.
-        if (reason.shouldDestroy() && this.level() instanceof ServerLevel serverLevel) {
-            VillageManager manager = VillageManager.get(serverLevel);
-            manager.resolveVillage(serverLevel, this.blockPosition())
-                    .ifPresent(villageId -> manager.unregisterElder(villageId, this.getUUID()));
+        UUID villageId = getVillageId();
+        if (reason.shouldDestroy() && villageId != null && this.level() instanceof ServerLevel serverLevel) {
+            VillageManager.get(serverLevel).unregisterElder(villageId, this.getUUID());
         }
         super.remove(reason);
     }
@@ -93,9 +149,12 @@ public class ElderVillagerEntity extends PathfinderMob {
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new RandomStrollGoal(this, 0.6D));
-        this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 6.0F));
-        this.goalSelector.addGoal(3, new RandomLookAroundGoal(this));
+        this.goalSelector.addGoal(1, new AvoidEntityGoal<>(this, Zombie.class, 8.0F, 0.6D, 0.6D));
+        this.goalSelector.addGoal(2, new SleepInNearbyBedGoal(this));
+        this.goalSelector.addGoal(3, new RandomStrollGoal(this, 0.6D));
+        this.goalSelector.addGoal(4, new CongregateGoal(this));
+        this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 6.0F));
+        this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
     }
 
     @Override
@@ -105,35 +164,139 @@ public class ElderVillagerEntity extends PathfinderMob {
             return InteractionResult.sidedSuccess(true);
         }
 
-        BlockPos pos = this.blockPosition();
-        Optional<UUID> villageId = VillageManager.get(serverLevel).resolveVillage(serverLevel, pos);
-        if (villageId.isEmpty()) {
-            player.sendSystemMessage(Component.literal("This doesn't feel like an established village yet."));
+        UUID villageId = resolveOrGetVillageId();
+        if (villageId == null) {
+            Component message = Component.literal("This doesn't feel like an established village yet.")
+                    .withStyle(ChatFormatting.GRAY);
+            player.displayClientMessage(message, true);
             return InteractionResult.CONSUME;
         }
 
-        UUID village = villageId.get();
         ReputationTier tier = player.getCapability(ModReputationCapabilities.REPUTATION_HANDLER)
-                .map(handler -> handler.getTier(village))
+                .map(handler -> handler.getTier(villageId))
                 .orElse(ReputationTier.NOVICE);
 
         if (!tier.isAtLeast(ReputationTier.APPRENTICE)) {
-            player.sendSystemMessage(Component.literal("The Elder doesn't yet trust you enough to speak of leadership."));
+            Component message = Component.literal("The Elder does not trust you enough to speak")
+                    .withStyle(ChatFormatting.GRAY);
+            player.displayClientMessage(message, true);
             return InteractionResult.CONSUME;
         }
 
         UUID existingChief = getChiefUUID();
         if (existingChief != null) {
-            player.sendSystemMessage(Component.literal(existingChief.equals(player.getUUID())
-                    ? "You are already the Chief of this village."
-                    : "This village already has a Chief."));
+            Component message = Component.literal(existingChief.equals(player.getUUID()) ? "You are already the Chief of this village."
+                    : "This village already has a Chief.")
+                    .withStyle(ChatFormatting.GRAY);
+            player.displayClientMessage(message, true);
             return InteractionResult.CONSUME;
         }
 
         MutableComponent offer = Component.literal("[Become Village Chief]")
+                .withStyle(ChatFormatting.GREEN)
                 .withStyle(style -> style.withClickEvent(
-                        new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tommemod chief confirm " + village)));
+                        new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tommemod chief confirm " + villageId)));
         player.sendSystemMessage(Component.literal("The Elder offers you leadership of this village. ").append(offer));
         return InteractionResult.CONSUME;
+    }
+
+    /**
+     * Approximates vanilla villagers' Brain-based sleep behavior using the same underlying
+     * LivingEntity#startSleeping/stopSleeping primitives that behavior ultimately calls into.
+     */
+    private static class SleepInNearbyBedGoal extends Goal {
+        private static final Predicate<Holder<PoiType>> HOME_POI = holder -> holder.is(PoiTypeTags.VILLAGE) && holder.is(net.minecraft.world.entity.ai.village.poi.PoiTypes.HOME);
+        private static final int SEARCH_RADIUS = 32;
+
+        private final ElderVillagerEntity mob;
+        @Nullable
+        private BlockPos bedPos;
+
+        SleepInNearbyBedGoal(ElderVillagerEntity mob) {
+            this.mob = mob;
+            this.setFlags(EnumSet.of(Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() {
+            return mob.level().isNight() && findBed().isPresent();
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return mob.level().isNight();
+        }
+
+        @Override
+        public void start() {
+            bedPos = findBed().orElse(null);
+        }
+
+        @Override
+        public void stop() {
+            if (mob.isSleeping()) mob.stopSleeping();
+            bedPos = null;
+        }
+
+        @Override
+        public void tick() {
+            if (bedPos == null || mob.isSleeping()) return;
+            if (mob.blockPosition().closerThan(bedPos, 1.5)) {
+                mob.getNavigation().stop();
+                mob.startSleeping(bedPos);
+            } else {
+                mob.getNavigation().moveTo(bedPos.getX() + 0.5, bedPos.getY(), bedPos.getZ() + 0.5, 0.5);
+            }
+        }
+
+        private Optional<BlockPos> findBed() {
+            if (!(mob.level() instanceof ServerLevel level)) return Optional.empty();
+            return level.getPoiManager()
+                    .getInRange(HOME_POI, mob.blockPosition(), SEARCH_RADIUS, PoiManager.Occupancy.ANY)
+                    .map(PoiRecord::getPos)
+                    .min(Comparator.comparingDouble(p -> p.distSqr(mob.blockPosition())));
+        }
+    }
+
+    /**
+     * Loose approximation of vanilla villagers "congregating": occasionally wanders toward other
+     * nearby villagers instead of purely random strolling.
+     */
+    private static class CongregateGoal extends Goal {
+        private static final double NEAR_RADIUS = 32.0;
+        private static final double CLOSE_ENOUGH = 10.0;
+
+        private final ElderVillagerEntity mob;
+        private int cooldown;
+
+        CongregateGoal(ElderVillagerEntity mob) {
+            this.mob = mob;
+            this.setFlags(EnumSet.of(Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() {
+            if (mob.isSleeping()) return false;
+            if (cooldown-- > 0) return false;
+            cooldown = 100 + mob.getRandom().nextInt(200);
+            return findDistantVillager().isPresent();
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return false;
+        }
+
+        @Override
+        public void start() {
+            findDistantVillager().ifPresent(target ->
+                    mob.getNavigation().moveTo(target.getX(), target.getY(), target.getZ(), 0.5));
+        }
+
+        private Optional<Villager> findDistantVillager() {
+            return mob.level().getEntitiesOfClass(Villager.class, mob.getBoundingBox().inflate(NEAR_RADIUS)).stream()
+                    .filter(v -> v.distanceToSqr(mob) > CLOSE_ENOUGH * CLOSE_ENOUGH)
+                    .min(Comparator.comparingDouble(v -> v.distanceToSqr(mob)));
+        }
     }
 }

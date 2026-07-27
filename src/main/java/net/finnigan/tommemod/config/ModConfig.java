@@ -1,8 +1,13 @@
 package net.finnigan.tommemod.config;
 
+import net.finnigan.tommemod.capability.reputation.ReputationTier;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.List;
+
+// NOTE!!!
+// If you already clean built your minecraft world, and you changed these values later,
+// YOU MUST change them in tommemod-common.toml in ..\run\config
 
 public class ModConfig {
 
@@ -30,6 +35,13 @@ public class ModConfig {
 
     // elder
     public static final ForgeConfigSpec.IntValue MIN_NEARBY_VILLAGERS;
+
+    // warrior
+    public static final ForgeConfigSpec.IntValue MAX_WARRIORS_NOVICE;
+    public static final ForgeConfigSpec.IntValue MAX_WARRIORS_APPRENTICE;
+    public static final ForgeConfigSpec.IntValue MAX_WARRIORS_JOURNEYMAN;
+    public static final ForgeConfigSpec.IntValue MAX_WARRIORS_EXPERT;
+    public static final ForgeConfigSpec.IntValue MAX_WARRIORS_MASTER;
 
     // chief
     public enum DiscountType { PERCENTAGE, FLAT }
@@ -93,6 +105,21 @@ public class ModConfig {
                 .defineInRange("minNearbyVillagers", 3, 0, Integer.MAX_VALUE);
         builder.pop();
 
+        builder.push("warrior");
+        builder.comment("Maximum Warrior Villagers a single village may have, scaled by the converting player's own",
+                "reputation tier with that village - a more trusted player can arm more Warriors.");
+        MAX_WARRIORS_NOVICE = builder.comment("Max Warriors when the converting player is Novice in this village")
+                .defineInRange("maxWarriorsNovice", 1, 0, Integer.MAX_VALUE);
+        MAX_WARRIORS_APPRENTICE = builder.comment("Max Warriors when the converting player is Apprentice in this village")
+                .defineInRange("maxWarriorsApprentice", 4, 0, Integer.MAX_VALUE);
+        MAX_WARRIORS_JOURNEYMAN = builder.comment("Max Warriors when the converting player is Journeyman in this village")
+                .defineInRange("maxWarriorsJourneyman", 10, 0, Integer.MAX_VALUE);
+        MAX_WARRIORS_EXPERT = builder.comment("Max Warriors when the converting player is Expert in this village")
+                .defineInRange("maxWarriorsExpert", 20, 0, Integer.MAX_VALUE);
+        MAX_WARRIORS_MASTER = builder.comment("Max Warriors when the converting player is Master in this village")
+                .defineInRange("maxWarriorsMaster", 40, 0, Integer.MAX_VALUE);
+        builder.pop();
+
         builder.push("chief");
         CHIEF_DISCOUNT_TYPE = builder.comment("Whether the Village Chief trade discount is a percentage of each offer's price, or a flat emerald amount off")
                 .defineEnum("discountType", DiscountType.PERCENTAGE);
@@ -106,8 +133,8 @@ public class ModConfig {
                         List.of("minecraft:generic.movement_speed", "minecraft:generic.armor_toughness", "minecraft:generic.knockback_resistance"),
                         obj -> obj instanceof String
                 );
-        CHIEF_BUFF_OPERATION = builder.comment("How buffAmountPerVillager is applied to the buffed attribute")
-                .defineEnum("buffAttributeOperation", net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADDITION);
+        CHIEF_BUFF_OPERATION = builder.comment("All values are multiplied to total not added :)))))))")
+                .defineEnum("buffAttributeOperation", net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.MULTIPLY_TOTAL);
         CHIEF_BUFF_AMOUNT_PER_VILLAGER = builder.comment("Buff amount granted per Villager currently in the Chief's village")
                 .defineInRange("buffAmountPerVillager", 0.005, 0.0, Double.MAX_VALUE);
         CHIEF_BUFF_CAP = builder.comment("Maximum total buff amount regardless of village population")
@@ -119,6 +146,16 @@ public class ModConfig {
         builder.pop();
 
         COMMON_SPEC = builder.build();
+    }
+
+    public static int maxWarriorsForTier(ReputationTier tier) {
+        return switch (tier) {
+            case NOVICE -> MAX_WARRIORS_NOVICE.get();
+            case APPRENTICE -> MAX_WARRIORS_APPRENTICE.get();
+            case JOURNEYMAN -> MAX_WARRIORS_JOURNEYMAN.get();
+            case EXPERT -> MAX_WARRIORS_EXPERT.get();
+            case MASTER -> MAX_WARRIORS_MASTER.get();
+        };
     }
 
     private ModConfig() {

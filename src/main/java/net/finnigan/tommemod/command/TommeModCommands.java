@@ -78,7 +78,10 @@ public class TommeModCommands {
             return 0;
         }
 
-        elder.setChiefUUID(player.getUUID());
+        if (!elder.trySetChief(player.getUUID())) {
+            fail(player);
+            return 0;
+        }
         player.sendSystemMessage(Component.literal("You are now the permanent Chief of this village!"));
         return 1;
     }
