@@ -62,6 +62,7 @@ public class ModCreativeModTabs {
 
                         // BLOCKS
                         pOutput.accept(ModBlocks.OVEN.get());
+                        pOutput.accept(ModBlocks.ARMAGEDDON.get());
 
                         // UNIQUES
                         pOutput.accept(ModItems.HARMONY.get());

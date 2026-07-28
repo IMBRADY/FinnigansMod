@@ -49,6 +49,9 @@
   "block.tommemod.oven": "Oven",
   "item.tommemod.oven": "Oven",
 
+  "block.tommemod.armageddon": "Armageddon",
+  "item.tommemod.armageddon": "Armageddon",
+
   "entity.minecraft.villager.tommemod.baker": "Baker",
   "entity.minecraft.villager.tommemod.beekeeper": "Beekeeper",
   "entity.tommemod.jellyfish": "Jellyfish",

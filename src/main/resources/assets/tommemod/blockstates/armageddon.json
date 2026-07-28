@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "unstable=false": { "model": "tommemod:block/armageddon" },
+    "unstable=true": { "model": "tommemod:block/armageddon" }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "particle": "tommemod:block/armageddon_side",
+    "top": "tommemod:block/armageddon_top",
+    "bottom": "tommemod:block/armageddon_bottom",
+    "side": "tommemod:block/armageddon_side"
+  }
+}

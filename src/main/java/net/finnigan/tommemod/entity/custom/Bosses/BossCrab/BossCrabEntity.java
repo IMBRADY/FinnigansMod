@@ -13,6 +13,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -44,7 +45,8 @@ public class BossCrabEntity extends Monster implements GeoEntity {
         DOUBLEPINCH, BIGPINCH, GROUNDPOUND,
         JUMP_RISE, JUMP_LAND,
         DASH_LEFT, DASH_RIGHT,
-        PRESTRIKE
+        PRESTRIKE,
+        WANDER
     }
 
     // ---- Tunables ----
@@ -77,8 +79,22 @@ public class BossCrabEntity extends Monster implements GeoEntity {
     private static final int DASH_DURATION = 12;       // 0.5833s
     private static final int PRESTRIKE_DURATION = 15;  // 0.75s
 
+    // Entrance: holds the first frame of "spawn" until a player gets within range, then plays it through.
+    private static final double SPAWN_TRIGGER_RANGE = 16.0;
+
+    // Idle wandering: occasionally stroll a short distance while there's no target to fight.
+    private static final int WANDER_COOLDOWN_MIN_TICKS = 60;
+    private static final int WANDER_COOLDOWN_MAX_TICKS = 140;
+    private static final int WANDER_HORIZONTAL_RANGE = 8;
+    private static final int WANDER_VERTICAL_RANGE = 3;
+    private static final double WANDER_SPEED = 1.0;
+
+    private static final EntityDataAccessor<Boolean> DATA_SPAWN_TRIGGERED =
+            SynchedEntityData.defineId(BossCrabEntity.class, EntityDataSerializers.BOOLEAN);
+
     private CrabState state = CrabState.SPAWN;
     private int stateTicks = 0;
+    private int wanderCooldown = 0;
     private Vec3 dashDirection = Vec3.ZERO;
     private final Set<Integer> processedHitTicks = new HashSet<>();
 
@@ -149,6 +165,7 @@ public class BossCrabEntity extends Monster implements GeoEntity {
     public void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_ATTACK_STATE, CrabState.SPAWN.ordinal());
+        this.entityData.define(DATA_SPAWN_TRIGGERED, false);
     }
 
     private void setState(CrabState newState) {
@@ -158,8 +175,13 @@ public class BossCrabEntity extends Monster implements GeoEntity {
         this.entityData.set(DATA_ATTACK_STATE, newState.ordinal());
     }
 
-    private CrabState getSyncedState() {
+    public CrabState getSyncedState() {
         return CrabState.values()[this.entityData.get(DATA_ATTACK_STATE)];
+    }
+
+    /** Whether the one-time spawn entrance has been triggered yet (see {@link #tickSpawn()}). */
+    public boolean isSpawnTriggered() {
+        return this.entityData.get(DATA_SPAWN_TRIGGERED);
     }
 
     // ---- Brain ----
@@ -184,22 +206,65 @@ public class BossCrabEntity extends Monster implements GeoEntity {
             case DASH_LEFT -> tickDash();
             case DASH_RIGHT -> tickDash();
             case PRESTRIKE -> tickPrestrike(target);
+            case WANDER -> tickWander(target);
         }
     }
 
+    /**
+     * Holds the first frame of "spawn" (see {@link #getAnimationSpeed}) until a player wanders
+     * within range, then plays the entrance through once and settles into IDLE. One-time only -
+     * nothing ever puts the crab back into SPAWN after this.
+     */
     private void tickSpawn() {
         this.getNavigation().stop();
+
+        if (!isSpawnTriggered()) {
+            if (this.level().getNearestPlayer(this, SPAWN_TRIGGER_RANGE) != null) {
+                this.entityData.set(DATA_SPAWN_TRIGGERED, true);
+                stateTicks = 0;
+            }
+            return;
+        }
+
         if (stateTicks >= SPAWN_DURATION) {
             setState(CrabState.IDLE);
         }
     }
 
     private void tickIdle(@Nullable LivingEntity target) {
-        this.getNavigation().stop();
         if (target == null || !target.isAlive()) {
+            this.getNavigation().stop();
+            tryStartWander();
             return;
         }
+        this.getNavigation().stop();
         decideNextAction(target);
+    }
+
+    /** Called while IDLE with nothing to fight - occasionally strolls a short distance nearby. */
+    private void tryStartWander() {
+        if (wanderCooldown > 0) {
+            wanderCooldown--;
+            return;
+        }
+        wanderCooldown = WANDER_COOLDOWN_MIN_TICKS + this.random.nextInt(WANDER_COOLDOWN_MAX_TICKS - WANDER_COOLDOWN_MIN_TICKS + 1);
+
+        Vec3 pos = DefaultRandomPos.getPos(this, WANDER_HORIZONTAL_RANGE, WANDER_VERTICAL_RANGE);
+        if (pos == null) return;
+
+        setState(CrabState.WANDER);
+        this.getNavigation().moveTo(pos.x, pos.y, pos.z, WANDER_SPEED);
+    }
+
+    private void tickWander(@Nullable LivingEntity target) {
+        if (target != null && target.isAlive()) {
+            this.getNavigation().stop();
+            setState(CrabState.IDLE);
+            return;
+        }
+        if (this.getNavigation().isDone()) {
+            setState(CrabState.IDLE);
+        }
     }
 
     private void decideNextAction(LivingEntity target) {
@@ -387,8 +452,20 @@ public class BossCrabEntity extends Monster implements GeoEntity {
         }
     }
 
+    // Render-side only: GeckoLib tracks an animation's "start tick" once, the first time it's queued -
+    // holding "spawn" at speed 0 for a while and then flipping to speed 1 does NOT replay it from the
+    // start, it jumps straight to wherever (elapsed real ticks since that original queueing) lands,
+    // which is almost always the last frame. forceAnimationReset() makes the next setAnimation() call
+    // re-capture the start tick as "now", so it actually plays through instead of jumping.
+    private boolean spawnAnimationResetDone = false;
+
     private PlayState predicate(AnimationState<BossCrabEntity> animState) {
         CrabState s = getSyncedState();
+
+        if (s == CrabState.SPAWN && isSpawnTriggered() && !spawnAnimationResetDone) {
+            animState.getController().forceAnimationReset();
+            spawnAnimationResetDone = true;
+        }
 
         RawAnimation anim = switch (s) {
             case SPAWN -> RawAnimation.begin().then("spawn", Animation.LoopType.HOLD_ON_LAST_FRAME);
@@ -403,6 +480,7 @@ public class BossCrabEntity extends Monster implements GeoEntity {
             case DASH_LEFT -> RawAnimation.begin().then("dash_left", Animation.LoopType.PLAY_ONCE);
             case DASH_RIGHT -> RawAnimation.begin().then("dash_right", Animation.LoopType.PLAY_ONCE);
             case PRESTRIKE -> RawAnimation.begin().then("prestrike", Animation.LoopType.PLAY_ONCE);
+            case WANDER -> RawAnimation.begin().then("walk", Animation.LoopType.LOOP);
         };
 
         animState.getController().setAnimationSpeed(getAnimationSpeed(s));
@@ -411,6 +489,7 @@ public class BossCrabEntity extends Monster implements GeoEntity {
     }
 
     private double getAnimationSpeed(CrabState s) {
+        if (s == CrabState.SPAWN && !isSpawnTriggered()) return 0.0; // hold on frame 0 until triggered
         return switch (s) {
             case PRESTRIKE -> 2.0;
             default -> 1.0;

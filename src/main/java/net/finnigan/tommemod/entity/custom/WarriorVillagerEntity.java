@@ -18,7 +18,9 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -121,6 +123,25 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
         return resolved;
     }
 
+    /**
+     * Normally villageId is stable for this Warrior's whole life. But VillageManager can silently
+     * merge two villages together as a village grows, without ever touching an already-spawned
+     * Warrior's cached id - leaving it pointing at a village id VillageManager no longer considers
+     * established. Self-heals by re-resolving from this Warrior's current position (best-effort - if
+     * it's also wandered away from the village, this can't recover, but that's strictly no worse than
+     * staying stuck on an id that no longer exists at all).
+     */
+    @Nullable
+    private UUID reconcileVillageId(ServerLevel serverLevel, VillageManager manager) {
+        UUID cached = resolveOrGetVillageId();
+        if (cached == null) return null;
+        if (manager.isEstablished(cached)) return cached;
+
+        UUID resolved = manager.resolveVillage(serverLevel, this.blockPosition()).orElse(null);
+        if (resolved != null) setVillageId(resolved);
+        return resolved != null ? resolved : cached;
+    }
+
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
@@ -137,6 +158,27 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
     @Override
     public boolean removeWhenFarAway(double distanceSqr) {
         return false;
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return this.isSleeping() ? null : SoundEvents.VILLAGER_AMBIENT;
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource damageSource) {
+        return SoundEvents.VILLAGER_HURT;
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.VILLAGER_DEATH;
+    }
+
+    @Override
+    public float getVoicePitch() {
+        return 1.0F;
     }
 
     @Override
@@ -211,19 +253,23 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
-        if (!(this.level() instanceof ServerLevel) || !(player instanceof ServerPlayer serverPlayer)) {
+        if (!(this.level() instanceof ServerLevel serverLevel) || !(player instanceof ServerPlayer serverPlayer)) {
             return InteractionResult.sidedSuccess(true);
         }
 
-        UUID villageId = resolveOrGetVillageId();
-        if (villageId == null) {
+        // Authorization is based on this Warrior's own (persisted) village and that village's Chief -
+        // deliberately not on how far the Warrior itself has wandered, so its Chief can still manage
+        // its equipment even while it's out chasing a raid or defending a player far from the village.
+        VillageManager manager = VillageManager.get(serverLevel);
+        UUID villageId = reconcileVillageId(serverLevel, manager);
+        if (villageId == null || !manager.isEstablished(villageId)) {
             Component message = Component.literal("This doesn't feel like an established village yet.")
                     .withStyle(ChatFormatting.GRAY);
             player.displayClientMessage(message, true);
             return InteractionResult.CONSUME;
         }
 
-        UUID chief = VillageManager.get((ServerLevel) this.level()).getChief(villageId).orElse(null);
+        UUID chief = manager.getChief(villageId).orElse(null);
         if (chief == null || !chief.equals(player.getUUID())) {
             Component message = Component.literal("Only this village's Chief may handle this Warrior's equipment.")
                     .withStyle(ChatFormatting.GRAY);

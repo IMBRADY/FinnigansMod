@@ -3,6 +3,7 @@ package net.finnigan.tommemod.event;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.capability.reputation.ModReputationCapabilities;
 import net.finnigan.tommemod.capability.reputation.ReputationHandler;
+import net.finnigan.tommemod.capability.reputation.ReputationTier;
 import net.finnigan.tommemod.config.ModConfig;
 import net.finnigan.tommemod.entity.custom.ElderVillagerEntity;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerEntity;
@@ -90,7 +91,27 @@ public class ReputationEvents {
                                 .withStyle(promoted ? ChatFormatting.GREEN : ChatFormatting.RED));
                 // The 'true' flag sends the message to the Action Bar instead of the Chat
                 player.displayClientMessage(message, true);
+
+                if (change.newTier() == ReputationTier.NOVICE) {
+                    demoteChiefIfNovice(player, level, villageId.get());
+                }
             }
         });
+    }
+
+    /**
+     * A Chief who falls back to Novice reputation with their own village loses the title - Chief
+     * status lives in VillageManager (keyed by village), so freeing it back up lets someone else earn it.
+     */
+    private static void demoteChiefIfNovice(ServerPlayer player, ServerLevel level, UUID villageId) {
+        VillageManager manager = VillageManager.get(level);
+        manager.getChief(villageId)
+                .filter(chief -> chief.equals(player.getUUID()))
+                .ifPresent(chief -> {
+                    manager.removeChief(villageId);
+                    Component message = Component.literal("Your reputation has fallen too far - you are no longer this village's Chief.")
+                            .withStyle(ChatFormatting.RED);
+                    player.sendSystemMessage(message);
+                });
     }
 }

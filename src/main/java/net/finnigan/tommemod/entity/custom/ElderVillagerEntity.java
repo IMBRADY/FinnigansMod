@@ -16,6 +16,8 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.PoiTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -93,21 +95,38 @@ public class ElderVillagerEntity extends PathfinderMob {
         return resolved;
     }
 
+    /**
+     * Normally villageId is stable for this Elder's whole life. But VillageManager can silently
+     * merge two villages together (e.g. new POIs bridging previously-separate clusters as a village
+     * grows) without ever touching an already-spawned Elder's cached id - leaving it pointing at a
+     * village id that VillageManager no longer recognizes as having any Elder (or, after enough
+     * drift, not established at all), which broke Chief offers with no obvious cause. Called before
+     * any Chief-offer interaction to self-heal: if our cached id no longer maps back to us, re-resolve
+     * from our current position (still physically inside the same village) and re-register there.
+     */
+    @Nullable
+    private UUID reconcileVillageId(ServerLevel serverLevel) {
+        UUID cached = resolveOrGetVillageId();
+        if (cached == null) return null;
+
+        VillageManager manager = VillageManager.get(serverLevel);
+        if (manager.getElder(cached).map(this.getUUID()::equals).orElse(false)) {
+            return cached;
+        }
+
+        UUID resolved = manager.resolveVillage(serverLevel, this.blockPosition()).orElse(null);
+        if (resolved == null) return cached;
+
+        manager.tryRegisterElder(resolved, this.getUUID());
+        setVillageId(resolved);
+        return resolved;
+    }
+
     @Nullable
     public UUID getChiefUUID() {
         UUID villageId = getVillageId();
         if (villageId == null || !(this.level() instanceof ServerLevel serverLevel)) return null;
         return VillageManager.get(serverLevel).getChief(villageId).orElse(null);
-    }
-
-    /**
-     * Chief status is permanent and lives in VillageManager (keyed by village, not by this entity),
-     * so it survives this Elder dying or despawning. Returns false if the village already has a chief.
-     */
-    public boolean trySetChief(UUID playerUUID) {
-        UUID villageId = getVillageId();
-        if (villageId == null || !(this.level() instanceof ServerLevel serverLevel)) return false;
-        return VillageManager.get(serverLevel).trySetChief(villageId, playerUUID);
     }
 
     @Override
@@ -127,6 +146,27 @@ public class ElderVillagerEntity extends PathfinderMob {
     public boolean removeWhenFarAway(double distanceSqr) {
         // Behave like a normal villager: never despawn just for being far from a player.
         return false;
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return this.isSleeping() ? null : SoundEvents.VILLAGER_AMBIENT;
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource damageSource) {
+        return SoundEvents.VILLAGER_HURT;
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.VILLAGER_DEATH;
+    }
+
+    @Override
+    public float getVoicePitch() {
+        return 0.8F;
     }
 
     @Override
@@ -193,7 +233,7 @@ public class ElderVillagerEntity extends PathfinderMob {
             return InteractionResult.sidedSuccess(true);
         }
 
-        UUID villageId = resolveOrGetVillageId();
+        UUID villageId = reconcileVillageId(serverLevel);
         if (villageId == null) {
             Component message = Component.literal("This doesn't feel like an established village yet.")
                     .withStyle(ChatFormatting.GRAY);

@@ -47,26 +47,34 @@ public class TommeModCommands {
         ServerLevel level = player.serverLevel();
         UUID villageId = UuidArgument.getUuid(ctx, "villageId");
 
+        // Everything below is re-validated against VillageManager directly, keyed by the same
+        // villageId throughout (rather than an Elder entity's own cached copy of it), so a demoted
+        // Chief who regains enough reputation can always reclaim the seat once it's actually open.
         VillageManager manager = VillageManager.get(level);
+        if (!manager.isEstablished(villageId)) {
+            fail(player, "that village no longer exists");
+            return 0;
+        }
+
         Optional<UUID> elderUUID = manager.getElder(villageId);
         if (elderUUID.isEmpty()) {
-            fail(player);
+            fail(player, "that village has no Elder to confirm with");
             return 0;
         }
 
         Entity elderEntity = level.getEntity(elderUUID.get());
         if (!(elderEntity instanceof ElderVillagerEntity elder) || !elder.isAlive()) {
-            fail(player);
+            fail(player, "that village's Elder is no longer here");
             return 0;
         }
 
         if (player.distanceToSqr(elder) > MAX_CONFIRM_DISTANCE_SQR) {
-            fail(player);
+            fail(player, "you've wandered too far from the Elder");
             return 0;
         }
 
-        if (elder.getChiefUUID() != null) {
-            fail(player);
+        if (manager.getChief(villageId).isPresent()) {
+            fail(player, "this village already has a Chief");
             return 0;
         }
 
@@ -74,19 +82,19 @@ public class TommeModCommands {
                 .map(handler -> handler.getTier(villageId))
                 .orElse(ReputationTier.NOVICE);
         if (!tier.isAtLeast(ReputationTier.APPRENTICE)) {
-            fail(player);
+            fail(player, "you no longer have enough reputation with this village");
             return 0;
         }
 
-        if (!elder.trySetChief(player.getUUID())) {
-            fail(player);
+        if (!manager.trySetChief(villageId, player.getUUID())) {
+            fail(player, "this village already has a Chief");
             return 0;
         }
         player.sendSystemMessage(Component.literal("You are now the permanent Chief of this village!"));
         return 1;
     }
 
-    private static void fail(ServerPlayer player) {
-        player.sendSystemMessage(Component.literal("That offer is no longer available."));
+    private static void fail(ServerPlayer player, String reason) {
+        player.sendSystemMessage(Component.literal("That offer is no longer available (" + reason + ")."));
     }
 }

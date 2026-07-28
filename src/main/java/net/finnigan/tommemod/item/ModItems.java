@@ -203,7 +203,7 @@ public class ModItems {
             () -> new TotemOfKinshipItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> MUSKET = ITEMS.register("musket",
-            () -> new MusketItem(new Item.Properties()));
+            () -> new MusketItem(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> BULLET = ITEMS.register("bullet",
             () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> END_LANTERN = ITEMS.register("end_lantern",

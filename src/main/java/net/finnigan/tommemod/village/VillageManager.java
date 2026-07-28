@@ -141,6 +141,16 @@ public class VillageManager extends SavedData {
         return new VillageRegion(anchor, farthest + ModConfig.POI_LINK_RADIUS.get());
     }
 
+    /**
+     * Whether this UUID still corresponds to a village this manager actually tracks (i.e. has at
+     * least one claimed POI mapped to it). Deliberately independent of any particular entity's
+     * current position - e.g. a Warrior Villager that's wandered outside its village's bounds still
+     * belongs to that village as long as the village itself is still established.
+     */
+    public boolean isEstablished(UUID villageId) {
+        return poiIndex.containsValue(villageId);
+    }
+
     public Optional<UUID> getElder(UUID villageId) {
         return Optional.ofNullable(elderByVillage.get(villageId));
     }
@@ -169,6 +179,11 @@ public class VillageManager extends SavedData {
         chiefByVillage.put(villageId, playerUUID);
         setDirty();
         return true;
+    }
+
+    /** Frees up the village's Chief seat, e.g. when the current Chief's reputation falls back to Novice. */
+    public void removeChief(UUID villageId) {
+        if (chiefByVillage.remove(villageId) != null) setDirty();
     }
 
     /**

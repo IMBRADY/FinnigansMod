@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.block;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.block.custom.ArmageddonBlock;
 import net.finnigan.tommemod.block.custom.OvenBlock;
 import net.finnigan.tommemod.item.ModItems;
 import net.minecraft.world.item.BlockItem;
@@ -25,6 +26,20 @@ public class ModBlocks {
                     .strength(3.5F)
                     .sound(SoundType.STONE)
                     .requiresCorrectToolForDrops()));
+    // Default tnt blast radius is 4.0
+    private static final float ARMAGEDDON_BLAST_RADIUS = 60.0F;
+
+    public static final RegistryObject<Block> ARMAGEDDON = registerBlock(
+            "armageddon",
+            () -> new ArmageddonBlock(
+                    BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.STONE)
+                            .strength(3.5F)
+                            .sound(SoundType.STONE)
+                            .requiresCorrectToolForDrops(),
+                    ARMAGEDDON_BLAST_RADIUS
+            )
+    );
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
