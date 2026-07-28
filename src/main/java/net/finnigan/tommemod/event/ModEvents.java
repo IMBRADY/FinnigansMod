@@ -148,5 +148,20 @@ public class ModEvents {
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 HermitCrabEntity::checkHermitCrabSpawnRules,
                 SpawnPlacementRegisterEvent.Operation.REPLACE);
+        event.register(ModEntityTypes.SCARECROW.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                ScarecrowEntity::checkScarecrowSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
+        event.register(ModEntityTypes.CYCLOPS.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                CyclopsEntity::checkCyclopsSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
+        event.register(ModEntityTypes.HAMMERHEAD_SHARK.get(),
+                SpawnPlacements.Type.IN_WATER,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                HammerheadSharkEntity::checkHammerheadSpawnRules,
+                SpawnPlacementRegisterEvent.Operation.REPLACE);
     }
 }

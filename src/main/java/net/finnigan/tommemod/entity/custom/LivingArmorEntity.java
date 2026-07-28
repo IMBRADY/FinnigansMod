@@ -52,7 +52,7 @@ public class LivingArmorEntity extends Monster implements GeoEntity {
                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
                 .add(Attributes.ATTACK_DAMAGE, 8.0D)
                 .add(Attributes.ARMOR, 20.0D)
-                .add(Attributes.FOLLOW_RANGE, 35.0D)
+                .add(Attributes.FOLLOW_RANGE, 30.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.0D);
     }
 

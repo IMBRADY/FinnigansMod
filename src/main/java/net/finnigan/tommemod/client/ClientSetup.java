@@ -238,6 +238,9 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
         event.put(ModEntityTypes.HERMIT_CRAB.get(), HermitCrabEntity.createAttributes().build());
         event.put(ModEntityTypes.ELDER_VILLAGER.get(), ElderVillagerEntity.createAttributes().build());
         event.put(ModEntityTypes.WARRIOR_VILLAGER.get(), WarriorVillagerEntity.createAttributes().build());
+        event.put(ModEntityTypes.SCARECROW.get(), ScarecrowEntity.createAttributes().build());
+        event.put(ModEntityTypes.CYCLOPS.get(), CyclopsEntity.createAttributes().build());
+        event.put(ModEntityTypes.HAMMERHEAD_SHARK.get(), HammerheadSharkEntity.createAttributes().build());
     }
 
     @SubscribeEvent
@@ -278,6 +281,9 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.BEE_NADE.get(), ThrownItemRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.ELDER_VILLAGER.get(), ElderVillagerRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.WARRIOR_VILLAGER.get(), WarriorVillagerRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.SCARECROW.get(), ScarecrowRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.CYCLOPS.get(), CyclopsRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.HAMMERHEAD_SHARK.get(), HammerheadSharkRenderer::new);
         }
     }
 }

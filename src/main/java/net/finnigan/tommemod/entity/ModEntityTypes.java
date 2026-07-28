@@ -155,4 +155,22 @@ public class ModEntityTypes {
                     .clientTrackingRange(8)
                     .updateInterval(3)
                     .build("warrior_villager"));
+    public static final RegistryObject<EntityType<ScarecrowEntity>> SCARECROW =
+            ENTITY_TYPES.register("scarecrow", () -> EntityType.Builder.of(ScarecrowEntity::new, MobCategory.MONSTER)
+                    .sized(0.8F, 2.6F)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("scarecrow"));
+    public static final RegistryObject<EntityType<CyclopsEntity>> CYCLOPS =
+            ENTITY_TYPES.register("cyclops", () -> EntityType.Builder.of(CyclopsEntity::new, MobCategory.MONSTER)
+                    .sized(0.9F, 2.3F)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("cyclops"));
+    public static final RegistryObject<EntityType<HammerheadSharkEntity>> HAMMERHEAD_SHARK =
+            ENTITY_TYPES.register("hammerhead", () -> EntityType.Builder.of(HammerheadSharkEntity::new, MobCategory.WATER_CREATURE)
+                    .sized(1.4F, 1.0F)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("hammerhead"));
 }
