@@ -4,6 +4,7 @@ import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.capability.reputation.ModReputationCapabilities;
 import net.finnigan.tommemod.capability.reputation.ReputationHandler;
 import net.finnigan.tommemod.config.ModConfig;
+import net.finnigan.tommemod.entity.custom.ElderVillagerEntity;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerEntity;
 import net.finnigan.tommemod.village.VillageManager;
 import net.minecraft.ChatFormatting;
@@ -33,6 +34,10 @@ import java.util.UUID;
 @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID)
 public class ReputationEvents {
 
+    // The Elder is the village's leader, so harming one stings twice as much reputation-wise as
+    // harming a regular Villager/Warrior Villager.
+    private static final int ELDER_LOSS_MULTIPLIER = 2;
+
     @SubscribeEvent
     public static void onTrade(TradeWithVillagerEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -42,15 +47,16 @@ public class ReputationEvents {
     @SubscribeEvent
     public static void onHurt(LivingHurtEvent event) {
         LivingEntity victim = event.getEntity();
-        // WarriorVillagerEntity isn't an AbstractVillager, but hurting it costs the same reputation
-        // as hurting a regular villager - it's still one of the village's own.
-        if (!(victim instanceof AbstractVillager || victim instanceof WarriorVillagerEntity)) return;
+        // WarriorVillagerEntity/ElderVillagerEntity aren't AbstractVillager, but hurting them still
+        // costs reputation - they're still one of the village's own.
+        if (!(victim instanceof AbstractVillager || victim instanceof WarriorVillagerEntity || victim instanceof ElderVillagerEntity)) return;
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
 
         // Skip a killing blow here; LivingDeathEvent below awards the (larger) kill penalty instead.
         if (victim.getHealth() - event.getAmount() <= 0) return;
 
-        applyChange(player, victim.blockPosition(), ModConfig.VILLAGER_HURT_LOSS.get());
+        int multiplier = victim instanceof ElderVillagerEntity ? ELDER_LOSS_MULTIPLIER : 1;
+        applyChange(player, victim.blockPosition(), multiplier * ModConfig.VILLAGER_HURT_LOSS.get());
     }
 
     @SubscribeEvent
@@ -58,8 +64,9 @@ public class ReputationEvents {
         Entity victim = event.getEntity();
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
 
-        if (victim instanceof AbstractVillager || victim instanceof WarriorVillagerEntity) {
-            applyChange(player, victim.blockPosition(), ModConfig.VILLAGER_KILLED_LOSS.get());
+        if (victim instanceof AbstractVillager || victim instanceof WarriorVillagerEntity || victim instanceof ElderVillagerEntity) {
+            int multiplier = victim instanceof ElderVillagerEntity ? ELDER_LOSS_MULTIPLIER : 1;
+            applyChange(player, victim.blockPosition(), multiplier * ModConfig.VILLAGER_KILLED_LOSS.get());
         } else if (victim instanceof IronGolem) {
             applyChange(player, victim.blockPosition(), ModConfig.IRON_GOLEM_KILLED_LOSS.get());
         } else if (victim instanceof Monster) {

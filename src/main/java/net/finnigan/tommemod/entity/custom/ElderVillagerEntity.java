@@ -2,7 +2,9 @@ package net.finnigan.tommemod.entity.custom;
 
 import net.finnigan.tommemod.capability.reputation.ModReputationCapabilities;
 import net.finnigan.tommemod.capability.reputation.ReputationTier;
+import net.finnigan.tommemod.config.ModConfig;
 import net.finnigan.tommemod.village.VillageManager;
+import net.finnigan.tommemod.village.VillageRegion;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -17,6 +19,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.PoiTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -48,10 +51,6 @@ import java.util.function.Predicate;
  * A village's sole elder: no trading, gives quests (future work) and, once a player is trusted
  * enough, the option to become that village's permanent Chief. Never spawns naturally - only ever
  * placed by the Enchanting-Table trigger in ElderVillagerSpawnEvents.
- *
- * Approximates the normal-villager "feel" (persists like a real villager, sleeps at night, flees
- * zombies, sticks near other villagers) using the classic Goal system rather than porting vanilla's
- * Brain-based villager AI, which is a far larger, largely self-contained subsystem.
  */
 public class ElderVillagerEntity extends PathfinderMob {
 
@@ -83,12 +82,6 @@ public class ElderVillagerEntity extends PathfinderMob {
         this.entityData.set(DATA_VILLAGE_ID, Optional.ofNullable(villageId));
     }
 
-    /**
-     * Normally the spawn trigger sets villageId once, up front. This fallback re-resolves and
-     * caches it lazily on first use if it's somehow missing (e.g. an Elder placed via /summon for
-     * testing rather than through the Enchanting-Table trigger), so a real, established village
-     * isn't permanently misreported as unrecognized just because that one-time set never happened.
-     */
     @Nullable
     private UUID resolveOrGetVillageId() {
         UUID cached = getVillageId();
@@ -144,6 +137,42 @@ public class ElderVillagerEntity extends PathfinderMob {
             VillageManager.get(serverLevel).unregisterElder(villageId, this.getUUID());
         }
         super.remove(reason);
+    }
+
+    @Override
+    public void die(DamageSource damageSource) {
+        super.die(damageSource);
+        UUID villageId = getVillageId();
+        if (villageId == null || !(this.level() instanceof ServerLevel serverLevel)) return;
+
+        long readyAtTick = serverLevel.getGameTime() + ModConfig.ELDER_SUCCESSION_DELAY_TICKS.get();
+        VillageManager.get(serverLevel).schedulePendingSuccession(villageId, readyAtTick);
+    }
+
+    private int tetherCheckCooldown;
+
+    @Override
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+        if (--tetherCheckCooldown > 0) return;
+        tetherCheckCooldown = ModConfig.ELDER_TETHER_CHECK_INTERVAL_TICKS.get();
+        if (this.level() instanceof ServerLevel serverLevel) tetherToVillage(serverLevel);
+    }
+
+    /**
+     * Keeps the Elder from wandering off the edge of the map: once it strays past the configured
+     * distance from its village's resolved anchor, snap it straight back rather than pathing home.
+     */
+    private void tetherToVillage(ServerLevel serverLevel) {
+        UUID villageId = resolveOrGetVillageId();
+        if (villageId == null) return;
+
+        VillageRegion region = VillageManager.get(serverLevel).resolveVillageRegion(serverLevel, villageId);
+        int maxWander = ModConfig.ELDER_MAX_WANDER_BLOCKS.get();
+        if (this.blockPosition().distSqr(region.anchor()) <= (double) maxWander * maxWander) return;
+
+        BlockPos anchor = region.anchor();
+        this.teleportTo(anchor.getX() + 0.5, anchor.getY() + 1.0, anchor.getZ() + 0.5);
     }
 
     @Override
