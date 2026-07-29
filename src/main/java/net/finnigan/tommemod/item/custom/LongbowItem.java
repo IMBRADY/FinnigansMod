@@ -44,7 +44,9 @@ public class LongbowItem extends BowItem {
             ArrowItem arrowItem = (ArrowItem) (isCreativeArrow ? arrowStack.getItem() : Items.ARROW);
             AbstractArrow arrow = arrowItem.createArrow(level, arrowStack, player);
             arrow = customArrow(arrow);
-            arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, power * 3.0F, 1.0F);
+            // Vanilla BowItem always passes 1.0F inaccuracy here, which visibly wobbles the arrow off
+            // the crosshair in flight even though it still lands on target; the longbow shoots true.
+            arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, power * 3.0F, 0.0F);
 
             if (power == 1.0F) arrow.setCritArrow(true);
 

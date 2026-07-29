@@ -2,6 +2,7 @@ package net.finnigan.tommemod.mixin;
 
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
@@ -10,4 +11,7 @@ public interface AbstractContainerMenuAccessor {
 
     @Invoker("addSlot")
     Slot tommemod$invokeAddSlot(Slot slot);
+
+    @Invoker("moveItemStackTo")
+    boolean tommemod$invokeMoveItemStackTo(ItemStack stack, int startIndex, int endIndex, boolean reverseDirection);
 }

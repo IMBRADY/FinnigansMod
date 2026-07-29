@@ -1,7 +1,6 @@
 package net.finnigan.tommemod.item;
 
 import net.finnigan.tommemod.TommeMod;
-import net.finnigan.tommemod.enchantment.LifestealEnchantment;
 import net.finnigan.tommemod.entity.custom.ModdedSwordItem;
 import net.finnigan.tommemod.item.custom.*;
 import net.finnigan.tommemod.item.custom.totems.*;
@@ -10,13 +9,10 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tiers;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
-
-import static net.finnigan.tommemod.enchantment.ModEnchantments.ENCHANTMENTS;
 
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS =
@@ -104,8 +100,8 @@ public class ModItems {
             new PikeItem(
                     Tiers.WOOD,
                     3,          // attackDamageModifier
-                    -3.0F,    // attackSpeedModifier
-                    1.5,        // reachBonus (add on top of default 4.5)
+                    -3.1F,    // attackSpeedModifier
+                    1.0,        // reachBonus (add on top of default 4.5)
                     1.0F,       // knockbackBonus
                     new Item.Properties()
             )
@@ -114,8 +110,8 @@ public class ModItems {
             new PikeItem(
                     Tiers.STONE,
                     3,          // attackDamageModifier
-                    -3.0F,    // attackSpeedModifier
-                    1.5,        // reachBonus (add on top of default 4.5)
+                    -3.1F,    // attackSpeedModifier
+                    1.0,        // reachBonus (add on top of default 4.5)
                     1.0F,       // knockbackBonus
                     new Item.Properties()
             )
@@ -124,8 +120,8 @@ public class ModItems {
             new PikeItem(
                     Tiers.IRON,
                     3,          // attackDamageModifier
-                    -3.0F,    // attackSpeedModifier
-                    1.5,        // reachBonus (add on top of default 4.5)
+                    -3.1F,    // attackSpeedModifier
+                    1.0,        // reachBonus (add on top of default 4.5)
                     1.0F,       // knockbackBonus
                     new Item.Properties()
             )
@@ -134,8 +130,8 @@ public class ModItems {
             new PikeItem(
                     Tiers.GOLD,
                     3,          // attackDamageModifier
-                    -3.0F,    // attackSpeedModifier
-                    1.5,        // reachBonus (add on top of default 4.5)
+                    -3.1F,    // attackSpeedModifier
+                    1.0,        // reachBonus (add on top of default 4.5)
                     1.0F,       // knockbackBonus
                     new Item.Properties()
             )
@@ -144,8 +140,8 @@ public class ModItems {
             new PikeItem(
                     Tiers.DIAMOND,
                     3,          // attackDamageModifier
-                    -3.0F,    // attackSpeedModifier
-                    1.5,        // reachBonus (add on top of default 4.5)
+                    -3.1F,    // attackSpeedModifier
+                    1.0,        // reachBonus (add on top of default 4.5)
                     1.0F,       // knockbackBonus
                     new Item.Properties()
             )
@@ -154,8 +150,8 @@ public class ModItems {
             new net.finnigan.tommemod.item.custom.HalberdItem(
                     Tiers.IRON,
                     3,          // attackDamageModifier
-                    -3.0F,    // attackSpeedModifier
-                    1.5,        // reachBonus (add on top of default 4.5)
+                    -3.1F,    // attackSpeedModifier
+                    1.0,        // reachBonus (add on top of default 4.5)
                     1.0F,       // knockbackBonus
                     new Item.Properties()
             )
@@ -164,8 +160,8 @@ public class ModItems {
             new PikeItem(
                     Tiers.NETHERITE,
                     3,          // attackDamageModifier
-                    -3.0F,    // attackSpeedModifier
-                    1.5,        // reachBonus (add on top of default 4.5)
+                    -3.1F,    // attackSpeedModifier
+                    1.0,        // reachBonus (add on top of default 4.5)
                     1.0F,       // knockbackBonus
                     new Item.Properties()
             )
@@ -248,7 +244,7 @@ public class ModItems {
 
     public static final RegistryObject<Item> WOODEN_DAGGER =
             ITEMS.register("wooden_dagger", // has no cool sound effect, needs transformations updated
-                    () -> new ModdedSwordItem(
+                    () -> new DaggerItem(
                             Tiers.WOOD,
                             0,
                             -1.0F,
@@ -256,7 +252,7 @@ public class ModItems {
                     ));
     public static final RegistryObject<Item> STONE_DAGGER =
             ITEMS.register("stone_dagger", // has no cool sound effect, needs transformations updated
-                    () -> new ModdedSwordItem(
+                    () -> new DaggerItem(
                             Tiers.STONE,
                             0,
                             -1.0F,
@@ -264,7 +260,7 @@ public class ModItems {
                     ));
     public static final RegistryObject<Item> IRON_DAGGER =
             ITEMS.register("iron_dagger", // has no cool sound effect, needs transformations updated
-                    () -> new ModdedSwordItem(
+                    () -> new DaggerItem(
                             Tiers.IRON,
                             0,
                             -1.0F,
@@ -272,7 +268,7 @@ public class ModItems {
                     ));
     public static final RegistryObject<Item> GOLD_DAGGER =
             ITEMS.register("gold_dagger", // has no cool sound effect, needs transformations updated
-                    () -> new ModdedSwordItem(
+                    () -> new DaggerItem(
                             Tiers.GOLD,
                             0,
                             -1.0F,
@@ -280,7 +276,7 @@ public class ModItems {
                     ));
     public static final RegistryObject<Item> DIAMOND_DAGGER =
             ITEMS.register("diamond_dagger", // has no cool sound effect, needs transformations updated
-                    () -> new ModdedSwordItem(
+                    () -> new DaggerItem(
                             Tiers.DIAMOND,
                             0,
                             -1.0F,
@@ -288,7 +284,7 @@ public class ModItems {
                     ));
     public static final RegistryObject<Item> NETHERITE_DAGGER =
             ITEMS.register("netherite_dagger", // has no cool sound effect, needs transformations updated
-                    () -> new ModdedSwordItem(
+                    () -> new DaggerItem(
                             Tiers.NETHERITE,
                             0,
                             -1.0F,
@@ -344,7 +340,10 @@ public class ModItems {
     public static final RegistryObject<Item> BEE_NADE = ITEMS.register("bee_nade",
             () -> new BeeNadeItem(new Item.Properties()));
 
-
+    // CREATIVE MODE toy - not survival obtainable. Uses its own texture copy (not minecraft:item/wooden_sword)
+    // so it can be edited freely without touching the real wooden sword.
+    public static final RegistryObject<Item> GOD_SWORD = ITEMS.register("god_sword",
+            () -> new GodSwordItem(new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.EPIC)));
 
 
     public static void register(IEventBus eventBus) {

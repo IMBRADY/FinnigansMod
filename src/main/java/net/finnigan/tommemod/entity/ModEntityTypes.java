@@ -173,4 +173,10 @@ public class ModEntityTypes {
                     .clientTrackingRange(8)
                     .updateInterval(3)
                     .build("hammerhead"));
+    public static final RegistryObject<EntityType<DaggerEntity>> DAGGER =
+            ENTITY_TYPES.register("dagger", () -> EntityType.Builder.<DaggerEntity>of(DaggerEntity::new, MobCategory.MISC)
+                    .sized(0.25F, 0.25F)
+                    .clientTrackingRange(4)
+                    .updateInterval(10)
+                    .build("dagger"));
 }

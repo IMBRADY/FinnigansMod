@@ -47,6 +47,10 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             ItemProperties.register(ModItems.LONGBOW.get(), new ResourceLocation("pulling"),
                     (stack, level, entity, seed) ->
                             entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F);
+            ItemProperties.register(ModItems.MUSKET.get(), new ResourceLocation(TommeMod.MOD_ID, "reloading"),
+                    (stack, level, entity, seed) ->
+                            entity instanceof net.minecraft.world.entity.player.Player player
+                                    && player.getCooldowns().isOnCooldown(stack.getItem()) ? 1.0F : 0.0F);
             MenuScreens.register(ModMenuTypes.OVEN_MENU.get(), OvenScreen::new);
             MenuScreens.register(ModMenuTypes.WARRIOR_VILLAGER_MENU.get(), net.finnigan.tommemod.client.screen.WarriorVillagerScreen::new);
             ItemProperties.register(Items.ENCHANTED_BOOK, new ResourceLocation(TommeMod.MOD_ID, "enchant_type"),
@@ -284,6 +288,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.SCARECROW.get(), ScarecrowRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.CYCLOPS.get(), CyclopsRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.HAMMERHEAD_SHARK.get(), HammerheadSharkRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.DAGGER.get(), ThrownItemRenderer::new);
         }
     }
 }

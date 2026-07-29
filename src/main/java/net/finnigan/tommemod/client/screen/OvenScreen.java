@@ -3,10 +3,12 @@ package net.finnigan.tommemod.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.block.entity.OvenMenu;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
 public class OvenScreen extends AbstractContainerScreen<OvenMenu> {
@@ -24,6 +26,17 @@ public class OvenScreen extends AbstractContainerScreen<OvenMenu> {
     private static final int FLAME_DEST_X = 58;
     private static final int FLAME_DEST_Y = 36;
 
+    // ---- The arrow between the input and output slots, baked into the background at (80,33). With
+    // four independently-timed input slots there's no single "percent done" to show, so instead of a
+    // real fill gauge this just sweeps a highlight across it on a fixed loop while anything is cooking -
+    // a "the oven is working" cue, not a progress bar. One vanilla furnace smelt (200 ticks) is the
+    // baseline "usual" fill speed, so the loop here runs 4x faster than that: 50 ticks.
+    private static final int ARROW_X = 80;
+    private static final int ARROW_Y = 33;
+    private static final int ARROW_WIDTH = 22;
+    private static final int ARROW_HEIGHT = 17;
+    private static final int ARROW_ANIMATION_TICKS = 50;
+
     public OvenScreen(OvenMenu menu, Inventory playerInv, Component title) {
         super(menu, playerInv, title);
         this.imageWidth = 176;
@@ -37,6 +50,20 @@ public class OvenScreen extends AbstractContainerScreen<OvenMenu> {
         guiGraphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
 
         renderFlame(guiGraphics, x, y);
+        renderProgressArrow(guiGraphics, x, y, partialTick);
+    }
+
+    private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y, float partialTick) {
+        if (menu.blockEntity.getFuelTicksLeft() <= 0) return; // nothing cooking - leave the plain static arrow
+
+        long gameTime = Minecraft.getInstance().level.getGameTime();
+        float ticksIntoLoop = (gameTime % ARROW_ANIMATION_TICKS) + partialTick;
+        float loopFraction = Mth.clamp(ticksIntoLoop / ARROW_ANIMATION_TICKS, 0F, 1F);
+        int revealWidth = Math.max(1, Math.round(ARROW_WIDTH * loopFraction));
+
+        RenderSystem.setShaderColor(1.0F, 0.82F, 0.35F, 1.0F); // warm glow highlight sweeping across the arrow
+        guiGraphics.blit(TEXTURE, x + ARROW_X, y + ARROW_Y, ARROW_X, ARROW_Y, revealWidth, ARROW_HEIGHT);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     private void renderFlame(GuiGraphics guiGraphics, int x, int y) {

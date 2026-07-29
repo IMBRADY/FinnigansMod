@@ -28,6 +28,7 @@ public class TotemOfLuckyDiceItem extends Item implements ITotemEffect {
     public boolean onDamageTaken(Player player, ItemStack totemStack, DamageSource source, float amount) {
         boolean dodged = player.getRandom().nextFloat() < DODGE_CHANCE;
         if (dodged) {
+            TotemUtil.suppressNextKnockback(player);
             playBlockEffect(player);
         }
         return dodged;

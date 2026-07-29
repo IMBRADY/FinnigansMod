@@ -1,13 +1,17 @@
 package net.finnigan.tommemod.event;
 
 import net.finnigan.tommemod.capability.accessory.AccessoryHandler;
+import net.finnigan.tommemod.capability.accessory.AccessoryItems;
 import net.finnigan.tommemod.capability.accessory.ModCapabilities;
 import net.finnigan.tommemod.item.custom.ITotemEffect;
 import net.finnigan.tommemod.item.custom.totems.*;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,13 +28,37 @@ import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = "tommemod")
 public class TotemEffectEvents {
 
     private static int tickCounter = 0;
+
+    // Player.dropAllDeathLoot() clears the inventory before PlayerEvent.Clone fires, even when the
+    // LivingDropsEvent for each item is canceled, so the pre-death contents must be snapshotted here
+    // (LivingDeathEvent fires before the loot drop) and restored on respawn instead.
+    private static final Map<UUID, ListTag> pendingGreedInventory = new HashMap<>();
+
+    @SubscribeEvent
+    public static void onDeathSnapshotGreedInventory(LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (player.level().isClientSide) return;
+        if (player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) return;
+
+        player.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(handler -> {
+            ItemStack totemStack = handler.getStackInSlot(AccessoryHandler.SLOT_TOTEM_ACCESSORY);
+            if (totemStack.getItem() instanceof TotemOfGreedItem) {
+                pendingGreedInventory.put(player.getUUID(), player.getInventory().save(new ListTag()));
+            }
+        });
+    }
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -56,6 +84,29 @@ public class TotemEffectEvents {
                 TotemOfKinshipItem.clearAllForPlayer(player, player.level());
             }
         });
+    }
+
+    // Right-clicking a totem while it's in your hotbar equips it to the totem accessory slot,
+    // just like right-clicking a chestplate equips it to the armor slot.
+    @SubscribeEvent
+    public static void onRightClickEquipTotem(PlayerInteractEvent.RightClickItem event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide) return;
+
+        InteractionHand hand = event.getHand();
+        ItemStack heldStack = player.getItemInHand(hand);
+        if (!AccessoryItems.isTotemAccessory(heldStack)) return;
+
+        player.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(handler -> {
+            ItemStack currentTotem = handler.getStackInSlot(AccessoryHandler.SLOT_TOTEM_ACCESSORY);
+            handler.setStackInSlot(AccessoryHandler.SLOT_TOTEM_ACCESSORY, heldStack.copy());
+            player.setItemInHand(hand, currentTotem);
+            player.level().playSound(null, player.blockPosition(),
+                    SoundEvents.ARMOR_EQUIP_GENERIC, SoundSource.PLAYERS, 1.0F, 1.0F);
+        });
+
+        event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.SUCCESS);
     }
 
     @SubscribeEvent
@@ -109,24 +160,25 @@ public class TotemEffectEvents {
         Player oldPlayer = event.getOriginal();
         Player newPlayer = event.getEntity();
         boolean keepInventory = newPlayer.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
+        ListTag savedGreedInventory = pendingGreedInventory.remove(oldPlayer.getUUID());
+        boolean hadGreedTotem = savedGreedInventory != null;
 
-        oldPlayer.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(oldHandler -> {
-            ItemStack totemStack = oldHandler.getStackInSlot(AccessoryHandler.SLOT_TOTEM_ACCESSORY);
-            boolean hadGreedTotem = totemStack.getItem() instanceof TotemOfGreedItem;
+        // Restoring the inventory only depends on the LivingDeathEvent snapshot above, taken while
+        // oldPlayer was still fully valid - it must not be gated behind oldPlayer's capability still
+        // resolving here, since that can already be invalidated by the time Clone fires post-respawn.
+        if (hadGreedTotem && !keepInventory) {
+            newPlayer.getInventory().load(savedGreedInventory);
+        }
 
-            newPlayer.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(newHandler -> {
-                if (keepInventory || hadGreedTotem) {
-                    newHandler.deserializeNBT(oldHandler.serializeNBT());
-                    if (hadGreedTotem && !keepInventory) {
-                        newHandler.setStackInSlot(AccessoryHandler.SLOT_TOTEM_ACCESSORY, ItemStack.EMPTY); // consume on use
+        oldPlayer.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(oldHandler ->
+                newPlayer.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(newHandler -> {
+                    if (keepInventory || hadGreedTotem) {
+                        newHandler.deserializeNBT(oldHandler.serializeNBT());
+                        if (hadGreedTotem && !keepInventory) {
+                            newHandler.setStackInSlot(AccessoryHandler.SLOT_TOTEM_ACCESSORY, ItemStack.EMPTY); // consume on use
+                        }
                     }
-                }
-            });
-
-            if (hadGreedTotem && !keepInventory) {
-                newPlayer.getInventory().replaceWith(oldPlayer.getInventory());
-            }
-        });
+                }));
     }
 
     @SubscribeEvent

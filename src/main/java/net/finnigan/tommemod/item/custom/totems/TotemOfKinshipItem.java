@@ -60,7 +60,8 @@ public class TotemOfKinshipItem extends Item implements ITotemEffect {
         Set<UUID> currentIds = new HashSet<>();
         for (LivingEntity entity : currentTargets) {
             currentIds.add(entity.getUUID());
-            applyBuffs(entity);
+            boolean firstApplication = !previouslyBuffed.contains(entity.getUUID());
+            applyBuffs(entity, firstApplication);
         }
 
         // Clear anyone who was buffed last tick but is no longer in range/valid
@@ -90,11 +91,21 @@ public class TotemOfKinshipItem extends Item implements ITotemEffect {
         return entity.getTags().contains(SoulSummoner.SOUL_ALLY_TAG);
     }
 
-    private static void applyBuffs(LivingEntity entity) {
+    private static void applyBuffs(LivingEntity entity, boolean firstApplication) {
         apply(entity, Attributes.MOVEMENT_SPEED, SPEED_ID, SPEED_MULT);
         apply(entity, Attributes.ATTACK_DAMAGE, DAMAGE_ID, DAMAGE_MULT);
+        double oldMaxHealth = entity.getMaxHealth();
         apply(entity, Attributes.MAX_HEALTH, HEALTH_ID, HEALTH_MULT);
         apply(entity, Attributes.ARMOR, ARMOR_ID, ARMOR_MULT);
+
+        // Max-health modifiers don't retroactively heal, so without this the buff is invisible on the
+        // entity's health bar until it happens to take damage and regenerate past its old cap.
+        if (firstApplication) {
+            double newMaxHealth = entity.getMaxHealth();
+            if (newMaxHealth > oldMaxHealth) {
+                entity.heal((float) (newMaxHealth - oldMaxHealth));
+            }
+        }
     }
 
     private static void clearBuffs(LivingEntity entity) {
@@ -107,7 +118,7 @@ public class TotemOfKinshipItem extends Item implements ITotemEffect {
     private static void apply(LivingEntity entity, Attribute attribute, UUID id, double mult) {
         AttributeInstance instance = entity.getAttribute(attribute);
         if (instance == null || instance.getModifier(id) != null) return;
-        instance.addTransientModifier(new AttributeModifier(id, "Totem of Toys", mult, AttributeModifier.Operation.MULTIPLY_TOTAL));
+        instance.addTransientModifier(new AttributeModifier(id, "Totem of Kinship", mult, AttributeModifier.Operation.MULTIPLY_TOTAL));
     }
 
     private static void remove(LivingEntity entity, Attribute attribute, UUID id) {

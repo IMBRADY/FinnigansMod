@@ -62,7 +62,6 @@ public class ModCreativeModTabs {
 
                         // BLOCKS
                         pOutput.accept(ModBlocks.OVEN.get());
-                        pOutput.accept(ModBlocks.ARMAGEDDON.get());
 
                         // UNIQUES
                         pOutput.accept(ModItems.HARMONY.get());
@@ -102,6 +101,11 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.DYNAMITE.get());
                         pOutput.accept(ModItems.FIN.get());
                         pOutput.accept(ModItems.ANCIENT_ARMOR_FRAGMENT.get());
+
+                        // CREATIVE MODE ONLY
+                        pOutput.accept(ModBlocks.ARMAGEDDON.get());
+                        pOutput.accept(ModItems.GOD_SWORD.get());
+
                     })
                     .build());
 

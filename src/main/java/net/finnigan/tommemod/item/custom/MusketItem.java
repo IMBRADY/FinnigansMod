@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.item.custom;
 
 import net.finnigan.tommemod.item.ModItems;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -20,11 +21,37 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+
+import java.util.function.Consumer;
 
 public class MusketItem extends Item {
 
+    public static final int RELOAD_TICKS = 25;
+
     public MusketItem(Properties properties) {
         super(properties);
+    }
+
+    // Not tied to an active "use" state (there isn't one - firing/reloading are instant clicks), so the
+    // held pose is driven directly: BOW_AND_ARROW continuously tilts the arm/item to track the player's
+    // pitch, i.e. the musket always points wherever the crosshair is, like the user asked for.
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+            @Override
+            public HumanoidModel.ArmPose getArmPose(LivingEntity entity, InteractionHand hand, ItemStack itemStack) {
+                return HumanoidModel.ArmPose.BOW_AND_ARROW;
+            }
+        });
+    }
+
+    private static boolean isLoaded(ItemStack stack) {
+        return !stack.hasTag() || !stack.getTag().contains("Loaded") || stack.getTag().getBoolean("Loaded");
+    }
+
+    private static void setLoaded(ItemStack stack, boolean loaded) {
+        stack.getOrCreateTag().putBoolean("Loaded", loaded);
     }
 
     @Override
@@ -34,25 +61,45 @@ public class MusketItem extends Item {
         player.swingTime = 0;
 
         ItemStack stack = player.getItemInHand(hand);
+
+        // Still mid-reload (cooldown running) - the musket hasn't chambered another round yet.
+        if (player.getCooldowns().isOnCooldown(this)) {
+            return InteractionResultHolder.fail(stack);
+        }
+
+        if (isLoaded(stack)) {
+            // Click 1: fire the already-chambered round. Reloading is a deliberate second click, not automatic.
+            if (!level.isClientSide()) {
+                shootHitscan(level, player);
+            }
+            setLoaded(stack, false);
+            return InteractionResultHolder.consume(stack);
+        }
+
+        // Click 2: reload - this is what actually procs the cooldown and consumes a bullet, not the shot.
+        boolean creative = player.getAbilities().instabuild;
         Item bulletItem = ModItems.BULLET.get();
 
-        if (!player.getInventory().contains(new ItemStack(bulletItem))) {
+        if (!creative && !player.getInventory().contains(new ItemStack(bulletItem))) {
             player.playSound(SoundEvents.TRIPWIRE_CLICK_ON, 1.0F, 1.0F);
-            return InteractionResultHolder.consume(stack); // no ammo, don't shoot
+            return InteractionResultHolder.fail(stack); // no ammo to reload with
         }
 
-        if (!level.isClientSide()) {
-            shootHitscan(level, player);
+        if (!level.isClientSide() && !creative) {
+            player.getInventory().clearOrCountMatchingItems(
+                    itemStack -> itemStack.is(bulletItem), 1, player.inventoryMenu.getCraftSlots());
         }
 
-        player.getCooldowns().addCooldown(this, 25); // reload speed
+        setLoaded(stack, true);
+        player.getCooldowns().addCooldown(this, RELOAD_TICKS);
+        level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.CROSSBOW_LOADING_MIDDLE, SoundSource.PLAYERS, 1.0F, 1.0F);
 
         return InteractionResultHolder.consume(stack);
     }
 
     private void shootHitscan(Level level, Player player) {
 
-        Item bulletItem = ModItems.BULLET.get();
         double range = 50.0;
 
         Vec3 start = player.getEyePosition(1.0F);
@@ -119,12 +166,5 @@ public class MusketItem extends Item {
             Entity target = entityHit.getEntity();
             target.hurt(level.damageSources().playerAttack(player), 6.0F);
         }
-
-        // Consume Bullet
-        player.getInventory().clearOrCountMatchingItems(
-                itemStack -> itemStack.is(bulletItem),
-                1,
-                player.inventoryMenu.getCraftSlots()
-        );
     }
 }

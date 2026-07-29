@@ -16,10 +16,21 @@ import net.minecraft.world.item.Items;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityTotemMixin {
+
+    // Lucky Dice dodges cancel LivingHurtEvent, but knockback is applied by LivingEntity#hurt
+    // after actuallyHurt() returns, independent of that cancellation, so it must be stopped here too.
+    @Inject(method = "knockback", at = @At("HEAD"), cancellable = true)
+    private void tommemod$suppressDodgeKnockback(double strength, double x, double z, CallbackInfo ci) {
+        LivingEntity self = (LivingEntity) (Object) this;
+        if (net.finnigan.tommemod.item.custom.totems.TotemUtil.consumeKnockbackSuppression(self)) {
+            ci.cancel();
+        }
+    }
 
     @Inject(method = "checkTotemDeathProtection", at = @At("HEAD"), cancellable = true)
     private void tommemod$accessoryTotemProtection(DamageSource source, CallbackInfoReturnable<Boolean> cir) {

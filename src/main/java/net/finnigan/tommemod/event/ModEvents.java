@@ -40,8 +40,7 @@ public class ModEvents {
                 && arrow.getOwner() instanceof Player player) {
             ItemStack bow = player.getUseItem();
             if (bow.getItem() instanceof LongbowItem) {
-                arrow.setBaseDamage(arrow.getBaseDamage() * 2.0); // Damage
-                arrow.setDeltaMovement(arrow.getDeltaMovement().scale(2.0)); // Speed
+                arrow.setDeltaMovement(arrow.getDeltaMovement().scale(2.0)); // Speed only - doubling damage too would quadruple it
             }
         }
     }

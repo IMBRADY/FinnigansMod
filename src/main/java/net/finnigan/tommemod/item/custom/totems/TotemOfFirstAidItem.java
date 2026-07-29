@@ -14,12 +14,21 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class TotemOfFirstAidItem extends Item implements ITotemEffect {
 
     private static final double RADIUS = 20.0;
     private static final float HEAL_AMOUNT = 2.0F; // 1 heart
+    private static final long HEAL_INTERVAL_TICKS = 30; // 1.5s
+
+    // Per-player cooldown tracked by elapsed game time, not a modulo check - the dispatcher that calls
+    // onPlayerTick isn't itself aligned to level.getGameTime(), so a "% 30" check here could line up
+    // with every call (healing far too often) or never (healing not at all) depending on world state.
+    private static final Map<UUID, Long> lastHealGameTime = new HashMap<>();
 
     public TotemOfFirstAidItem(Properties properties) {
         super(properties);
@@ -36,7 +45,11 @@ public class TotemOfFirstAidItem extends Item implements ITotemEffect {
     public void onPlayerTick(Player player, ItemStack totemStack) {
         Level level = player.level();
         if (level.isClientSide) return;
-        if (level.getGameTime() % 30 != 0) return; // every 1.5s (30 ticks)
+
+        long now = level.getGameTime();
+        Long last = lastHealGameTime.get(player.getUUID());
+        if (last != null && now - last < HEAL_INTERVAL_TICKS) return;
+        lastHealGameTime.put(player.getUUID(), now);
 
         AABB range = player.getBoundingBox().inflate(RADIUS);
         List<LivingEntity> nearby = level.getEntitiesOfClass(LivingEntity.class, range,

@@ -1,0 +1,29 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "tommemod:item/god_sword"
+  },
+  "display": {
+    "firstperson_righthand": {
+      "scale": [2.5, 2.5, 2.5]
+    },
+    "firstperson_lefthand": {
+      "scale": [2.5, 2.5, 2.5]
+    },
+    "thirdperson_righthand": {
+      "scale": [2.5, 2.5, 2.5]
+    },
+    "thirdperson_lefthand": {
+      "scale": [2.5, 2.5, 2.5]
+    },
+    "gui": {
+      "scale": [2.0, 2.0, 2.0]
+    },
+    "ground": {
+      "scale": [8.0, 8.0, 8.0]
+    },
+    "fixed": {
+      "scale": [2.0, 2.0, 2.0]
+    }
+  }
+}

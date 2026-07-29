@@ -5,23 +5,23 @@
   },
   "display": {
     "thirdperson_righthand": {
-      "rotation": [ -80, 260, -40 ],
-      "translation": [ -1, 2, -7.5 ],
-      "scale": [ 1.7, 1.7, 1 ]
+      "rotation": [ -90, 0, 0 ],
+      "translation": [ 0, 4, 1 ],
+      "scale": [ 1.4, 1.4, 1.4 ]
     },
     "thirdperson_lefthand": {
-      "rotation": [ -80, -280, 40 ],
-      "translation": [ -1, 2, -7.5 ],
-      "scale": [ 1.7, 1.7, 1 ]
+      "rotation": [ -90, 0, 0 ],
+      "translation": [ 0, 4, 1 ],
+      "scale": [ 1.4, 1.4, 1.4 ]
     },
     "firstperson_righthand": {
-      "rotation": [ -15, -80, 25 ],
-      "translation": [ 1.13, 4, 1 ],
+      "rotation": [ -70, -80, 25 ],
+      "translation": [ 1.13, 6, 1 ],
       "scale": [ 1.6, 1.6, 1 ]
     },
     "firstperson_lefthand": {
-      "rotation": [ -15, 80, -25 ],
-      "translation": [ 1.13, 4, 1 ],
+      "rotation": [ -70, 80, -25 ],
+      "translation": [ 1.13, 6, 1 ],
       "scale": [ 1.6, 1.6, 1 ]
     },
     "gui": {
@@ -34,11 +34,5 @@
       "translation": [0, 3, 0],
       "scale": [1.6, 1.6, 1.0]
     }
-  },
-  "overrides": [
-    {
-      "predicate": { "reloading": 1 },
-      "model": "tommemod:item/musket_reloading"
-    }
-  ]
+  }
 }

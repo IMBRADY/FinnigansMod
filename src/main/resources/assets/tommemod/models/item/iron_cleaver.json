@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "tommemod:item/diamond_cleaver"
+    "layer0": "tommemod:item/iron_cleaver"
   },
   "display": {
     "firstperson_righthand": {
@@ -26,8 +26,8 @@
     },
     "gui": {
       "rotation": [0, 0, 0],
-      "translation": [2, 2, 0],
-      "scale": [1.5, 1.5, 1.5]
+      "translation": [0, 0, 0],
+      "scale": [1.6, 1.6, 1.0]
     },
     "ground": {
       "rotation": [0, 0, 0],
