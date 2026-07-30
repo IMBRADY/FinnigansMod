@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "minecraft:elytra"
+    "minecraft:elytra",
+    "tommemod:bee_wings"
   ]
 }

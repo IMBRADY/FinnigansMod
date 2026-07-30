@@ -52,6 +52,9 @@
   "block.tommemod.armageddon": "Armageddon",
   "item.tommemod.armageddon": "Armageddon",
 
+  "block.tommemod.monolith": "Monolith",
+  "item.tommemod.monolith": "Monolith",
+
   "entity.minecraft.villager.tommemod.baker": "Baker",
   "entity.minecraft.villager.tommemod.beekeeper": "Beekeeper",
   "entity.tommemod.jellyfish": "Jellyfish",

@@ -2,6 +2,7 @@ package net.finnigan.tommemod.block;
 
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.block.custom.ArmageddonBlock;
+import net.finnigan.tommemod.block.custom.MonolithBlock;
 import net.finnigan.tommemod.block.custom.OvenBlock;
 import net.finnigan.tommemod.item.ModItems;
 import net.minecraft.world.item.BlockItem;
@@ -40,6 +41,13 @@ public class ModBlocks {
                     ARMAGEDDON_BLAST_RADIUS
             )
     );
+
+    public static final RegistryObject<Block> MONOLITH = registerBlock("monolith",
+            () -> new MonolithBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_PURPLE)
+                    .strength(10.0F)
+                    .sound(SoundType.AMETHYST)
+                    .requiresCorrectToolForDrops()));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);

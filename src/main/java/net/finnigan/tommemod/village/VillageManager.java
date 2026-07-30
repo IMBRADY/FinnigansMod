@@ -14,11 +14,13 @@ import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.level.saveddata.SavedData;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -41,6 +43,7 @@ public class VillageManager extends SavedData {
     private final Map<UUID, UUID> elderByVillage = new HashMap<>();
     private final Map<UUID, UUID> chiefByVillage = new HashMap<>();
     private final Map<UUID, Long> pendingSuccessionByVillage = new HashMap<>();
+    private final Map<UUID, Integer> farmEfficiencyLevelByVillage = new HashMap<>();
     private final Map<BlockPos, CacheEntry> resolveCache = new HashMap<>();
 
     private record CacheEntry(Optional<UUID> villageId, long expiresAtTick) {
@@ -151,6 +154,20 @@ public class VillageManager extends SavedData {
         return poiIndex.containsValue(villageId);
     }
 
+    /**
+     * All claimed POI positions belonging to this village - the true shape of a village is the
+     * union of each POI's small coverage radius (see resolveVillage), not a circle, so this is
+     * what anything wanting to draw/reason about a village's actual footprint should use rather
+     * than a single anchor+radius approximation.
+     */
+    public List<BlockPos> getPoiPositions(UUID villageId) {
+        List<BlockPos> positions = new ArrayList<>();
+        for (Map.Entry<BlockPos, UUID> entry : poiIndex.entrySet()) {
+            if (entry.getValue().equals(villageId)) positions.add(entry.getKey());
+        }
+        return positions;
+    }
+
     public Optional<UUID> getElder(UUID villageId) {
         return Optional.ofNullable(elderByVillage.get(villageId));
     }
@@ -213,6 +230,15 @@ public class VillageManager extends SavedData {
         return due;
     }
 
+    public int getFarmEfficiencyLevel(UUID villageId) {
+        return farmEfficiencyLevelByVillage.getOrDefault(villageId, 0);
+    }
+
+    public void setFarmEfficiencyLevel(UUID villageId, int level) {
+        farmEfficiencyLevelByVillage.put(villageId, level);
+        setDirty();
+    }
+
     private UUID mergeVillages(Set<UUID> ids) {
         UUID keep = ids.stream().min(UUID::compareTo).orElseThrow();
         for (UUID discard : ids) {
@@ -232,6 +258,11 @@ public class VillageManager extends SavedData {
             Long discardSuccession = pendingSuccessionByVillage.remove(discard);
             if (discardSuccession != null) {
                 pendingSuccessionByVillage.merge(keep, discardSuccession, Math::min);
+            }
+
+            Integer discardFarmEfficiency = farmEfficiencyLevelByVillage.remove(discard);
+            if (discardFarmEfficiency != null) {
+                farmEfficiencyLevelByVillage.merge(keep, discardFarmEfficiency, Math::max);
             }
         }
         setDirty();
@@ -288,6 +319,15 @@ public class VillageManager extends SavedData {
         });
         tag.put("PendingSuccessions", successionList);
 
+        ListTag farmEfficiencyList = new ListTag();
+        farmEfficiencyLevelByVillage.forEach((village, level) -> {
+            CompoundTag e = new CompoundTag();
+            e.putUUID("Village", village);
+            e.putInt("Level", level);
+            farmEfficiencyList.add(e);
+        });
+        tag.put("FarmEfficiency", farmEfficiencyList);
+
         return tag;
     }
 
@@ -322,6 +362,12 @@ public class VillageManager extends SavedData {
         for (int i = 0; i < successionList.size(); i++) {
             CompoundTag e = successionList.getCompound(i);
             mgr.pendingSuccessionByVillage.put(e.getUUID("Village"), e.getLong("ReadyAtTick"));
+        }
+
+        ListTag farmEfficiencyList = tag.getList("FarmEfficiency", Tag.TAG_COMPOUND);
+        for (int i = 0; i < farmEfficiencyList.size(); i++) {
+            CompoundTag e = farmEfficiencyList.getCompound(i);
+            mgr.farmEfficiencyLevelByVillage.put(e.getUUID("Village"), e.getInt("Level"));
         }
 
         return mgr;

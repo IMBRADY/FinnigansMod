@@ -21,29 +21,35 @@ public class ReputationBadgeRenderer {
     private static final ResourceLocation BADGES = new ResourceLocation(TommeMod.MOD_ID, "textures/gui/reputation_badges.png");
     private static final int CELL = 16;
     private static final String[] TIER_NAMES = {"Novice", "Apprentice", "Journeyman", "Expert", "Master"};
+    private static final int NO_VILLAGE_CELL_INDEX = 5;
+    private static final int TEXTURE_WIDTH = CELL * (TIER_NAMES.length + 1); // 96px: 5 tiers + no-village cell
 
     public static void renderBadge(GuiGraphics guiGraphics, int x, int y) {
-        if (!ClientReputationHud.hasVillage()) return;
-        int tier = Mth.clamp(ClientReputationHud.tierOrdinal(), 0, TIER_NAMES.length - 1);
-        guiGraphics.blit(BADGES, x, y, tier * (float) CELL, 0F, CELL, CELL, CELL * TIER_NAMES.length, CELL);
+        int cell = ClientReputationHud.hasVillage()
+                ? Mth.clamp(ClientReputationHud.tierOrdinal(), 0, TIER_NAMES.length - 1)
+                : NO_VILLAGE_CELL_INDEX;
+        guiGraphics.blit(BADGES, x, y, cell * (float) CELL, 0F, CELL, CELL, TEXTURE_WIDTH, CELL);
     }
 
     public static void renderTooltipIfHovered(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY) {
-        if (!ClientReputationHud.hasVillage()) return;
         if (mouseX < x || mouseX >= x + CELL || mouseY < y || mouseY >= y + CELL) return;
 
-        int tier = Mth.clamp(ClientReputationHud.tierOrdinal(), 0, TIER_NAMES.length - 1);
-        int score = ClientReputationHud.score();
-        int nextThreshold = ClientReputationHud.nextThreshold();
-
         List<Component> lines = new ArrayList<>();
-        lines.add(Component.literal(TIER_NAMES[tier]).withStyle(ChatFormatting.BOLD));
-        lines.add(Component.literal(ClientReputationHud.isChief() ? "Village Chief" : "Not a Village Chief")
-                .withStyle(ChatFormatting.GRAY));
-        if (nextThreshold < 0) {
-            lines.add(Component.literal(score + " highest tier reputation").withStyle(ChatFormatting.DARK_GRAY));
+        if (!ClientReputationHud.hasVillage()) {
+            lines.add(Component.literal("Not currently in a village").withStyle(ChatFormatting.GRAY));
         } else {
-            lines.add(Component.literal(score + " / " + nextThreshold + " reputation").withStyle(ChatFormatting.DARK_GRAY));
+            int tier = Mth.clamp(ClientReputationHud.tierOrdinal(), 0, TIER_NAMES.length - 1);
+            int score = ClientReputationHud.score();
+            int nextThreshold = ClientReputationHud.nextThreshold();
+
+            lines.add(Component.literal(TIER_NAMES[tier]).withStyle(ChatFormatting.BOLD));
+            lines.add(Component.literal(ClientReputationHud.isChief() ? "Village Chief" : "Not a Village Chief")
+                    .withStyle(ChatFormatting.GRAY));
+            if (nextThreshold < 0) {
+                lines.add(Component.literal(score + " highest tier reputation").withStyle(ChatFormatting.DARK_GRAY));
+            } else {
+                lines.add(Component.literal(score + " / " + nextThreshold + " reputation").withStyle(ChatFormatting.DARK_GRAY));
+            }
         }
 
         guiGraphics.renderComponentTooltip(Minecraft.getInstance().font, lines, mouseX, mouseY);

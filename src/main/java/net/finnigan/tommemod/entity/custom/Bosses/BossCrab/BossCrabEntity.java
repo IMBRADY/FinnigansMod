@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.entity.custom.Bosses.BossCrab;
 
 import net.finnigan.tommemod.sound.ModSounds;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -114,6 +115,40 @@ public class BossCrabEntity extends Monster implements GeoEntity {
     @Override
     public boolean causeFallDamage(float fallDistance, float multiplier, net.minecraft.world.damagesource.DamageSource source) {
         return false;
+    }
+
+    @Override
+    public boolean canBreatheUnderwater() {
+        return true;
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+        if (this.isInWater()) {
+            floatOnWaterSurface();
+        }
+    }
+
+    // Keeps the crab riding on top of water instead of sinking, mirroring DuckEntity's
+    // surface-float correction. Clamped slightly below the exact surface so the hitbox
+    // reliably still overlaps the fluid (isInWater() reads false if the box floats fully
+    // above it).
+    private void floatOnWaterSurface() {
+        BlockPos pos = this.blockPosition();
+        net.minecraft.world.level.material.FluidState fluidState = this.level().getFluidState(pos);
+        if (fluidState.isEmpty()) return;
+
+        double surfaceY = pos.getY() + fluidState.getHeight(this.level(), pos) - 0.1;
+        double currentY = this.getY();
+        if (Math.abs(currentY - surfaceY) > 0.02) {
+            this.setPos(this.getX(), Mth.lerp(0.5, currentY, surfaceY), this.getZ());
+        }
+
+        Vec3 delta = this.getDeltaMovement();
+        if (delta.y < 0) {
+            this.setDeltaMovement(delta.x, 0, delta.z);
+        }
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -400,14 +435,27 @@ public class BossCrabEntity extends Monster implements GeoEntity {
     }
 
     private void tickJumpRise() {
+        // Over deep water onGround() never becomes true, so treat reaching the water
+        // surface as the impact point instead of waiting to hit the seafloor below it.
+        if (this.isInWater()) {
+            if (stateTicks > JUMP_RISE_DURATION) {
+                landImpact();
+            }
+            return;
+        }
+
         if (!this.onGround()) {
             this.setDeltaMovement(jumpHorizontalVelocity.x, this.getDeltaMovement().y, jumpHorizontalVelocity.z);
         }
         if (stateTicks > JUMP_RISE_DURATION && this.onGround()) {
-            this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
-                    ModSounds.BOSS_CRAB_LAND.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
-            setState(CrabState.JUMP_LAND);
+            landImpact();
         }
+    }
+
+    private void landImpact() {
+        this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
+                ModSounds.BOSS_CRAB_LAND.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
+        setState(CrabState.JUMP_LAND);
     }
 
     private void beginDash(int direction, LivingEntity target) {

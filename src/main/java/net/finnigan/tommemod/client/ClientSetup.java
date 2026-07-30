@@ -53,6 +53,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                                     && player.getCooldowns().isOnCooldown(stack.getItem()) ? 1.0F : 0.0F);
             MenuScreens.register(ModMenuTypes.OVEN_MENU.get(), OvenScreen::new);
             MenuScreens.register(ModMenuTypes.WARRIOR_VILLAGER_MENU.get(), net.finnigan.tommemod.client.screen.WarriorVillagerScreen::new);
+            MenuScreens.register(ModMenuTypes.MONOLITH_MENU.get(), net.finnigan.tommemod.client.screen.MonolithScreen::new);
             ItemProperties.register(Items.ENCHANTED_BOOK, new ResourceLocation(TommeMod.MOD_ID, "enchant_type"),
                     (stack, level, entity, seed) -> {
                         if (stack.isEmpty()) return 0.0F;

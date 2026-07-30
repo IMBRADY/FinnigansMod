@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.menu;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.block.entity.MonolithBlockEntity;
 import net.finnigan.tommemod.block.entity.OvenBlockEntity;
 import net.finnigan.tommemod.block.entity.OvenMenu;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerEntity;
@@ -36,5 +37,15 @@ public class ModMenuTypes {
                     return new WarriorVillagerMenu(windowId, inv, warrior);
                 }
                 throw new IllegalStateException("Entity " + entityId + " is not a WarriorVillagerEntity");
+            }));
+
+    public static final RegistryObject<MenuType<MonolithMenu>> MONOLITH_MENU =
+            MENUS.register("monolith_menu", () -> IForgeMenuType.create((windowId, inv, data) -> {
+                BlockPos pos = data.readBlockPos();
+                BlockEntity be = inv.player.level().getBlockEntity(pos);
+                if (be instanceof MonolithBlockEntity monolith) {
+                    return new MonolithMenu(windowId, inv, monolith);
+                }
+                throw new IllegalStateException("Block entity at " + pos + " is not a MonolithBlockEntity");
             }));
 }

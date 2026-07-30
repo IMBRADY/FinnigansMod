@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -44,10 +45,14 @@ public class ChiefDiscountEvents {
         if (!player.getUUID().equals(elder.getChiefUUID())) return;
 
         for (MerchantOffer offer : villager.getOffers()) {
-            int discount = switch (ModConfig.CHIEF_DISCOUNT_TYPE.get()) {
-                case PERCENTAGE -> Mth.floor(offer.getBaseCostA().getCount() * ModConfig.CHIEF_DISCOUNT_PERCENT.get());
-                case FLAT -> ModConfig.CHIEF_DISCOUNT_FLAT_EMERALDS.get();
-            };
+            // FLAT only makes sense when the offer's price is actually in emeralds; trades priced
+            // in some other item (e.g. buying trades where costA is what the villager wants) fall
+            // back to the percentage discount instead.
+            boolean useFlat = ModConfig.CHIEF_DISCOUNT_TYPE.get() == ModConfig.DiscountType.FLAT
+                    && offer.getBaseCostA().is(Items.EMERALD);
+            int discount = useFlat
+                    ? ModConfig.CHIEF_DISCOUNT_FLAT_EMERALDS.get()
+                    : Mth.floor(offer.getBaseCostA().getCount() * ModConfig.CHIEF_DISCOUNT_PERCENT.get());
             if (discount > 0) offer.addToSpecialPriceDiff(-discount);
         }
     }

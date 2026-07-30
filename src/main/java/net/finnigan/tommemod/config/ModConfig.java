@@ -7,7 +7,7 @@ import java.util.List;
 
 // NOTE!!!
 // If you already clean built your minecraft world, and you changed these values later,
-// YOU MUST change them in tommemod-common.toml in ..\run\config
+// YOU MUST change them in tommemod-common.toml in ..\run\config (find with Ctrl+N)
 
 public class ModConfig {
 
@@ -59,6 +59,14 @@ public class ModConfig {
     public static final ForgeConfigSpec.IntValue CHIEF_BUFF_TICK_INTERVAL_TICKS;
     public static final ForgeConfigSpec.IntValue CHIEF_BUFF_REGION_PADDING_BLOCKS;
 
+    // monolith
+    public static final ForgeConfigSpec.IntValue MONOLITH_REFRESH_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.IntValue MONOLITH_MINIMAP_RADIUS_BLOCKS;
+    public static final ForgeConfigSpec.DoubleValue FARM_EFFICIENCY_PERCENT_PER_LEVEL;
+    public static final ForgeConfigSpec.IntValue FARM_EFFICIENCY_MAX_LEVEL;
+    public static final ForgeConfigSpec.IntValue FARM_EFFICIENCY_TICK_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> FARM_EFFICIENCY_UPGRADE_COST_EMERALDS;
+
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
@@ -66,13 +74,13 @@ public class ModConfig {
         builder.comment("Every player starts as Novice (0) in every village. Tiers are always derived live from the",
                 "current reputation score, so losing reputation can demote a player back down a tier.");
         TIER_APPRENTICE_THRESHOLD = builder.comment("Reputation needed to become Apprentice")
-                .defineInRange("tierApprenticeThreshold", 100, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                .defineInRange("tierApprenticeThreshold", 200, Integer.MIN_VALUE, Integer.MAX_VALUE);
         TIER_JOURNEYMAN_THRESHOLD = builder.comment("Reputation needed to become Journeyman")
-                .defineInRange("tierJourneymanThreshold", 250, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                .defineInRange("tierJourneymanThreshold", 500, Integer.MIN_VALUE, Integer.MAX_VALUE);
         TIER_EXPERT_THRESHOLD = builder.comment("Reputation needed to become Expert")
-                .defineInRange("tierExpertThreshold", 500, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                .defineInRange("tierExpertThreshold", 1000, Integer.MIN_VALUE, Integer.MAX_VALUE);
         TIER_MASTER_THRESHOLD = builder.comment("Reputation needed to become Master")
-                .defineInRange("tierMasterThreshold", 1000, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                .defineInRange("tierMasterThreshold", 2500, Integer.MIN_VALUE, Integer.MAX_VALUE);
         REPUTATION_FLOOR = builder.comment("Reputation with a village is never allowed to drop below this value")
                 .defineInRange("reputationFloor", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
@@ -86,7 +94,7 @@ public class ModConfig {
         IRON_GOLEM_KILLED_LOSS = builder.comment("Loss for killing an Iron Golem (a village's defender)")
                 .defineInRange("ironGolemKilledLoss", -15, Integer.MIN_VALUE, Integer.MAX_VALUE);
         HOSTILE_MOB_KILLED_IN_VILLAGE_GAIN = builder.comment("Small gain for killing a hostile mob while inside a village")
-                .defineInRange("hostileMobKilledInVillageGain", 3, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                .defineInRange("hostileMobKilledInVillageGain", 4, Integer.MIN_VALUE, Integer.MAX_VALUE);
         builder.pop();
 
         builder.push("village");
@@ -148,13 +156,28 @@ public class ModConfig {
         CHIEF_BUFF_OPERATION = builder.comment("All values are multiplied to total not added :)))))))")
                 .defineEnum("buffAttributeOperation", net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.MULTIPLY_TOTAL);
         CHIEF_BUFF_AMOUNT_PER_VILLAGER = builder.comment("Buff amount granted per Villager currently in the Chief's village")
-                .defineInRange("buffAmountPerVillager", 0.005, 0.0, Double.MAX_VALUE);
+                .defineInRange("buffAmountPerVillager", 0.003, 0.0, Double.MAX_VALUE);
         CHIEF_BUFF_CAP = builder.comment("Maximum total buff amount regardless of village population")
                 .defineInRange("buffCap", 0.15, 0.0, Double.MAX_VALUE);
         CHIEF_BUFF_TICK_INTERVAL_TICKS = builder.comment("How often (ticks) the Chief buff is recalculated")
                 .defineInRange("buffTickIntervalTicks", 30, 1, Integer.MAX_VALUE);
         CHIEF_BUFF_REGION_PADDING_BLOCKS = builder.comment("Extra padding (blocks) added to a village's bounding region for buff/population purposes, so the buff doesn't flicker at the boundary")
                 .defineInRange("buffRegionPaddingBlocks", 8, 0, Integer.MAX_VALUE);
+        builder.pop();
+
+        builder.push("monolith");
+        MONOLITH_REFRESH_INTERVAL_TICKS = builder.comment("How often (ticks) an open Monolith screen's live data (population/defense counts, minimap markers) is rescanned and pushed to viewers")
+                .defineInRange("monolithRefreshIntervalTicks", 5, 1, Integer.MAX_VALUE);
+        MONOLITH_MINIMAP_RADIUS_BLOCKS = builder.comment("Radius (blocks) around the Monolith that the tactical minimap tab scans for terrain/markers")
+                .defineInRange("monolithMinimapRadiusBlocks", 64, 16, 256);
+        FARM_EFFICIENCY_PERCENT_PER_LEVEL = builder.comment("Extra crop growth chance granted per Farm Efficiency level")
+                .defineInRange("farmEfficiencyPercentPerLevel", 0.10, 0.0, 1.0);
+        FARM_EFFICIENCY_MAX_LEVEL = builder.comment("Maximum Farm Efficiency level a village can be upgraded to")
+                .defineInRange("farmEfficiencyMaxLevel", 3, 0, Integer.MAX_VALUE);
+        FARM_EFFICIENCY_TICK_INTERVAL_TICKS = builder.comment("How often (ticks) Farm Efficiency's crop-growth boost is rolled per nearby village")
+                .defineInRange("farmEfficiencyTickIntervalTicks", 20, 1, Integer.MAX_VALUE);
+        FARM_EFFICIENCY_UPGRADE_COST_EMERALDS = builder.comment("Emerald cost to reach each Farm Efficiency level (index 0 = cost of level 1, etc.)")
+                .defineList("farmEfficiencyUpgradeCostEmeralds", List.of(32, 64, 128), obj -> obj instanceof Integer i && i >= 0);
         builder.pop();
 
         COMMON_SPEC = builder.build();

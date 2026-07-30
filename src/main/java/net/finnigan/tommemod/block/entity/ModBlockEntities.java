@@ -14,4 +14,8 @@ public class ModBlockEntities {
     public static final RegistryObject<BlockEntityType<OvenBlockEntity>> OVEN =
             BLOCK_ENTITIES.register("oven", () ->
                     BlockEntityType.Builder.of(OvenBlockEntity::new, ModBlocks.OVEN.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<MonolithBlockEntity>> MONOLITH =
+            BLOCK_ENTITIES.register("monolith", () ->
+                    BlockEntityType.Builder.of(MonolithBlockEntity::new, ModBlocks.MONOLITH.get()).build(null));
 }

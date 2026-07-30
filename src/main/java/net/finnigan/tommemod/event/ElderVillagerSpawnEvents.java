@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.event;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.block.ModBlocks;
 import net.finnigan.tommemod.config.ModConfig;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.entity.custom.ElderVillagerEntity;
@@ -9,7 +10,6 @@ import net.finnigan.tommemod.village.VillageRegion;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.npc.Villager;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,15 +19,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Placing an Enchanting Table near an established village (population permitting) summons that
- * village's sole Elder Villager. Enforces one Elder per village via VillageManager's registry.
+ * Placing a Monolith near an established village (population permitting) summons that village's
+ * sole Elder Villager. Enforces one Elder per village via VillageManager's registry. Monolith is
+ * standing in for a dedicated elder-summoning mechanic for now.
  */
 @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID)
 public class ElderVillagerSpawnEvents {
 
     @SubscribeEvent
     public static void onEntityPlace(BlockEvent.EntityPlaceEvent event) {
-        if (!event.getPlacedBlock().is(Blocks.ENCHANTING_TABLE)) return;
+        if (!event.getPlacedBlock().is(ModBlocks.MONOLITH.get())) return;
         if (!(event.getLevel() instanceof ServerLevel level)) return;
 
         BlockPos pos = event.getPos();
