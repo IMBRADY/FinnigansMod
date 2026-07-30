@@ -47,7 +47,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  */
 public class ScarecrowEntity extends Monster implements GeoEntity {
 
-    private static final double SPIN_CHANCE = 0.05;
+    private static final double SPIN_CHANCE = 0.25;
     private static final int SPIN_PREP_DURATION_TICKS = 5;   // matches spin_prep (0.25s)
     private static final int SPIN_PULSE_INTERVAL_TICKS = 10; // matches spin (0.5s)
     private static final int SPIN_TOTAL_PULSES = 5;
