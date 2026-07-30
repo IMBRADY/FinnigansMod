@@ -105,6 +105,8 @@ public class ModCreativeModTabs {
                         // CREATIVE MODE ONLY
                         pOutput.accept(ModBlocks.ARMAGEDDON.get());
                         pOutput.accept(ModItems.GOD_SWORD.get());
+                        pOutput.accept(ModItems.RIDE_STICK.get());
+                        pOutput.accept(ModItems.RIVALRY_FLAG.get());
 
                     })
                     .build());

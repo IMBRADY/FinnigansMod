@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.network;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.network.packet.AdjustRideDistancePacket;
 import net.finnigan.tommemod.network.packet.SyncAccessoryPacket;
 import net.finnigan.tommemod.network.packet.SyncReputationHudPacket;
 import net.finnigan.tommemod.network.packet.SyncReputationPacket;
@@ -34,5 +35,7 @@ public class ModNetwork {
                 SyncReputationPacket::encode, SyncReputationPacket::new, SyncReputationPacket::handle);
         CHANNEL.registerMessage(id++, SyncReputationHudPacket.class,
                 SyncReputationHudPacket::encode, SyncReputationHudPacket::new, SyncReputationHudPacket::handle);
+        CHANNEL.registerMessage(id++, AdjustRideDistancePacket.class,
+                AdjustRideDistancePacket::encode, AdjustRideDistancePacket::decode, AdjustRideDistancePacket::handle);
     }
 }

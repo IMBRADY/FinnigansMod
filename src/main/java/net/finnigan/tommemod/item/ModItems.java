@@ -345,6 +345,13 @@ public class ModItems {
     public static final RegistryObject<Item> GOD_SWORD = ITEMS.register("god_sword",
             () -> new GodSwordItem(new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.EPIC)));
 
+    // CREATIVE MODE toys - both use their own copies of vanilla textures (stick / white wool), not the
+    // real items, so they can be edited freely later.
+    public static final RegistryObject<Item> RIDE_STICK = ITEMS.register("ride_stick",
+            () -> new RideStickItem(new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.EPIC)));
+    public static final RegistryObject<Item> RIVALRY_FLAG = ITEMS.register("rivalry_flag",
+            () -> new RivalryFlagItem(new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.EPIC)));
+
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
