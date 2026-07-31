@@ -63,6 +63,8 @@ public class ModCreativeModTabs {
                         // BLOCKS
                         pOutput.accept(ModBlocks.OVEN.get());
                         pOutput.accept(ModBlocks.MONOLITH.get());
+                        pOutput.accept(ModBlocks.BLUEPRINT_STAND.get());
+                        pOutput.accept(ModBlocks.BUILDER_HUB.get());
 
                         // UNIQUES
                         pOutput.accept(ModItems.HARMONY.get());

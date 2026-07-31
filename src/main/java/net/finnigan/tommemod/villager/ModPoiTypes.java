@@ -22,4 +22,10 @@ public class ModPoiTypes {
     // Elder-spawn trigger. Max 1 ticket enforces one Elder per claimed table.
     public static final RegistryObject<PoiType> ENCHANTING_TABLE_POI = POI_TYPES.register("enchanting_table_poi",
             () -> new PoiType(Set.copyOf(Blocks.ENCHANTING_TABLE.getStateDefinition().getPossibleStates()), 1, 1));
+
+    // Job site for the Builder profession (Builder Hub construction). Unlike ENCHANTING_TABLE_POI,
+    // this one IS added to the vanilla acquirable_job_site tag, so unemployed Villagers naturally
+    // claim it like any other profession job site.
+    public static final RegistryObject<PoiType> BLUEPRINT_STAND_POI = POI_TYPES.register("blueprint_stand_poi",
+            () -> new PoiType(Set.copyOf(ModBlocks.BLUEPRINT_STAND.get().getStateDefinition().getPossibleStates()), 1, 1));
 }

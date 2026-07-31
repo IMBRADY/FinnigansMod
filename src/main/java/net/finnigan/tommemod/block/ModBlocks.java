@@ -2,6 +2,8 @@ package net.finnigan.tommemod.block;
 
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.block.custom.ArmageddonBlock;
+import net.finnigan.tommemod.block.custom.BuilderHubBlock;
+import net.finnigan.tommemod.block.custom.ConstructionBannerBlock;
 import net.finnigan.tommemod.block.custom.MonolithBlock;
 import net.finnigan.tommemod.block.custom.OvenBlock;
 import net.finnigan.tommemod.item.ModItems;
@@ -48,6 +50,28 @@ public class ModBlocks {
                     .strength(10.0F)
                     .sound(SoundType.AMETHYST)
                     .requiresCorrectToolForDrops()));
+
+    // Job-site block for the Builder profession - deliberately a plain Block (no custom class, no
+    // BlockEntity/GUI needed; it only exists to be a claimable POI, see villager/ModPoiTypes.java).
+    public static final RegistryObject<Block> BLUEPRINT_STAND = registerBlock("blueprint_stand",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WOOD)
+                    .strength(2.5F)
+                    .sound(SoundType.WOOD)));
+
+    public static final RegistryObject<Block> BUILDER_HUB = registerBlock("builder_hub",
+            () -> new BuilderHubBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_ORANGE)
+                    .strength(10.0F)
+                    .sound(SoundType.STONE)
+                    .requiresCorrectToolForDrops()));
+
+    public static final RegistryObject<Block> CONSTRUCTION_BANNER = registerBlock("construction_banner",
+            () -> new ConstructionBannerBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.SNOW)
+                    .noCollission()
+                    .strength(1.0F)
+                    .sound(SoundType.WOOL)));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);

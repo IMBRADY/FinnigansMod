@@ -180,8 +180,14 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
         }
 
         int infoY = mapY + CANVAS_SIZE + 8;
-        guiGraphics.drawString(font, "Iron Golems: " + be.getIronGolemCount(), x + 10, infoY, 0xFFFFFFFF);
-        guiGraphics.drawString(font, "Active Soldiers: " + be.getActiveWarriorCount(), x + 10, infoY + 12, 0xFFFFFFFF);
+        int iconX = x + 10;
+        int textX = iconX + 10;
+        guiGraphics.blit(IRON_GOLEM_FACE, iconX, infoY - 1, 0, 0, 8, 8, 8, 8);
+        guiGraphics.drawString(font, "Iron Golems: " + be.getIronGolemCount(), textX, infoY, 0xFFFFFFFF);
+        guiGraphics.blit(VILLAGER_FACE, iconX, infoY + 11, 0, 0, 8, 8, 8, 8);
+        guiGraphics.drawString(font, "Active Soldiers: " + be.getActiveWarriorCount(), textX, infoY + 12, 0xFFFFFFFF);
+        guiGraphics.blit(VILLAGER_FACE, iconX, infoY + 23, 0, 0, 8, 8, 8, 8);
+        guiGraphics.drawString(font, "Total Population: " + be.getTotalPopulation(), textX, infoY + 24, 0xFFFFFFFF);
     }
 
     /**

@@ -55,6 +55,17 @@
   "block.tommemod.monolith": "Monolith",
   "item.tommemod.monolith": "Monolith",
 
+  "block.tommemod.blueprint_stand": "Blueprint Stand",
+  "item.tommemod.blueprint_stand": "Blueprint Stand",
+
+  "block.tommemod.builder_hub": "Builder Hub",
+  "item.tommemod.builder_hub": "Builder Hub",
+
+  "block.tommemod.construction_banner": "Construction Banner",
+  "item.tommemod.construction_banner": "Construction Banner",
+
+  "entity.minecraft.villager.tommemod.builder": "Builder",
+
   "entity.minecraft.villager.tommemod.baker": "Baker",
   "entity.minecraft.villager.tommemod.beekeeper": "Beekeeper",
   "entity.tommemod.jellyfish": "Jellyfish",

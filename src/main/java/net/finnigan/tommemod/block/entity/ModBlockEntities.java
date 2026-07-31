@@ -18,4 +18,12 @@ public class ModBlockEntities {
     public static final RegistryObject<BlockEntityType<MonolithBlockEntity>> MONOLITH =
             BLOCK_ENTITIES.register("monolith", () ->
                     BlockEntityType.Builder.of(MonolithBlockEntity::new, ModBlocks.MONOLITH.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<BuilderHubBlockEntity>> BUILDER_HUB =
+            BLOCK_ENTITIES.register("builder_hub", () ->
+                    BlockEntityType.Builder.of(BuilderHubBlockEntity::new, ModBlocks.BUILDER_HUB.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<ConstructionSiteBlockEntity>> CONSTRUCTION_SITE =
+            BLOCK_ENTITIES.register("construction_site", () ->
+                    BlockEntityType.Builder.of(ConstructionSiteBlockEntity::new, ModBlocks.CONSTRUCTION_BANNER.get()).build(null));
 }

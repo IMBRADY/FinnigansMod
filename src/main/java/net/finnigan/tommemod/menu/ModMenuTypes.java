@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.menu;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.block.entity.BuilderHubBlockEntity;
 import net.finnigan.tommemod.block.entity.MonolithBlockEntity;
 import net.finnigan.tommemod.block.entity.OvenBlockEntity;
 import net.finnigan.tommemod.block.entity.OvenMenu;
@@ -47,5 +48,15 @@ public class ModMenuTypes {
                     return new MonolithMenu(windowId, inv, monolith);
                 }
                 throw new IllegalStateException("Block entity at " + pos + " is not a MonolithBlockEntity");
+            }));
+
+    public static final RegistryObject<MenuType<BuilderHubMenu>> BUILDER_HUB_MENU =
+            MENUS.register("builder_hub_menu", () -> IForgeMenuType.create((windowId, inv, data) -> {
+                BlockPos pos = data.readBlockPos();
+                BlockEntity be = inv.player.level().getBlockEntity(pos);
+                if (be instanceof BuilderHubBlockEntity hub) {
+                    return new BuilderHubMenu(windowId, inv, hub);
+                }
+                throw new IllegalStateException("Block entity at " + pos + " is not a BuilderHubBlockEntity");
             }));
 }

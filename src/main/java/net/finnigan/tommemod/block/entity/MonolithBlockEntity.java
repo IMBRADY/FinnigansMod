@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.block.entity;
 
 import net.finnigan.tommemod.config.ModConfig;
+import net.finnigan.tommemod.entity.custom.ElderVillagerEntity;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerEntity;
 import net.finnigan.tommemod.menu.MonolithMenu;
 import net.finnigan.tommemod.village.VillageManager;
@@ -39,7 +40,7 @@ import java.util.UUID;
  */
 public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
 
-    public enum MarkerType { VILLAGER, IRON_GOLEM }
+    public enum MarkerType { VILLAGER, IRON_GOLEM, ELDER, WARRIOR }
 
     public record Marker(int dx, int dz, MarkerType type) {
     }
@@ -57,6 +58,7 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
 
     private int ironGolemCount = 0;
     private int activeWarriorCount = 0;
+    private int totalPopulation = 0;
     private int farmEfficiencyLevel = 0;
     private List<Marker> markers = new ArrayList<>();
     private List<PoiPoint> poiPoints = new ArrayList<>();
@@ -91,6 +93,7 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
             villageId = null;
             ironGolemCount = 0;
             activeWarriorCount = 0;
+            totalPopulation = 0;
             farmEfficiencyLevel = 0;
             markers.clear();
             poiPoints.clear();
@@ -112,19 +115,27 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
         AABB box = new AABB(region.anchor()).inflate(region.radius());
         List<Villager> villagers = level.getEntitiesOfClass(Villager.class, box);
         List<IronGolem> golems = level.getEntitiesOfClass(IronGolem.class, box);
-        long warriorCount = level.getEntitiesOfClass(WarriorVillagerEntity.class, box).stream()
+        List<ElderVillagerEntity> elders = level.getEntitiesOfClass(ElderVillagerEntity.class, box);
+        List<WarriorVillagerEntity> warriors = level.getEntitiesOfClass(WarriorVillagerEntity.class, box).stream()
                 .filter(WarriorVillagerEntity::isAlive)
-                .count();
+                .toList();
 
         ironGolemCount = golems.size();
-        activeWarriorCount = (int) warriorCount;
+        activeWarriorCount = warriors.size();
+        totalPopulation = villagers.size() + elders.size() + warriors.size();
 
-        markers = new ArrayList<>(villagers.size() + golems.size());
+        markers = new ArrayList<>(villagers.size() + golems.size() + elders.size() + warriors.size());
         for (Villager v : villagers) {
             markers.add(new Marker(v.getBlockX() - self.getX(), v.getBlockZ() - self.getZ(), MarkerType.VILLAGER));
         }
         for (IronGolem g : golems) {
             markers.add(new Marker(g.getBlockX() - self.getX(), g.getBlockZ() - self.getZ(), MarkerType.IRON_GOLEM));
+        }
+        for (ElderVillagerEntity e : elders) {
+            markers.add(new Marker(e.getBlockX() - self.getX(), e.getBlockZ() - self.getZ(), MarkerType.ELDER));
+        }
+        for (WarriorVillagerEntity w : warriors) {
+            markers.add(new Marker(w.getBlockX() - self.getX(), w.getBlockZ() - self.getZ(), MarkerType.WARRIOR));
         }
 
         setChanged();
@@ -145,6 +156,10 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
 
     public int getActiveWarriorCount() {
         return activeWarriorCount;
+    }
+
+    public int getTotalPopulation() {
+        return totalPopulation;
     }
 
     public int getFarmEfficiencyLevel() {
@@ -178,6 +193,7 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
         if (villageId != null) tag.putUUID("VillageId", villageId);
         tag.putInt("IronGolemCount", ironGolemCount);
         tag.putInt("ActiveWarriorCount", activeWarriorCount);
+        tag.putInt("TotalPopulation", totalPopulation);
         tag.putInt("FarmEfficiencyLevel", farmEfficiencyLevel);
 
         ListTag markerList = new ListTag();
@@ -206,6 +222,7 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
         villageId = tag.hasUUID("VillageId") ? tag.getUUID("VillageId") : null;
         ironGolemCount = tag.getInt("IronGolemCount");
         activeWarriorCount = tag.getInt("ActiveWarriorCount");
+        totalPopulation = tag.getInt("TotalPopulation");
         farmEfficiencyLevel = tag.getInt("FarmEfficiencyLevel");
 
         markers = new ArrayList<>();

@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "tommemod:oven_poi",
+    "tommemod:blueprint_stand_poi",
     "minecraft:beehive"
   ]
 }

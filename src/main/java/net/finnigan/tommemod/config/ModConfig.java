@@ -67,6 +67,17 @@ public class ModConfig {
     public static final ForgeConfigSpec.IntValue FARM_EFFICIENCY_TICK_INTERVAL_TICKS;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> FARM_EFFICIENCY_UPGRADE_COST_EMERALDS;
 
+    // builder hub
+    // The four BUILDER_HUB_* lists below are indexed by BuildingType's enum ordinal
+    // (HOUSE, WALLS, BANK, OBSERVATORY, BARRACKS) - one entry per building type, in that order.
+    public static final ForgeConfigSpec.IntValue BUILDER_HUB_TICK_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.IntValue BUILDER_HUB_MAX_FOOTPRINT_VARIANCE;
+    public static final ForgeConfigSpec.IntValue BUILDER_HUB_REGION_PADDING_BLOCKS;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> BUILDER_HUB_COST_EMERALDS;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> BUILDER_HUB_RESOURCE_ITEM;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> BUILDER_HUB_RESOURCE_COUNT;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> BUILDER_HUB_REQUIRED_BUILDERS;
+
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
@@ -178,6 +189,27 @@ public class ModConfig {
                 .defineInRange("farmEfficiencyTickIntervalTicks", 20, 1, Integer.MAX_VALUE);
         FARM_EFFICIENCY_UPGRADE_COST_EMERALDS = builder.comment("Emerald cost to reach each Farm Efficiency level (index 0 = cost of level 1, etc.)")
                 .defineList("farmEfficiencyUpgradeCostEmeralds", List.of(32, 64, 128), obj -> obj instanceof Integer i && i >= 0);
+        builder.pop();
+
+        builder.push("builderHub");
+        BUILDER_HUB_TICK_INTERVAL_TICKS = builder.comment("Ticks between each block placed during construction (20 = one block per second)")
+                .defineInRange("builderHubTickIntervalTicks", 20, 1, Integer.MAX_VALUE);
+        BUILDER_HUB_MAX_FOOTPRINT_VARIANCE = builder.comment("Max allowed height difference (blocks) across a building's footprint; placement is refused above this")
+                .defineInRange("builderHubMaxFootprintVariance", 3, 0, Integer.MAX_VALUE);
+        BUILDER_HUB_REGION_PADDING_BLOCKS = builder.comment("Extra padding (blocks) added to a village's bounding region for where a construction banner may be placed")
+                .defineInRange("builderHubRegionPaddingBlocks", 16, 0, Integer.MAX_VALUE);
+        builder.comment("The four lists below are indexed by BuildingType's ordinal (HOUSE, WALLS, BANK, OBSERVATORY, BARRACKS) - one entry per building type, in that order.",
+                "Bank/Observatory/Barracks aren't buildable yet regardless of these values (see BuildingType.implemented) - they're pre-configured for when they are.");
+        BUILDER_HUB_COST_EMERALDS = builder.comment("Emerald cost per building type")
+                .defineList("builderHubCostEmeralds", List.of(16, 8, 64, 96, 48), obj -> obj instanceof Integer i && i >= 0);
+        BUILDER_HUB_RESOURCE_ITEM = builder.comment("Resource item (registry id) required per building type")
+                .defineList("builderHubResourceItem", List.of(
+                        "minecraft:oak_planks", "minecraft:cobblestone", "minecraft:iron_block", "minecraft:glass", "minecraft:cobblestone"
+                ), obj -> obj instanceof String);
+        BUILDER_HUB_RESOURCE_COUNT = builder.comment("Resource item count required per building type")
+                .defineList("builderHubResourceCount", List.of(32, 48, 8, 24, 64), obj -> obj instanceof Integer i && i >= 0);
+        BUILDER_HUB_REQUIRED_BUILDERS = builder.comment("Minimum Builder Villagers the village must have to unlock each building type")
+                .defineList("builderHubRequiredBuilders", List.of(0, 1, 2, 3, 2), obj -> obj instanceof Integer i && i >= 0);
         builder.pop();
 
         COMMON_SPEC = builder.build();

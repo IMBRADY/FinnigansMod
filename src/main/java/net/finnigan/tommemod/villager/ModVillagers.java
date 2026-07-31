@@ -31,4 +31,12 @@ public class ModVillagers {
                     ImmutableSet.of(), // requestedItems
                     ImmutableSet.of(), // secondaryPoi
                     SoundEvents.BEE_LOOP));
+
+    public static final RegistryObject<VillagerProfession> BUILDER = PROFESSIONS.register("builder",
+            () -> new VillagerProfession("builder",
+                    holder -> holder.value() == ModPoiTypes.BLUEPRINT_STAND_POI.get(),
+                    holder -> holder.value() == ModPoiTypes.BLUEPRINT_STAND_POI.get(),
+                    ImmutableSet.of(), // requestedItems
+                    ImmutableSet.of(), // secondaryPoi
+                    SoundEvents.VILLAGER_WORK_MASON));
 }
