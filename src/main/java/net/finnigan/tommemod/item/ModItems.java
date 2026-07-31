@@ -25,6 +25,48 @@ public class ModItems {
     public static final RegistryObject<Item> DYNAMITE = ITEMS.register("dynamite",
             () -> new DynamiteItem(new Item.Properties()));
 
+    public static final RegistryObject<Item> IXE = ITEMS.register("ixe",
+            () -> new IxeItem(
+                    Tiers.NETHERITE,
+                    25,
+                    -2.4F,
+                    new Item.Properties()));
+
+    public static final RegistryObject<Item> WAR_FLAMMER = ITEMS.register("war_flammer",
+            () -> new WarFlammerItem(
+                    Tiers.NETHERITE,
+                    25,
+                    -2.4F,
+                    new Item.Properties()));
+
+    public static final RegistryObject<Item> END_SCYTHE = ITEMS.register("end_scythe",
+            () -> new EndScytheItem(
+                    Tiers.NETHERITE,
+                    25,
+                    -2.4F,
+                    new Item.Properties()));
+
+    public static final RegistryObject<Item> COLLETIS = ITEMS.register("colletis",
+            () -> new ColletisItem(
+                    Tiers.NETHERITE,
+                    25,
+                    -2.4F,
+                    new Item.Properties()));
+
+    public static final RegistryObject<Item> LUMAPIER = ITEMS.register("lumapier",
+            () -> new LumapierItem(
+                    Tiers.NETHERITE,
+                    25,
+                    -2.4F,
+                    new Item.Properties()));
+
+    public static final RegistryObject<Item> ECHOBLADE = ITEMS.register("echoblade",
+            () -> new EchobladeItem(
+                    Tiers.NETHERITE,
+                    25,
+                    -2.4F,
+                    new Item.Properties()));
+
     public static final RegistryObject<Item> AMETHYST_CUTLASS = ITEMS.register("amethyst_cutlass",
             () -> new AmethystCutlassItem(
                     Tiers.NETHERITE,

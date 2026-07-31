@@ -4,6 +4,7 @@ import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.block.custom.ArmageddonBlock;
 import net.finnigan.tommemod.block.custom.BuilderHubBlock;
 import net.finnigan.tommemod.block.custom.ConstructionBannerBlock;
+import net.finnigan.tommemod.block.custom.InvisibleLightBlock;
 import net.finnigan.tommemod.block.custom.MonolithBlock;
 import net.finnigan.tommemod.block.custom.OvenBlock;
 import net.finnigan.tommemod.item.ModItems;
@@ -72,6 +73,17 @@ public class ModBlocks {
                     .noCollission()
                     .strength(1.0F)
                     .sound(SoundType.WOOL)));
+
+    // Lumapier's server-managed invisible light source (Phase 5c) - deliberately registered WITHOUT
+    // registerBlock()/a BlockItem: it must never be player-placeable or obtainable, only ever
+    // placed/removed programmatically by LumapierLightHandler.
+    public static final RegistryObject<Block> INVISIBLE_LIGHT = BLOCKS.register("invisible_light",
+            () -> new InvisibleLightBlock(BlockBehaviour.Properties.of()
+                    .noCollission()
+                    .noOcclusion()
+                    .lightLevel(state -> 14)
+                    .noLootTable()
+                    .strength(-1.0F, 3600000.0F)));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);

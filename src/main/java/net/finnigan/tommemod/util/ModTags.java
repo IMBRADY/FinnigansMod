@@ -14,6 +14,7 @@ public class ModTags {
         public static final TagKey<Item> TOTEM_ACCESSORIES = tag("totem_accessories");
         public static final TagKey<Item> LIFESTEAL_WEAPONS = tag("lifesteal_weapons");
         public static final TagKey<Item> POISON_WEAPONS = tag("poison_weapons");
+        public static final TagKey<Item> UNIQUE = tag("unique");
 
         private static TagKey<Item> tag(String name) {
             return TagKey.create(Registries.ITEM, new ResourceLocation(TommeMod.MOD_ID, name));

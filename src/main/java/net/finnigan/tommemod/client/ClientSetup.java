@@ -12,6 +12,7 @@ import net.finnigan.tommemod.entity.custom.*;
 import net.finnigan.tommemod.entity.custom.Bosses.BossCrab.BossCrabEntity;
 import net.finnigan.tommemod.item.ModItems;
 import net.finnigan.tommemod.item.custom.BlossomKatanaItem;
+import net.finnigan.tommemod.item.custom.LumapierItem;
 import net.finnigan.tommemod.menu.ModMenuTypes;
 import net.finnigan.tommemod.particle.ModParticleTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -205,6 +206,12 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                     (stack, level, entity, seed) ->
                             BlossomKatanaItem.isAuraActive(stack, level) ? 1.0F : 0.0F
                 );
+            ItemProperties.register(
+                    ModItems.LUMAPIER.get(),
+                    new ResourceLocation(TommeMod.MOD_ID, "firing"),
+                    (stack, level, entity, seed) ->
+                            LumapierItem.isFiring(stack, level) ? 1.0F : 0.0F
+                );
             });
         }
 
@@ -218,6 +225,15 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
         for (var particle : new net.minecraftforge.registries.RegistryObject[]{
                 ModParticleTypes.WAVE_1, ModParticleTypes.WAVE_2, ModParticleTypes.WAVE_3, ModParticleTypes.WAVE_4, ModParticleTypes.WAVE_5,
                 ModParticleTypes.FOAM_1, ModParticleTypes.FOAM_2, ModParticleTypes.FOAM_3, ModParticleTypes.FOAM_4, ModParticleTypes.FOAM_5}) {
+            event.registerSpriteSet((net.minecraft.core.particles.ParticleType) particle.get(), AquatanaParticle.Provider::new);
+        }
+        event.registerSpriteSet(ModParticleTypes.WAR_FLAMMER_WAVE_1.get(), FireRingParticle.Provider::new);
+        event.registerSpriteSet(ModParticleTypes.WAR_FLAMMER_WAVE_2.get(), FireRingParticle.Provider::new);
+        for (var particle : new net.minecraftforge.registries.RegistryObject[]{
+                ModParticleTypes.COLLETIS_LEAF_1, ModParticleTypes.COLLETIS_LEAF_2, ModParticleTypes.COLLETIS_LEAF_3,
+                ModParticleTypes.COLLETIS_LEAF_4, ModParticleTypes.COLLETIS_LEAF_5,
+                ModParticleTypes.COLLETIS_TWIG_1, ModParticleTypes.COLLETIS_TWIG_2, ModParticleTypes.COLLETIS_TWIG_3,
+                ModParticleTypes.COLLETIS_GLOWSPORE, ModParticleTypes.COLLETIS_GLOWSPORE_E}) {
             event.registerSpriteSet((net.minecraft.core.particles.ParticleType) particle.get(), AquatanaParticle.Provider::new);
         }
     }
@@ -272,6 +288,10 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.MUSIC_NOTE.get(), MusicNoteRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.GIANT_SWORD.get(), GiantSwordRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.GRAPPLE_HOOK.get(), GrappleHookRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.COLLETIS_VINE.get(), ColletisVineRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.IXE_PROJECTILE.get(), IxeProjectileRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.IXE_BOX.get(), IxeBoxRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.END_SCYTHE_PROJECTILE.get(), EndScytheProjectileRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.BOSS_CRAB.get(), BossCrabRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.CAPYBARA.get(), CapybaraRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.MANTA.get(), MantaRenderer::new);
@@ -291,6 +311,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.CYCLOPS.get(), CyclopsRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.HAMMERHEAD_SHARK.get(), HammerheadSharkRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.DAGGER.get(), ThrownItemRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.LIGHT_BOLT_PROJECTILE.get(), LightBoltProjectileRenderer::new);
         }
     }
 }

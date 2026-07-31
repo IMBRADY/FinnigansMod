@@ -4,6 +4,7 @@ import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.network.packet.AdjustRideDistancePacket;
 import net.finnigan.tommemod.network.packet.MonolithUpgradePacket;
 import net.finnigan.tommemod.network.packet.RequestBuildingBannerPacket;
+import net.finnigan.tommemod.network.packet.RotateConstructionBannerPacket;
 import net.finnigan.tommemod.network.packet.SyncAccessoryPacket;
 import net.finnigan.tommemod.network.packet.SyncReputationHudPacket;
 import net.finnigan.tommemod.network.packet.SyncReputationPacket;
@@ -43,5 +44,7 @@ public class ModNetwork {
                 MonolithUpgradePacket::encode, MonolithUpgradePacket::new, MonolithUpgradePacket::handle);
         CHANNEL.registerMessage(id++, RequestBuildingBannerPacket.class,
                 RequestBuildingBannerPacket::encode, RequestBuildingBannerPacket::new, RequestBuildingBannerPacket::handle);
+        CHANNEL.registerMessage(id++, RotateConstructionBannerPacket.class,
+                RotateConstructionBannerPacket::encode, RotateConstructionBannerPacket::decode, RotateConstructionBannerPacket::handle);
     }
 }

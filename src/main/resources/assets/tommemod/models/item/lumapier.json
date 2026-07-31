@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "tommemod:item/lumapier_0"
+  },
+  "overrides": [
+    {
+      "predicate": { "tommemod:firing": 1 },
+      "model": "tommemod:item/lumapier_firing"
+    }
+  ]
+}

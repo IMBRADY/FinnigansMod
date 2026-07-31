@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.village;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -17,6 +18,14 @@ import java.util.Map;
  */
 public class BuildingStructures {
 
+    // Shared with doorOffset() below so the door's returned metadata can never drift out of sync
+    // with the wall gap house() actually carves.
+    private static final int HOUSE_SIZE = 5;
+    private static final int HOUSE_DOOR_X = HOUSE_SIZE / 2;
+    // Shared with wallSegment() so rotation's bounding-box math can't drift out of sync either.
+    private static final int WALLS_LENGTH = 9;
+    private static final int WALLS_DEPTH = 1;
+
     private BuildingStructures() {
     }
 
@@ -28,6 +37,96 @@ public class BuildingStructures {
         };
     }
 
+    /**
+     * Same as {@link #forType(BuildingType)} but rotated in-place (around the structure's own
+     * footprint, not the world origin) so its door/front faces {@code facing} instead of the
+     * default south. Blocks used here (cobblestone, oak planks, cobblestone wall, air) have no
+     * facing/connection state that itself needs rotating, so only the X/Z positions are transformed.
+     */
+    public static List<Map.Entry<BlockPos, BlockState>> forType(BuildingType type, Direction facing) {
+        List<Map.Entry<BlockPos, BlockState>> base = forType(type);
+        int steps = rotationSteps(facing);
+        if (steps == 0 || base.isEmpty()) return base;
+
+        int width = boundsWidth(type);
+        int depth = boundsDepth(type);
+        List<Map.Entry<BlockPos, BlockState>> rotated = new ArrayList<>(base.size());
+        for (Map.Entry<BlockPos, BlockState> e : base) {
+            BlockPos p = e.getKey();
+            int[] xz = rotateXZ(p.getX(), p.getZ(), width, depth, steps);
+            rotated.add(entry(xz[0], p.getY(), xz[1], e.getValue()));
+        }
+        return rotated;
+    }
+
+    /**
+     * Relative offset (in the same coordinate space as the {@link #forType} block list, i.e.
+     * relative to the structure origin the caller places blocks against) of the ground-level point
+     * just outside a building's door - one step past the door's outer wall, never touching the door
+     * itself - for path-building to connect to. Returns null for types with no door concept (e.g.
+     * wall segments), which callers should treat as "skip path-building for this type".
+     */
+    public static BlockPos doorOffset(BuildingType type) {
+        return switch (type) {
+            case HOUSE -> new BlockPos(HOUSE_DOOR_X, 0, HOUSE_SIZE);
+            default -> null;
+        };
+    }
+
+    /** Same as {@link #doorOffset(BuildingType)} but rotated to match {@link #forType(BuildingType, Direction)}'s
+     * rotation for the same facing - always use the same facing for both calls for a given structure. */
+    public static BlockPos doorOffset(BuildingType type, Direction facing) {
+        BlockPos base = doorOffset(type);
+        if (base == null) return null;
+        int steps = rotationSteps(facing);
+        if (steps == 0) return base;
+
+        int width = boundsWidth(type);
+        int depth = boundsDepth(type);
+        int[] xz = rotateXZ(base.getX(), base.getZ(), width, depth, steps);
+        return new BlockPos(xz[0], base.getY(), xz[1]);
+    }
+
+    /** Maps a facing to a 0-3 count of 90-degree rotation steps, south (this mod's original hardcoded
+     * door direction) being the unrotated baseline. Vertical directions aren't meaningful for a
+     * horizontal footprint and are treated as unrotated. */
+    private static int rotationSteps(Direction facing) {
+        return switch (facing) {
+            case SOUTH -> 0;
+            case WEST -> 1;
+            case NORTH -> 2;
+            case EAST -> 3;
+            default -> 0;
+        };
+    }
+
+    private static int boundsWidth(BuildingType type) {
+        return switch (type) {
+            case HOUSE -> HOUSE_SIZE;
+            case WALLS -> WALLS_LENGTH;
+            default -> 1;
+        };
+    }
+
+    private static int boundsDepth(BuildingType type) {
+        return switch (type) {
+            case HOUSE -> HOUSE_SIZE;
+            case WALLS -> WALLS_DEPTH;
+            default -> 1;
+        };
+    }
+
+    /** Rotates a point within a width x depth grid by {@code steps} 90-degree turns, keeping all
+     * coordinates non-negative (rotates in place around the grid's own footprint, not the origin). */
+    private static int[] rotateXZ(int x, int z, int width, int depth, int steps) {
+        return switch (steps) {
+            case 1 -> new int[]{z, width - 1 - x};
+            case 2 -> new int[]{width - 1 - x, depth - 1 - z};
+            case 3 -> new int[]{depth - 1 - z, x};
+            default -> new int[]{x, z};
+        };
+    }
+
     /** 5x5 footprint, cobblestone foundation, 4-tall hollow oak-plank box, cobblestone roof, and a
      * 2-tall door gap centered on the south face. */
     private static List<Map.Entry<BlockPos, BlockState>> house() {
@@ -36,9 +135,9 @@ public class BuildingStructures {
         BlockState cobble = Blocks.COBBLESTONE.defaultBlockState();
         BlockState air = Blocks.AIR.defaultBlockState();
 
-        int size = 5;
+        int size = HOUSE_SIZE;
         int wallHeight = 4;
-        int doorX = size / 2;
+        int doorX = HOUSE_DOOR_X;
 
         for (int x = 0; x < size; x++) {
             for (int z = 0; z < size; z++) {
@@ -78,7 +177,7 @@ public class BuildingStructures {
         BlockState cobble = Blocks.COBBLESTONE.defaultBlockState();
         BlockState wall = Blocks.COBBLESTONE_WALL.defaultBlockState();
 
-        int length = 9;
+        int length = WALLS_LENGTH;
         int solidHeight = 3;
 
         for (int x = 0; x < length; x++) {

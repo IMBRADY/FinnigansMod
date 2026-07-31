@@ -27,4 +27,18 @@ public class ModParticleTypes {
     public static final RegistryObject<SimpleParticleType> FOAM_3 = PARTICLE_TYPES.register("foam3", () -> new SimpleParticleType(false));
     public static final RegistryObject<SimpleParticleType> FOAM_4 = PARTICLE_TYPES.register("foam4", () -> new SimpleParticleType(false));
     public static final RegistryObject<SimpleParticleType> FOAM_5 = PARTICLE_TYPES.register("foam5", () -> new SimpleParticleType(false));
+
+    public static final RegistryObject<SimpleParticleType> WAR_FLAMMER_WAVE_1 = PARTICLE_TYPES.register("war_flammer_wave_1", () -> new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> WAR_FLAMMER_WAVE_2 = PARTICLE_TYPES.register("war_flammer_wave_2", () -> new SimpleParticleType(false));
+
+    public static final RegistryObject<SimpleParticleType> COLLETIS_LEAF_1 = PARTICLE_TYPES.register("colletis_leaf1", () -> new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> COLLETIS_LEAF_2 = PARTICLE_TYPES.register("colletis_leaf2", () -> new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> COLLETIS_LEAF_3 = PARTICLE_TYPES.register("colletis_leaf3", () -> new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> COLLETIS_LEAF_4 = PARTICLE_TYPES.register("colletis_leaf4", () -> new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> COLLETIS_LEAF_5 = PARTICLE_TYPES.register("colletis_leaf5", () -> new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> COLLETIS_TWIG_1 = PARTICLE_TYPES.register("colletis_twig1", () -> new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> COLLETIS_TWIG_2 = PARTICLE_TYPES.register("colletis_twig2", () -> new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> COLLETIS_TWIG_3 = PARTICLE_TYPES.register("colletis_twig3", () -> new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> COLLETIS_GLOWSPORE = PARTICLE_TYPES.register("colletis_glowspore", () -> new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> COLLETIS_GLOWSPORE_E = PARTICLE_TYPES.register("colletis_glowspore_e", () -> new SimpleParticleType(false));
 }

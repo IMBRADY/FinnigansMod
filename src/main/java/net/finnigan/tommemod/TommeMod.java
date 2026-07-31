@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.finnigan.tommemod.block.ModBlocks;
 import net.finnigan.tommemod.block.entity.ModBlockEntities;
 import net.finnigan.tommemod.config.ModConfig;
+import net.finnigan.tommemod.effect.ModMobEffects;
 import net.finnigan.tommemod.enchantment.ModEnchantments;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.item.ModCreativeModTabs;
@@ -48,6 +49,7 @@ public class TommeMod
         ModItems.register(modEventBus);
         ModRecipes.register(modEventBus);
         ModEnchantments.ENCHANTMENTS.register(modEventBus);
+        ModMobEffects.MOB_EFFECTS.register(modEventBus);
 
         ModSounds.SOUND_EVENTS.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);

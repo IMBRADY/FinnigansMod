@@ -3,7 +3,12 @@ package net.finnigan.tommemod.entity;
 import net.finnigan.tommemod.entity.custom.*;
 import net.finnigan.tommemod.entity.custom.AmethystCutlassHelpers.AmethystBeamEntity;
 import net.finnigan.tommemod.entity.custom.ArackopeshHelpers.GrappleHookEntity;
+import net.finnigan.tommemod.entity.custom.ColletisHelpers.ColletisVineEntity;
 import net.finnigan.tommemod.entity.custom.Bosses.BossCrab.BossCrabEntity;
+import net.finnigan.tommemod.entity.custom.IxeHelpers.IxeBoxEntity;
+import net.finnigan.tommemod.entity.custom.IxeHelpers.IxeProjectileEntity;
+import net.finnigan.tommemod.entity.custom.EndScytheHelpers.EndScytheProjectileEntity;
+import net.finnigan.tommemod.entity.custom.LumapierHelpers.LightBoltProjectileEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.registries.DeferredRegister;
@@ -23,6 +28,30 @@ public class ModEntityTypes {
                     .sized(3.6f, 2.0f) // hitbox
                     .updateInterval(1)
                     .build("boss_crab"));
+
+    public static final RegistryObject<EntityType<IxeProjectileEntity>> IXE_PROJECTILE =
+            ENTITY_TYPES.register("ixe_projectile", () -> EntityType.Builder.<IxeProjectileEntity>of(IxeProjectileEntity::new, MobCategory.MISC)
+                    .sized(0.35F, 0.35F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .noSave()
+                    .build("ixe_projectile"));
+
+    public static final RegistryObject<EntityType<IxeBoxEntity>> IXE_BOX =
+            ENTITY_TYPES.register("ixe_box", () -> EntityType.Builder.<IxeBoxEntity>of(IxeBoxEntity::new, MobCategory.MISC)
+                    .sized(1.0F, 2.0F)
+                    .clientTrackingRange(64)
+                    .updateInterval(3)
+                    .noSave()
+                    .build("ixe_box"));
+
+    public static final RegistryObject<EntityType<EndScytheProjectileEntity>> END_SCYTHE_PROJECTILE =
+            ENTITY_TYPES.register("end_scythe_projectile", () -> EntityType.Builder.<EndScytheProjectileEntity>of(EndScytheProjectileEntity::new, MobCategory.MISC)
+                    .sized(0.35F, 0.35F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .noSave()
+                    .build("end_scythe_projectile"));
 
     public static final RegistryObject<EntityType<AmethystBeamEntity>> AMETHYST_BEAM =
             ENTITY_TYPES.register("amethyst_beam", () -> EntityType.Builder.<AmethystBeamEntity>of(AmethystBeamEntity::new, MobCategory.MISC)
@@ -77,6 +106,12 @@ public class ModEntityTypes {
                     .clientTrackingRange(64)
                     .updateInterval(10)
                     .build("grapple_hook"));
+    public static final RegistryObject<EntityType<ColletisVineEntity>> COLLETIS_VINE = ENTITY_TYPES.register("colletis_vine",
+            () -> EntityType.Builder.<ColletisVineEntity>of(ColletisVineEntity::new, MobCategory.MISC)
+                    .sized(0.25F, 0.25F)
+                    .clientTrackingRange(64)
+                    .updateInterval(10)
+                    .build("colletis_vine"));
     public static final RegistryObject<EntityType<CapybaraEntity>> CAPYBARA =
             ENTITY_TYPES.register("capybara", () -> EntityType.Builder.of(CapybaraEntity::new, MobCategory.CREATURE)
                     .sized(0.8F, 0.6F)
@@ -179,4 +214,12 @@ public class ModEntityTypes {
                     .clientTrackingRange(4)
                     .updateInterval(10)
                     .build("dagger"));
+
+    public static final RegistryObject<EntityType<LightBoltProjectileEntity>> LIGHT_BOLT_PROJECTILE =
+            ENTITY_TYPES.register("light_bolt_projectile", () -> EntityType.Builder.<LightBoltProjectileEntity>of(LightBoltProjectileEntity::new, MobCategory.MISC)
+                    .sized(0.25F, 0.25F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .noSave()
+                    .build("light_bolt_projectile"));
 }

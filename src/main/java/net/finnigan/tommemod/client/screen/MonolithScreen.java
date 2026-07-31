@@ -39,6 +39,10 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
             new ResourceLocation(TommeMod.MOD_ID, "textures/gui/villager_face.png");
     private static final ResourceLocation IRON_GOLEM_FACE =
             new ResourceLocation(TommeMod.MOD_ID, "textures/gui/iron_golem_face.png");
+    private static final ResourceLocation ELDER_FACE =
+            new ResourceLocation(TommeMod.MOD_ID, "textures/gui/elder_face.png");
+    private static final ResourceLocation WARRIOR_FACE =
+            new ResourceLocation(TommeMod.MOD_ID, "textures/gui/warrior_face.png");
     private static final ResourceLocation TERRAIN_TEXTURE_LOCATION =
             new ResourceLocation(TommeMod.MOD_ID, "dynamic/monolith_minimap");
 
@@ -175,7 +179,12 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
             int mx = mapX + CANVAS_RADIUS + (int) Math.round(marker.dx() * pixelsPerBlock) - 4;
             int mz = mapY + CANVAS_RADIUS + (int) Math.round(marker.dz() * pixelsPerBlock) - 4;
             if (mx < mapX || mz < mapY || mx > mapX + CANVAS_SIZE - 8 || mz > mapY + CANVAS_SIZE - 8) continue;
-            ResourceLocation icon = marker.type() == MonolithBlockEntity.MarkerType.IRON_GOLEM ? IRON_GOLEM_FACE : VILLAGER_FACE;
+            ResourceLocation icon = switch (marker.type()) {
+                case IRON_GOLEM -> IRON_GOLEM_FACE;
+                case ELDER -> ELDER_FACE;
+                case WARRIOR -> WARRIOR_FACE;
+                default -> VILLAGER_FACE;
+            };
             guiGraphics.blit(icon, mx, mz, 0, 0, 8, 8, 8, 8);
         }
 

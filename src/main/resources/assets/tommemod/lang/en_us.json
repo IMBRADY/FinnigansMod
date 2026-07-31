@@ -1,4 +1,12 @@
 {
+  "effect.tommemod.frozen": "Frozen",
+  "effect.tommemod.purifying_light": "Purifying Light",
+  "item.tommemod.war_flammer": "War Flammer",
+  "item.tommemod.end_scythe": "End Scythe",
+  "item.tommemod.colletis": "Colletis",
+  "item.tommemod.ixe": "Ixe",
+  "item.tommemod.lumapier": "Lumapier",
+  "item.tommemod.echoblade": "Echoblade",
   "item.tommemod.dynamite": "Dynamite",
   "item.tommemod.bullet": "Bullet",
   "item.tommemod.longbow": "Longbow",

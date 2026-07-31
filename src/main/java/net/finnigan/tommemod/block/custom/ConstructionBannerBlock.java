@@ -4,6 +4,7 @@ import net.finnigan.tommemod.block.entity.ConstructionSiteBlockEntity;
 import net.finnigan.tommemod.village.BuildingType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -54,8 +55,10 @@ public class ConstructionBannerBlock extends Block implements EntityBlock {
         CompoundTag tag = stack.getTag();
         BuildingType type = tag != null && tag.contains("BuildingType") ? parseType(tag.getString("BuildingType")) : null;
         UUID villageId = tag != null && tag.hasUUID("VillageId") ? tag.getUUID("VillageId") : null;
+        Direction parsedFacing = tag != null && tag.contains("Facing") ? Direction.byName(tag.getString("Facing")) : null;
+        Direction facing = parsedFacing != null ? parsedFacing : Direction.SOUTH;
 
-        boolean ok = type != null && type.isImplemented() && villageId != null && site.initialize(serverLevel, type, villageId);
+        boolean ok = type != null && type.isImplemented() && villageId != null && site.initialize(serverLevel, type, villageId, facing);
         if (!ok) {
             serverLevel.removeBlock(pos, false);
             if (type != null && placer instanceof Player player) {

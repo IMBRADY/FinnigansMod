@@ -16,7 +16,9 @@
     "InventoryScreenMixin",
     "CreativeInventoryPositionMixin",
     "CreativeInventoryRenderMixin",
-    "AbstractContainerScreenAccessor"
+    "AbstractContainerScreenAccessor",
+    "MouseHandlerMixin",
+    "MouseHandlerAccessor"
   ],
   "server": [
   ],

@@ -3,9 +3,12 @@ package net.finnigan.tommemod.block.entity;
 import net.finnigan.tommemod.config.ModConfig;
 import net.finnigan.tommemod.village.BuildingStructures;
 import net.finnigan.tommemod.village.BuildingType;
+import net.finnigan.tommemod.village.ConstructionSiteRegistry;
+import net.finnigan.tommemod.village.PathBuilder;
 import net.finnigan.tommemod.village.VillageManager;
 import net.finnigan.tommemod.village.VillageRegion;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -47,6 +50,9 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
     private BuildingType buildingType;
     @Nullable
     private UUID villageId;
+    @Nullable
+    private BlockPos doorFrontPos;
+    private Direction facing = Direction.SOUTH;
     private final Deque<QueueEntry> remaining = new ArrayDeque<>();
     private final List<QueueEntry> placed = new ArrayList<>();
     private int placeCooldown = 1;
@@ -61,13 +67,21 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
         return completed;
     }
 
+    /** World-space ground point just outside this building's door (never touching the door itself),
+     * for path-building to connect to once the structure finishes - null for building types with no
+     * door concept (e.g. wall segments), or before initialize() has run. */
+    @Nullable
+    public BlockPos getDoorFrontPos() {
+        return doorFrontPos;
+    }
+
     /**
      * Validates the site (village proximity, footprint height variance), auto-flattens the
      * footprint if it's uneven but within tolerance, and queues the structure's blocks. Returns
      * false (leaving this BE uninitialized) if the spot is invalid - the caller is responsible for
      * removing the banner block and refunding the player in that case.
      */
-    public boolean initialize(ServerLevel level, BuildingType type, UUID villageId) {
+    public boolean initialize(ServerLevel level, BuildingType type, UUID villageId, Direction facing) {
         VillageManager manager = VillageManager.get(level);
         if (!manager.isEstablished(villageId)) return false;
 
@@ -75,7 +89,7 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
         double padded = region.radius() + ModConfig.BUILDER_HUB_REGION_PADDING_BLOCKS.get();
         if (this.getBlockPos().distSqr(region.anchor()) > padded * padded) return false;
 
-        List<Map.Entry<BlockPos, BlockState>> structure = BuildingStructures.forType(type);
+        List<Map.Entry<BlockPos, BlockState>> structure = BuildingStructures.forType(type, facing);
         if (structure.isEmpty()) return false;
 
         BlockPos structureOrigin = this.getBlockPos().offset(STRUCTURE_OFFSET);
@@ -119,6 +133,7 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
         int baseY = minHeight + 1;
         this.buildingType = type;
         this.villageId = villageId;
+        this.facing = facing;
         this.remaining.clear();
         for (Map.Entry<BlockPos, BlockState> e : structure) {
             BlockPos rel = e.getKey();
@@ -127,6 +142,13 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
         }
         this.placed.clear();
         this.placeCooldown = Math.max(1, ModConfig.BUILDER_HUB_TICK_INTERVAL_TICKS.get());
+
+        BlockPos doorOffset = BuildingStructures.doorOffset(type, facing);
+        this.doorFrontPos = doorOffset != null
+                ? new BlockPos(structureOrigin.getX() + doorOffset.getX(), baseY + doorOffset.getY(), structureOrigin.getZ() + doorOffset.getZ())
+                : null;
+
+        ConstructionSiteRegistry.register(level, this.getBlockPos());
         setChanged();
         return true;
     }
@@ -137,6 +159,12 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
 
         if (be.remaining.isEmpty()) {
             be.completed = true;
+            if (level instanceof ServerLevel serverLevel) {
+                ConstructionSiteRegistry.unregister(serverLevel, pos);
+                if (be.doorFrontPos != null) {
+                    PathBuilder.buildPathToDoor(serverLevel, be.doorFrontPos);
+                }
+            }
             level.removeBlock(pos, false);
             return;
         }
@@ -155,6 +183,9 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
     public void refundAndDemolish(Level level, Player player) {
         if (demolished || completed || buildingType == null) return;
         demolished = true;
+        if (level instanceof ServerLevel serverLevel) {
+            ConstructionSiteRegistry.unregister(serverLevel, this.getBlockPos());
+        }
 
         for (QueueEntry entry : placed) {
             level.setBlock(entry.pos(), entry.original(), 3);
@@ -171,6 +202,9 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
     public void demolishOnly(Level level) {
         if (demolished || completed || buildingType == null) return;
         demolished = true;
+        if (level instanceof ServerLevel serverLevel) {
+            ConstructionSiteRegistry.unregister(serverLevel, this.getBlockPos());
+        }
 
         for (QueueEntry entry : placed) {
             level.setBlock(entry.pos(), entry.original(), 3);
@@ -186,6 +220,19 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
         }
     }
 
+    /** ConstructionSiteRegistry is in-memory only (not persisted), so an active site that survives a
+     * chunk unload/reload or server restart needs to re-add itself here once it's actually attached
+     * to a level again - load(CompoundTag) alone doesn't guarantee that yet. Safe to call
+     * redundantly alongside initialize()'s own registration, since the registry is a de-duping Set. */
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level != null && !level.isClientSide() && level instanceof ServerLevel serverLevel
+                && buildingType != null && !completed && !demolished) {
+            ConstructionSiteRegistry.register(serverLevel, this.getBlockPos());
+        }
+    }
+
     // ---- Persistence ----
     // Every BlockState this BE ever handles comes from BuildingStructures/Blocks.DIRT/Blocks.AIR,
     // none of which use non-default block properties, so it's enough to persist each state's
@@ -196,6 +243,14 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
         super.saveAdditional(tag);
         if (buildingType != null) tag.putString("BuildingType", buildingType.name());
         if (villageId != null) tag.putUUID("VillageId", villageId);
+        tag.putString("Facing", facing.getName());
+        if (doorFrontPos != null) {
+            CompoundTag doorTag = new CompoundTag();
+            doorTag.putInt("X", doorFrontPos.getX());
+            doorTag.putInt("Y", doorFrontPos.getY());
+            doorTag.putInt("Z", doorFrontPos.getZ());
+            tag.put("DoorFrontPos", doorTag);
+        }
         tag.putInt("PlaceCooldown", placeCooldown);
         tag.putBoolean("Completed", completed);
         tag.putBoolean("Demolished", demolished);
@@ -208,6 +263,14 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
         super.load(tag);
         buildingType = tag.contains("BuildingType") ? BuildingType.valueOf(tag.getString("BuildingType")) : null;
         villageId = tag.hasUUID("VillageId") ? tag.getUUID("VillageId") : null;
+        Direction loadedFacing = tag.contains("Facing") ? Direction.byName(tag.getString("Facing")) : null;
+        facing = loadedFacing != null ? loadedFacing : Direction.SOUTH;
+        if (tag.contains("DoorFrontPos")) {
+            CompoundTag doorTag = tag.getCompound("DoorFrontPos");
+            doorFrontPos = new BlockPos(doorTag.getInt("X"), doorTag.getInt("Y"), doorTag.getInt("Z"));
+        } else {
+            doorFrontPos = null;
+        }
         placeCooldown = tag.getInt("PlaceCooldown");
         completed = tag.getBoolean("Completed");
         demolished = tag.getBoolean("Demolished");
