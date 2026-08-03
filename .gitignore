@@ -20,6 +20,7 @@ build
 # other
 eclipse
 run
+graphify-out
 
 # Files from Forge MDK
 forge*changelog.txt

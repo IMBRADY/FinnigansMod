@@ -19,7 +19,8 @@
     "CreativeInventoryRenderMixin",
     "AbstractContainerScreenAccessor",
     "MouseHandlerMixin",
-    "MouseHandlerAccessor"
+    "MouseHandlerAccessor",
+    "ItemStackUniqueNameMixin"
   ],
   "server": [
   ],

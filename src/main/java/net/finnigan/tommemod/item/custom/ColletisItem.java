@@ -27,8 +27,8 @@ import java.util.UUID;
 
 /**
  * Colletis: left click = 25 dmg (vanilla SwordItem base). Right-click (hold) grows a thorn vine:
- *  - hits an enemy -> pulls the enemy toward the player; releasing while it's still pulling lets the enemy go.
  *  - hits a block -> grapples the player toward the block; releasing stops the pull.
+ *  - hits an enemy -> just stops there; the vine deliberately no longer drags enemies in.
  *  - releasing while the vine is still extending outward (not yet stuck) just retracts it harmlessly.
  * Shift+click: instant spore burst (self/nearby Regeneration I + accelerated debuff decay + particles),
  * handled by ColletisPassiveHandler. Continuous crop-growth-while-crouching passive is a separate per-tick

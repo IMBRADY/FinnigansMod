@@ -1,11 +1,25 @@
 {
   "replace": false,
   "values": [
-    "tommemod:war_flammer",
+    "tommemod:amethyst_cutlass",
+    "tommemod:aquatana",
+    "tommemod:arackopesh",
+    "tommemod:blossom_katana",
+    "tommemod:echoblade",
     "tommemod:end_scythe",
-    "tommemod:colletis",
+    "tommemod:featherlight",
+    "tommemod:fire_katana",
+    "tommemod:harmony",
     "tommemod:ixe",
+    "tommemod:inverted_sword",
+    "tommemod:ranseur_of_undead",
+    "tommemod:sanguis_gladio",
+    "tommemod:seer_sword",
+    "tommemod:war_flammer",
+    "tommemod:colletis",
     "tommemod:lumapier",
-    "tommemod:echoblade"
+    "tommemod:unhoisted_titan",
+    "tommemod:candeliere",
+    "tommemod:custodire_gladio"
   ]
 }

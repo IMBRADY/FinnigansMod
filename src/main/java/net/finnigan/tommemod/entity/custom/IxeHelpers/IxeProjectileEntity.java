@@ -4,6 +4,9 @@ import net.finnigan.tommemod.effect.ModMobEffects;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -28,6 +31,11 @@ public class IxeProjectileEntity extends Entity {
     private static final double BURST_RADIUS = 3.0;
     private static final int FROZEN_DURATION_TICKS = 40; // 2 seconds
 
+    // Synced purely so the client can find the shooter's head: the projectile spins around the axis
+    // running from there to itself (see IxeProjectileRenderer), which the server never needs.
+    private static final EntityDataAccessor<Integer> OWNER_ID =
+            SynchedEntityData.defineId(IxeProjectileEntity.class, EntityDataSerializers.INT);
+
     private UUID ownerUUID;
     private Vec3 spawnPos = Vec3.ZERO;
 
@@ -39,6 +47,7 @@ public class IxeProjectileEntity extends Entity {
     public IxeProjectileEntity(Level level, Player owner) {
         this(ModEntityTypes.IXE_PROJECTILE.get(), level);
         this.ownerUUID = owner.getUUID();
+        this.entityData.set(OWNER_ID, owner.getId());
         Vec3 eye = owner.getEyePosition();
         this.setPos(eye.x, eye.y - 0.1, eye.z);
         this.spawnPos = this.position();
@@ -49,7 +58,15 @@ public class IxeProjectileEntity extends Entity {
 
     @Override
     protected void defineSynchedData() {
-        // no synced state needed; movement/particles are simulated client-side from server-authoritative position
+        // Movement/particles are simulated client-side from the server-authoritative position; only
+        // the shooter's id has to be carried across (see OWNER_ID).
+        this.entityData.define(OWNER_ID, -1);
+    }
+
+    /** The shooter as the client knows them, or null if they aren't loaded/tracked there. */
+    public Entity getOwnerEntity() {
+        int id = this.entityData.get(OWNER_ID);
+        return id == -1 ? null : level().getEntity(id);
     }
 
     @Override

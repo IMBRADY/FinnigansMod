@@ -4,6 +4,9 @@ import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.item.custom.FireKatanaItem;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,6 +34,11 @@ public class EndScytheProjectileEntity extends Entity {
     private static final float DAMAGE = 16.0F;
     private static final double HIT_RADIUS = 0.6;
 
+    // Synced purely so the client can find the shooter's head: the projectile spins around the axis
+    // running from there to itself (see EndScytheProjectileRenderer), which the server never needs.
+    private static final EntityDataAccessor<Integer> OWNER_ID =
+            SynchedEntityData.defineId(EndScytheProjectileEntity.class, EntityDataSerializers.INT);
+
     private UUID ownerUUID;
     private double distanceTraveled = 0.0;
 
@@ -42,6 +50,7 @@ public class EndScytheProjectileEntity extends Entity {
     public EndScytheProjectileEntity(Level level, Player owner) {
         this(ModEntityTypes.END_SCYTHE_PROJECTILE.get(), level);
         this.ownerUUID = owner.getUUID();
+        this.entityData.set(OWNER_ID, owner.getId());
         Vec3 eye = owner.getEyePosition();
         this.setPos(eye.x, eye.y - 0.1, eye.z);
         Vec3 look = owner.getLookAngle().normalize();
@@ -51,8 +60,15 @@ public class EndScytheProjectileEntity extends Entity {
 
     @Override
     protected void defineSynchedData() {
-        // no synced state needed; position/rotation sync is handled automatically, spin is derived
-        // client-side from tickCount (see EndScytheProjectileRenderer).
+        // Position/rotation sync is handled automatically and the spin angle is derived client-side
+        // from tickCount; only the shooter's id has to be carried across (see OWNER_ID).
+        this.entityData.define(OWNER_ID, -1);
+    }
+
+    /** The shooter as the client knows them, or null if they aren't loaded/tracked there. */
+    public Entity getOwnerEntity() {
+        int id = this.entityData.get(OWNER_ID);
+        return id == -1 ? null : level().getEntity(id);
     }
 
     @Override

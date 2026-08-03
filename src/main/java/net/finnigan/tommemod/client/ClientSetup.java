@@ -312,6 +312,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.HAMMERHEAD_SHARK.get(), HammerheadSharkRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.DAGGER.get(), ThrownItemRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.LIGHT_BOLT_PROJECTILE.get(), LightBoltProjectileRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.ANCHOR.get(), AnchorRenderer::new);
         }
     }
 }

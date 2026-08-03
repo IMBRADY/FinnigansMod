@@ -78,6 +78,11 @@ public class ModConfig {
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> BUILDER_HUB_RESOURCE_COUNT;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> BUILDER_HUB_REQUIRED_BUILDERS;
 
+    // unhoisted titan
+    public static final ForgeConfigSpec.DoubleValue TITAN_BLAST_RADIUS_BLOCKS;
+    public static final ForgeConfigSpec.DoubleValue TITAN_ARMOR_SCAN_RADIUS_BLOCKS;
+    public static final ForgeConfigSpec.DoubleValue TITAN_SWIM_SPEED_BONUS;
+
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
@@ -210,6 +215,17 @@ public class ModConfig {
                 .defineList("builderHubResourceCount", List.of(32, 48, 8, 24, 64), obj -> obj instanceof Integer i && i >= 0);
         BUILDER_HUB_REQUIRED_BUILDERS = builder.comment("Minimum Builder Villagers the village must have to unlock each building type")
                 .defineList("builderHubRequiredBuilders", List.of(0, 1, 2, 3, 2), obj -> obj instanceof Integer i && i >= 0);
+        builder.pop();
+
+        builder.push("unhoistedTitan");
+        builder.comment("The two radii below are deliberately separate knobs: one governs the crouch+right-click blast,",
+                "the other the passive's enemy headcount for bonus armor - they are not meant to track each other.");
+        TITAN_BLAST_RADIUS_BLOCKS = builder.comment("Radius (blocks) of the crouch+right-click water blast")
+                .defineInRange("blastRadiusBlocks", 5.0, 0.5, 64.0);
+        TITAN_ARMOR_SCAN_RADIUS_BLOCKS = builder.comment("Radius (blocks) scanned for nearby enemies when computing the passive's bonus armor (1 armor point per 5 enemies, capped at 10)")
+                .defineInRange("armorScanRadiusBlocks", 12.0, 0.5, 64.0);
+        TITAN_SWIM_SPEED_BONUS = builder.comment("Permanent swim speed bonus while held, as a fraction of the base swim speed (0.5 = +50%)")
+                .defineInRange("swimSpeedBonus", 0.5, 0.0, 10.0);
         builder.pop();
 
         COMMON_SPEC = builder.build();

@@ -191,6 +191,15 @@ public class VillageManager extends SavedData {
         return Optional.ofNullable(chiefByVillage.get(villageId));
     }
 
+    /** Every village this player currently holds the Chief seat of - the reverse of {@link #getChief}. */
+    public Set<UUID> getVillagesChiefedBy(UUID playerUUID) {
+        Set<UUID> villages = new HashSet<>();
+        for (Map.Entry<UUID, UUID> entry : chiefByVillage.entrySet()) {
+            if (entry.getValue().equals(playerUUID)) villages.add(entry.getKey());
+        }
+        return villages;
+    }
+
     public boolean trySetChief(UUID villageId, UUID playerUUID) {
         if (chiefByVillage.containsKey(villageId)) return false;
         chiefByVillage.put(villageId, playerUUID);

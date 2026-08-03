@@ -3,7 +3,7 @@ package net.finnigan.tommemod.event.LumapierEventHelpers;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.block.ModBlocks;
 import net.finnigan.tommemod.block.custom.InvisibleLightBlock;
-import net.finnigan.tommemod.item.custom.LumapierItem;
+import net.finnigan.tommemod.effect.ModMobEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
@@ -54,7 +54,9 @@ public class LumapierLightHandler {
 
         UUID id = player.getUUID();
 
-        if (!LumapierItem.isHeldBy(player)) {
+        // Keyed off the effect rather than off Lumapier specifically, so every weapon that grants
+        // Purifying Light (Candeliere too) lights the way without duplicating this whole handler.
+        if (!player.hasEffect(ModMobEffects.PURIFYING_LIGHT.get())) {
             clearTracked(id);
             return;
         }

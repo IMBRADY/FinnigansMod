@@ -60,6 +60,27 @@ public class ModItems {
                     -2.4F,
                     new Item.Properties()));
 
+    public static final RegistryObject<Item> UNHOISTED_TITAN = ITEMS.register("unhoisted_titan",
+            () -> new UnhoistedTitanItem(
+                    Tiers.NETHERITE,
+                    25,
+                    -2.4F,
+                    new Item.Properties()));
+
+    public static final RegistryObject<Item> CANDELIERE = ITEMS.register("candeliere",
+            () -> new CandeliereItem(
+                    Tiers.NETHERITE,
+                    25,
+                    -2.4F,
+                    new Item.Properties()));
+
+    public static final RegistryObject<Item> CUSTODIRE_GLADIO = ITEMS.register("custodire_gladio",
+            () -> new CustodireGladioItem(
+                    Tiers.NETHERITE,
+                    25,
+                    -2.4F,
+                    new Item.Properties()));
+
     public static final RegistryObject<Item> ECHOBLADE = ITEMS.register("echoblade",
             () -> new EchobladeItem(
                     Tiers.NETHERITE,

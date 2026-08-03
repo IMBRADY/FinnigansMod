@@ -85,6 +85,9 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.COLLETIS.get());
                         pOutput.accept(ModItems.LUMAPIER.get());
                         pOutput.accept(ModItems.ECHOBLADE.get());
+                        pOutput.accept(ModItems.UNHOISTED_TITAN.get());
+                        pOutput.accept(ModItems.CANDELIERE.get());
+                        pOutput.accept(ModItems.CUSTODIRE_GLADIO.get());
 
                         // FOOD
                         pOutput.accept(ModItems.MUSHROOM_MEAT.get());

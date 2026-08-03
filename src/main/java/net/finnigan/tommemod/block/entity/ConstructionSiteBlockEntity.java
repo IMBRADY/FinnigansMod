@@ -4,7 +4,6 @@ import net.finnigan.tommemod.config.ModConfig;
 import net.finnigan.tommemod.village.BuildingStructures;
 import net.finnigan.tommemod.village.BuildingType;
 import net.finnigan.tommemod.village.ConstructionSiteRegistry;
-import net.finnigan.tommemod.village.PathBuilder;
 import net.finnigan.tommemod.village.VillageManager;
 import net.finnigan.tommemod.village.VillageRegion;
 import net.minecraft.core.BlockPos;
@@ -50,8 +49,6 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
     private BuildingType buildingType;
     @Nullable
     private UUID villageId;
-    @Nullable
-    private BlockPos doorFrontPos;
     private Direction facing = Direction.SOUTH;
     private final Deque<QueueEntry> remaining = new ArrayDeque<>();
     private final List<QueueEntry> placed = new ArrayList<>();
@@ -65,14 +62,6 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
 
     public boolean isCompleted() {
         return completed;
-    }
-
-    /** World-space ground point just outside this building's door (never touching the door itself),
-     * for path-building to connect to once the structure finishes - null for building types with no
-     * door concept (e.g. wall segments), or before initialize() has run. */
-    @Nullable
-    public BlockPos getDoorFrontPos() {
-        return doorFrontPos;
     }
 
     /**
@@ -143,11 +132,6 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
         this.placed.clear();
         this.placeCooldown = Math.max(1, ModConfig.BUILDER_HUB_TICK_INTERVAL_TICKS.get());
 
-        BlockPos doorOffset = BuildingStructures.doorOffset(type, facing);
-        this.doorFrontPos = doorOffset != null
-                ? new BlockPos(structureOrigin.getX() + doorOffset.getX(), baseY + doorOffset.getY(), structureOrigin.getZ() + doorOffset.getZ())
-                : null;
-
         ConstructionSiteRegistry.register(level, this.getBlockPos());
         setChanged();
         return true;
@@ -161,9 +145,6 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
             be.completed = true;
             if (level instanceof ServerLevel serverLevel) {
                 ConstructionSiteRegistry.unregister(serverLevel, pos);
-                if (be.doorFrontPos != null) {
-                    PathBuilder.buildPathToDoor(serverLevel, be.doorFrontPos);
-                }
             }
             level.removeBlock(pos, false);
             return;
@@ -244,13 +225,6 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
         if (buildingType != null) tag.putString("BuildingType", buildingType.name());
         if (villageId != null) tag.putUUID("VillageId", villageId);
         tag.putString("Facing", facing.getName());
-        if (doorFrontPos != null) {
-            CompoundTag doorTag = new CompoundTag();
-            doorTag.putInt("X", doorFrontPos.getX());
-            doorTag.putInt("Y", doorFrontPos.getY());
-            doorTag.putInt("Z", doorFrontPos.getZ());
-            tag.put("DoorFrontPos", doorTag);
-        }
         tag.putInt("PlaceCooldown", placeCooldown);
         tag.putBoolean("Completed", completed);
         tag.putBoolean("Demolished", demolished);
@@ -265,12 +239,6 @@ public class ConstructionSiteBlockEntity extends BlockEntity {
         villageId = tag.hasUUID("VillageId") ? tag.getUUID("VillageId") : null;
         Direction loadedFacing = tag.contains("Facing") ? Direction.byName(tag.getString("Facing")) : null;
         facing = loadedFacing != null ? loadedFacing : Direction.SOUTH;
-        if (tag.contains("DoorFrontPos")) {
-            CompoundTag doorTag = tag.getCompound("DoorFrontPos");
-            doorFrontPos = new BlockPos(doorTag.getInt("X"), doorTag.getInt("Y"), doorTag.getInt("Z"));
-        } else {
-            doorFrontPos = null;
-        }
         placeCooldown = tag.getInt("PlaceCooldown");
         completed = tag.getBoolean("Completed");
         demolished = tag.getBoolean("Demolished");

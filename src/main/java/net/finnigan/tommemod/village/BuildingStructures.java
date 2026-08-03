@@ -18,8 +18,6 @@ import java.util.Map;
  */
 public class BuildingStructures {
 
-    // Shared with doorOffset() below so the door's returned metadata can never drift out of sync
-    // with the wall gap house() actually carves.
     private static final int HOUSE_SIZE = 5;
     private static final int HOUSE_DOOR_X = HOUSE_SIZE / 2;
     // Shared with wallSegment() so rotation's bounding-box math can't drift out of sync either.
@@ -57,34 +55,6 @@ public class BuildingStructures {
             rotated.add(entry(xz[0], p.getY(), xz[1], e.getValue()));
         }
         return rotated;
-    }
-
-    /**
-     * Relative offset (in the same coordinate space as the {@link #forType} block list, i.e.
-     * relative to the structure origin the caller places blocks against) of the ground-level point
-     * just outside a building's door - one step past the door's outer wall, never touching the door
-     * itself - for path-building to connect to. Returns null for types with no door concept (e.g.
-     * wall segments), which callers should treat as "skip path-building for this type".
-     */
-    public static BlockPos doorOffset(BuildingType type) {
-        return switch (type) {
-            case HOUSE -> new BlockPos(HOUSE_DOOR_X, 0, HOUSE_SIZE);
-            default -> null;
-        };
-    }
-
-    /** Same as {@link #doorOffset(BuildingType)} but rotated to match {@link #forType(BuildingType, Direction)}'s
-     * rotation for the same facing - always use the same facing for both calls for a given structure. */
-    public static BlockPos doorOffset(BuildingType type, Direction facing) {
-        BlockPos base = doorOffset(type);
-        if (base == null) return null;
-        int steps = rotationSteps(facing);
-        if (steps == 0) return base;
-
-        int width = boundsWidth(type);
-        int depth = boundsDepth(type);
-        int[] xz = rotateXZ(base.getX(), base.getZ(), width, depth, steps);
-        return new BlockPos(xz[0], base.getY(), xz[1]);
     }
 
     /** Maps a facing to a 0-3 count of 90-degree rotation steps, south (this mod's original hardcoded

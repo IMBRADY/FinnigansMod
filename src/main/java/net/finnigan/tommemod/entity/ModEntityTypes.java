@@ -9,6 +9,7 @@ import net.finnigan.tommemod.entity.custom.IxeHelpers.IxeBoxEntity;
 import net.finnigan.tommemod.entity.custom.IxeHelpers.IxeProjectileEntity;
 import net.finnigan.tommemod.entity.custom.EndScytheHelpers.EndScytheProjectileEntity;
 import net.finnigan.tommemod.entity.custom.LumapierHelpers.LightBoltProjectileEntity;
+import net.finnigan.tommemod.entity.custom.UnhoistedTitanHelpers.AnchorEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.registries.DeferredRegister;
@@ -112,6 +113,12 @@ public class ModEntityTypes {
                     .clientTrackingRange(64)
                     .updateInterval(10)
                     .build("colletis_vine"));
+    public static final RegistryObject<EntityType<AnchorEntity>> ANCHOR = ENTITY_TYPES.register("anchor",
+            () -> EntityType.Builder.<AnchorEntity>of(AnchorEntity::new, MobCategory.MISC)
+                    .sized(0.25F, 0.25F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .build("anchor"));
     public static final RegistryObject<EntityType<CapybaraEntity>> CAPYBARA =
             ENTITY_TYPES.register("capybara", () -> EntityType.Builder.of(CapybaraEntity::new, MobCategory.CREATURE)
                     .sized(0.8F, 0.6F)

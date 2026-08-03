@@ -2,6 +2,7 @@ package net.finnigan.tommemod.event.LumapierEventHelpers;
 
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.effect.ModMobEffects;
+import net.finnigan.tommemod.item.custom.CandeliereItem;
 import net.finnigan.tommemod.item.custom.LumapierItem;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -40,7 +41,9 @@ public class LumapierPassiveHandler {
         if (held) {
             player.addEffect(new MobEffectInstance(ModMobEffects.PURIFYING_LIGHT.get(),
                     EFFECT_REFRESH_DURATION, 0, false, false, false));
-        } else if (player.hasEffect(ModMobEffects.PURIFYING_LIGHT.get())) {
+        } else if (!CandeliereItem.isHeldBy(player) && player.hasEffect(ModMobEffects.PURIFYING_LIGHT.get())) {
+            // Candeliere grants the same effect (CandelierePassiveHandler); this is the single place
+            // it is withdrawn, so the two handlers can't fight over a player holding the other weapon.
             player.removeEffect(ModMobEffects.PURIFYING_LIGHT.get());
         }
 

@@ -35,6 +35,7 @@ public class ArackopeshItem extends SwordItem {
 
     private static final double GRAPPLE_RANGE = 20.0;
     private static final int GRAPPLE_COOLDOWN_TICKS = 20; // 1s
+    private static final float HOOK_SPEED = 4.0F;
 
     private static final int WEB_RADIUS = 4;
     private static final int MAX_ALLY_SPIDERS = 2;
@@ -81,7 +82,7 @@ public class ArackopeshItem extends SwordItem {
             GrappleHookEntity hook = new GrappleHookEntity(level, player);
             Vec3 look = player.getLookAngle();
             hook.setPos(player.getX() + look.x, player.getEyeY() - 0.2, player.getZ() + look.z);
-            hook.shoot(look.x, look.y, look.z, 2.2F, 0.5F);
+            hook.shoot(look.x, look.y, look.z, HOOK_SPEED, 0.0F); // fast and true - it's a web line, not a cast
             level.addFreshEntity(hook);
             ACTIVE_HOOKS.put(player.getUUID(), hook.getId());
 
@@ -98,7 +99,12 @@ public class ArackopeshItem extends SwordItem {
         Integer hookId = ACTIVE_HOOKS.get(player.getUUID());
         if (hookId != null && player.level() instanceof ServerLevel serverLevel) {
             var entity = serverLevel.getEntity(hookId);
-            if (entity != null) entity.discard(); // triggers GrappleHookEntity.remove() -> cleans up the map
+            if (entity != null) {
+                // The boost has to be handed out before the hook goes away, since the hook is what
+                // knows whether the line was ever taut (see GrappleHookEntity.launchOnRelease).
+                if (entity instanceof GrappleHookEntity hook) hook.launchOnRelease(player);
+                entity.discard(); // triggers GrappleHookEntity.remove() -> cleans up the map
+            }
         }
         player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, GRAPPLE_COOLDOWN_TICKS));
     }
