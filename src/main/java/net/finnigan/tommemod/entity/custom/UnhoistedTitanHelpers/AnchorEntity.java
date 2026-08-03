@@ -39,8 +39,12 @@ public class AnchorEntity extends ThrowableItemProjectile {
     private static final int MAX_OUTBOUND_TICKS = 30; // ~1.5s of flight before it turns around on its own
     private static final double RETURN_SPEED = 1.2;
     private static final double CATCH_DISTANCE = 1.8;
+    /** Safety valve on the "hold the anchor until the catch lands" wait, so a target that can never
+     * arrive (stuck in terrain, held by another effect) can't pin the weapon indefinitely. */
+    private static final int MAX_REEL_TICKS = 60;
 
     private int outboundTicks = 0;
+    private int reelTicks = 0;
 
     // Not synced - only ever resolved server-side via ServerLevel#getEntity(UUID).
     private UUID hookedUUID = null;
@@ -148,8 +152,18 @@ public class AnchorEntity extends ThrowableItemProjectile {
 
         Vec3 toOwner = owner.getEyePosition().subtract(this.position());
         double distance = toOwner.length();
+
         if (distance < CATCH_DISTANCE) {
-            this.discard();
+            // The anchor is home, but a catch still on its way in is what the chain is holding, so the
+            // anchor stays occupied until that target lands. Retiring here instead would free the
+            // weapon for another throw while the previous victim was still flying toward the player.
+            if (hookedUUID == null || ++reelTicks > MAX_REEL_TICKS) {
+                this.discard();
+                return;
+            }
+            this.setDeltaMovement(Vec3.ZERO);
+            this.setPos(owner.getX(), owner.getEyeY() - 0.2, owner.getZ());
+            reelHookedTarget(owner);
             return;
         }
 
@@ -172,6 +186,7 @@ public class AnchorEntity extends ThrowableItemProjectile {
 
         if (distance < CATCH_DISTANCE) {
             target.setDeltaMovement(target.getDeltaMovement().multiply(0.2, 1.0, 0.2));
+            hookedUUID = null; // landed - the chain has nothing left to haul
         } else {
             target.setDeltaMovement(toOwner.normalize().scale(Math.min(distance * 0.2, 1.2)).add(0, 0.1, 0));
             target.hurtMarked = true;

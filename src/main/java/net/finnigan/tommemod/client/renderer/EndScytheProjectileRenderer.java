@@ -2,6 +2,7 @@ package net.finnigan.tommemod.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.entity.custom.EndScytheHelpers.EndScytheProjectileEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -13,9 +14,8 @@ import org.joml.Matrix4f;
 
 /**
  * Billboard-quad renderer for the End Scythe projectile: two crossed quads spinning fast around the
- * line from the shooter's head out to the projectile (see ProjectileSpinAxis), same manual-
- * VertexConsumer technique as IxeProjectileRenderer, just spun harder to read as "spinning, fast"
- * per the weapon's spec.
+ * Y axis, same manual-VertexConsumer technique as IxeProjectileRenderer, just spun harder to read as
+ * "spinning, fast" per the weapon's spec.
  */
 public class EndScytheProjectileRenderer extends EntityRenderer<EndScytheProjectileEntity> {
 
@@ -37,7 +37,7 @@ public class EndScytheProjectileRenderer extends EntityRenderer<EndScytheProject
         poseStack.pushPose();
 
         float spin = (entity.tickCount + partialTicks) * 48.0F; // fast spin, per spec flavor
-        ProjectileSpinAxis.apply(poseStack, entity, entity.getOwnerEntity(), spin, partialTicks);
+        poseStack.mulPose(Axis.YP.rotationDegrees(spin));
         poseStack.scale(SCALE, SCALE, SCALE);
 
         VertexConsumer consumer = buffer.getBuffer(RenderType.entityCutout(TEXTURE));

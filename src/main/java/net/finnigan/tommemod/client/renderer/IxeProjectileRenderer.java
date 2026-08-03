@@ -2,6 +2,7 @@ package net.finnigan.tommemod.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.entity.custom.IxeHelpers.IxeProjectileEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -31,7 +32,7 @@ public class IxeProjectileRenderer extends EntityRenderer<IxeProjectileEntity> {
         poseStack.pushPose();
 
         float spin = (entity.tickCount + partialTicks) * 48.0F; // matches EndScytheProjectileRenderer's spin rate
-        ProjectileSpinAxis.apply(poseStack, entity, entity.getOwnerEntity(), spin, partialTicks);
+        poseStack.mulPose(Axis.YP.rotationDegrees(spin));
         poseStack.scale(SCALE, SCALE, SCALE);
 
         VertexConsumer consumer = buffer.getBuffer(RenderType.entityCutout(TEXTURE));

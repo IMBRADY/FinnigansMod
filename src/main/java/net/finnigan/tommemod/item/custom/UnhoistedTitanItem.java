@@ -39,6 +39,23 @@ public class UnhoistedTitanItem extends SwordItem {
 
     private static final Map<UUID, Integer> ACTIVE_ANCHORS = new HashMap<>();
 
+    /**
+     * Last tick each player *attempted* the anchor, tracked per side because in single player the
+     * client and server share these statics and would otherwise trample each other's timing.
+     */
+    private static final Map<UUID, Long> LAST_ATTEMPT_SERVER = new HashMap<>();
+    private static final Map<UUID, Long> LAST_ATTEMPT_CLIENT = new HashMap<>();
+
+    /**
+     * Holding right click makes vanilla re-run use() every 4 ticks forever (Minecraft#startUseItem
+     * resets its rightClickDelay to 4), so a held button used to fire a new anchor the instant the
+     * cooldown lapsed - typically while the previous catch was still being hauled in. Refusing any
+     * attempt that lands within this window of the previous *attempt* breaks that: the auto-repeat
+     * keeps pushing its own deadline back and never gets through, while a real second press (which
+     * needs a release first, and can't beat the 10-tick cooldown anyway) always clears it.
+     */
+    private static final long HOLD_REPEAT_WINDOW_TICKS = 6;
+
     private static final int ANCHOR_COOLDOWN_TICKS = 10;  // 0.5s
     private static final int BLAST_COOLDOWN_TICKS = 120;  // 6s
 
@@ -82,6 +99,9 @@ public class UnhoistedTitanItem extends SwordItem {
     private InteractionResultHolder<ItemStack> throwAnchor(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
+        if (!isFreshPress(level, player)) {
+            return InteractionResultHolder.pass(stack);
+        }
         if (player.getCooldowns().isOnCooldown(this) || ACTIVE_ANCHORS.containsKey(player.getUUID())) {
             return InteractionResultHolder.pass(stack);
         }
@@ -108,6 +128,18 @@ public class UnhoistedTitanItem extends SwordItem {
 
     public static void clearAnchorFor(UUID ownerUUID) {
         ACTIVE_ANCHORS.remove(ownerUUID);
+    }
+
+    /**
+     * Whether this attempt is a distinct right-click rather than one beat of a held button's
+     * auto-repeat (see {@link #HOLD_REPEAT_WINDOW_TICKS}). Records the attempt either way - it is the
+     * refusals that keep pushing a held button's deadline out of reach.
+     */
+    private static boolean isFreshPress(Level level, Player player) {
+        Map<UUID, Long> lastAttempts = level.isClientSide ? LAST_ATTEMPT_CLIENT : LAST_ATTEMPT_SERVER;
+        long now = level.getGameTime();
+        Long previous = lastAttempts.put(player.getUUID(), now);
+        return previous == null || now - previous > HOLD_REPEAT_WINDOW_TICKS;
     }
 
     private InteractionResultHolder<ItemStack> performWaterBlast(Level level, Player player, InteractionHand hand) {

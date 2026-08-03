@@ -1,8 +1,10 @@
 package net.finnigan.tommemod.event.CustodireGladioEventHelpers;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.capability.reputation.ReputationTier;
 import net.finnigan.tommemod.item.custom.CustodireGladioHelpers.ChiefTierResolver;
 import net.finnigan.tommemod.item.custom.CustodireGladioItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -46,7 +48,10 @@ public class CustodireGladioPassiveHandler {
             return;
         }
 
-        double bonus = ChiefTierResolver.scaleFor(player) - 1.0;
+        ReputationTier tier = ChiefTierResolver.bestChiefTier(player);
+        stampHeldStacks(player, tier);
+
+        double bonus = ChiefTierResolver.BONUS_PER_TIER * tier.ordinal();
         AttributeModifier existing = maxHealth.getModifier(MAX_HEALTH_UUID);
         if (existing != null && existing.getAmount() == bonus) return;
         if (existing != null) maxHealth.removeModifier(MAX_HEALTH_UUID);
@@ -54,6 +59,15 @@ public class CustodireGladioPassiveHandler {
         if (bonus > 0) {
             maxHealth.addTransientModifier(new AttributeModifier(MAX_HEALTH_UUID,
                     "Custodire Gladio chief vitality", bonus, AttributeModifier.Operation.MULTIPLY_TOTAL));
+        }
+    }
+
+    /** Puts the resolved tier on whichever hand is holding the weapon, so its tooltip can report it. */
+    private static void stampHeldStacks(Player player, ReputationTier tier) {
+        for (ItemStack stack : new ItemStack[]{player.getMainHandItem(), player.getOffhandItem()}) {
+            if (stack.getItem() instanceof CustodireGladioItem) {
+                CustodireGladioItem.stampChiefTier(stack, tier);
+            }
         }
     }
 
