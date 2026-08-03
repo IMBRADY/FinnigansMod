@@ -25,16 +25,16 @@ public class FireWaveManager {
     private static final List<PendingWave> activeWaves = new ArrayList<>();
 
     private static final int STEP_COUNT = 4;
-    private static final int TICKS_BETWEEN_STEPS = 7; // ~0.33s per step
+    private static final int TICKS_BETWEEN_STEPS = 4;
 
     // AOE proc damage per wave-step hit. Deliberately lower than the base 25 left-click hit: this is a
     // secondary multi-hit ability that can strike several enemies across up to 4 steps (and a single
     // enemy could conceivably be caught by more than one step), not a single decisive attack, so it is
     // tuned as a strong-but-not-primary proc rather than matching the base swing damage.
-    private static final float STEP_DAMAGE = 12.0F;
+    private static final float STEP_DAMAGE = 25.0F;
 
     private static final int IGNITE_SECONDS = 5;
-    private static final double KNOCKUP_STRENGTH = 1.6; // vanilla knockback() has no vertical component
+    private static final double KNOCKUP_STRENGTH = 1.2; // vanilla knockback() has no vertical component
     private static final double VERTICAL_HALF_HEIGHT = 2.0;
 
     private static class PendingWave {
@@ -93,7 +93,6 @@ public class FireWaveManager {
         double near = 2.0 * step;
         double far = 2.0 * (step + 1);
         double halfWidth = 1.0 + step;
-        boolean closestStep = step == 0;
 
         AABB bounds = new AABB(
                 wave.origin.x - far, wave.origin.y - VERTICAL_HALF_HEIGHT, wave.origin.z - far,
@@ -112,10 +111,7 @@ public class FireWaveManager {
 
             DamageSource source = wave.owner.damageSources().playerAttack(wave.owner);
             target.hurt(source, STEP_DAMAGE);
-
-            if (closestStep) {
-                target.setSecondsOnFire(IGNITE_SECONDS);
-            }
+            target.setSecondsOnFire(IGNITE_SECONDS);
 
             Vec3 vel = target.getDeltaMovement();
             target.setDeltaMovement(vel.x, KNOCKUP_STRENGTH, vel.z);

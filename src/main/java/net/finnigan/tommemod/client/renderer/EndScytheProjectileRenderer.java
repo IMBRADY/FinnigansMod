@@ -20,7 +20,7 @@ import org.joml.Matrix4f;
 public class EndScytheProjectileRenderer extends EntityRenderer<EndScytheProjectileEntity> {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(TommeMod.MOD_ID, "textures/entity/end_scythe_projectile.png");
-    private static final float SCALE = 0.6F;
+    private static final float SCALE = 1.2F; // twice the original 0.6F, per user feedback
 
     public EndScytheProjectileRenderer(EntityRendererProvider.Context context) {
         super(context);

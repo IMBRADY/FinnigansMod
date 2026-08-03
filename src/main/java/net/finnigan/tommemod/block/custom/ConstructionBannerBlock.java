@@ -64,7 +64,7 @@ public class ConstructionBannerBlock extends Block implements EntityBlock {
             if (type != null && placer instanceof Player player) {
                 refund(player, type);
                 player.displayClientMessage(
-                        Component.literal("Can't build here - ground is too uneven or too far from the village.")
+                        Component.literal("Can't build here - ground is too uneven, obstructs a current building, or is too far from the village.")
                                 .withStyle(ChatFormatting.RED),
                         true);
             }

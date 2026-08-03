@@ -31,7 +31,7 @@ public class IxeProjectileRenderer extends EntityRenderer<IxeProjectileEntity> {
                        MultiBufferSource buffer, int packedLight) {
         poseStack.pushPose();
 
-        float spin = (entity.tickCount + partialTicks) * 24.0F; // spinning AOE, per spec flavor
+        float spin = (entity.tickCount + partialTicks) * 48.0F; // matches EndScytheProjectileRenderer's spin rate
         poseStack.mulPose(Axis.YP.rotationDegrees(spin));
         poseStack.scale(SCALE, SCALE, SCALE);
 

@@ -1,10 +1,12 @@
 package net.finnigan.tommemod.entity.custom.EndScytheHelpers;
 
 import net.finnigan.tommemod.entity.ModEntityTypes;
+import net.finnigan.tommemod.item.custom.FireKatanaItem;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -15,17 +17,19 @@ import java.util.UUID;
 
 /**
  * End Scythe's projectile: spinning, fast, passes through walls (noPhysics), homes toward the nearest
- * player (excluding the shooter) with a gradual steering blend rather than an instant re-aim snap.
- * Travels a maximum of 32 blocks (tracked manually since it has no real Projectile collision machinery)
- * and deals 16 damage on proximity contact with a player.
+ * valid enemy (excluding the shooter, reusing FireKatanaItem's "valid target" filter - excludes other
+ * players/wolves/villagers/soul-allies, so it actually finds hostile mobs in singleplayer instead of
+ * only ever looking for another Player) with a gradual steering blend rather than an instant re-aim
+ * snap. Travels a maximum of 32 blocks (tracked manually since it has no real Projectile collision
+ * machinery) and deals 16 damage on proximity contact with a valid target.
  */
 public class EndScytheProjectileEntity extends Entity {
 
     private static final double SPEED = 1.8;
     private static final double STEER_STRENGTH = 0.15; // per-tick blend factor toward the target direction
-    private static final double MAX_RANGE = 32.0;
+    private static final double MAX_RANGE = 128.0;
     private static final float DAMAGE = 16.0F;
-    private static final double HIT_RADIUS = 0.4;
+    private static final double HIT_RADIUS = 0.6;
 
     private UUID ownerUUID;
     private double distanceTraveled = 0.0;
@@ -64,7 +68,7 @@ public class EndScytheProjectileEntity extends Entity {
             return;
         }
 
-        Player target = findNearestTarget();
+        LivingEntity target = findNearestTarget();
         if (target != null) {
             Vec3 desiredDir = target.position().add(0, target.getBbHeight() / 2, 0)
                     .subtract(this.position())
@@ -84,12 +88,12 @@ public class EndScytheProjectileEntity extends Entity {
             this.setYRot((float) (Math.atan2(movement.x, movement.z) * (180F / Math.PI)));
         }
 
-        List<Player> hits = level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(HIT_RADIUS),
-                p -> p.isAlive() && !p.isSpectator() && !p.getUUID().equals(ownerUUID));
+        List<LivingEntity> hits = level().getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(HIT_RADIUS),
+                e -> e.isAlive() && !e.getUUID().equals(ownerUUID) && FireKatanaItem.isValidFireTarget(e));
 
         if (!hits.isEmpty()) {
-            for (Player p : hits) {
-                p.hurt(level().damageSources().magic(), DAMAGE);
+            for (LivingEntity e : hits) {
+                e.hurt(level().damageSources().magic(), DAMAGE);
             }
             discard();
             return;
@@ -100,19 +104,22 @@ public class EndScytheProjectileEntity extends Entity {
         }
     }
 
-    /** Nearest living, non-spectator player in the level, excluding the shooter. */
-    private Player findNearestTarget() {
-        Player nearest = null;
+    /** Nearest valid enemy (see class doc for the exclusion filter), excluding the shooter. Scans a
+     * generous radius each tick since (unlike a real Projectile) this entity has no target-tracking
+     * machinery of its own to piggyback on. */
+    private LivingEntity findNearestTarget() {
+        double searchRadius = MAX_RANGE;
+        List<LivingEntity> candidates = level().getEntitiesOfClass(LivingEntity.class,
+                getBoundingBox().inflate(searchRadius),
+                e -> e.isAlive() && !e.getUUID().equals(ownerUUID) && FireKatanaItem.isValidFireTarget(e));
+
+        LivingEntity nearest = null;
         double nearestDistSq = Double.MAX_VALUE;
-
-        for (Player p : level().players()) {
-            if (p.getUUID().equals(ownerUUID)) continue;
-            if (!p.isAlive() || p.isSpectator()) continue;
-
-            double distSq = p.position().distanceToSqr(this.position());
+        for (LivingEntity e : candidates) {
+            double distSq = e.position().distanceToSqr(this.position());
             if (distSq < nearestDistSq) {
                 nearestDistSq = distSq;
-                nearest = p;
+                nearest = e;
             }
         }
 

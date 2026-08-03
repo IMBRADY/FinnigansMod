@@ -31,7 +31,7 @@ public class ModEntityTypes {
 
     public static final RegistryObject<EntityType<IxeProjectileEntity>> IXE_PROJECTILE =
             ENTITY_TYPES.register("ixe_projectile", () -> EntityType.Builder.<IxeProjectileEntity>of(IxeProjectileEntity::new, MobCategory.MISC)
-                    .sized(0.35F, 0.35F)
+                    .sized(0.9F, 0.9F)
                     .clientTrackingRange(64)
                     .updateInterval(1)
                     .noSave()
@@ -47,7 +47,7 @@ public class ModEntityTypes {
 
     public static final RegistryObject<EntityType<EndScytheProjectileEntity>> END_SCYTHE_PROJECTILE =
             ENTITY_TYPES.register("end_scythe_projectile", () -> EntityType.Builder.<EndScytheProjectileEntity>of(EndScytheProjectileEntity::new, MobCategory.MISC)
-                    .sized(0.35F, 0.35F)
+                    .sized(0.7F, 0.7F)
                     .clientTrackingRange(64)
                     .updateInterval(1)
                     .noSave()

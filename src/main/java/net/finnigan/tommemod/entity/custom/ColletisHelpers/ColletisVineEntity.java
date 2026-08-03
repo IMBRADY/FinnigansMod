@@ -13,9 +13,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
@@ -68,9 +70,38 @@ public class ColletisVineEntity extends ThrowableItemProjectile {
     @Override
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
+        stick(result.getLocation());
+    }
+
+    /** Sticks the vine at the given world position, block-grapple style (see {@link #onHitBlock}). */
+    private void stick(Vec3 pos) {
+        this.setPos(pos.x, pos.y, pos.z);
         this.entityData.set(STUCK, true);
         this.entityData.set(HIT_ENTITY, false);
         this.setDeltaMovement(Vec3.ZERO);
+    }
+
+    /**
+     * A ThrowableItemProjectile's own swept collision only checks the small hitbox at the vine's tip,
+     * so an arc that clears clean over the top of a low wall never registers a hit even though the
+     * straight rendered chain (owner's eye -> current tip, see ColletisVineRenderer) visibly passes
+     * through it. Every tick before moving further, raycast along that same line and grapple to the
+     * first block it crosses, if any - this is what makes "the chain hits a block partway along its
+     * length" behave like a real rope/vine instead of a projectile that can fly clean over obstacles.
+     */
+    private void checkChainBlockedByBlock() {
+        Player owner = getOwnerPlayer();
+        if (owner == null) return;
+
+        Vec3 start = owner.getEyePosition();
+        Vec3 end = this.position();
+        if (start.distanceToSqr(end) < 0.04) return; // hasn't flown far enough yet for this to matter
+
+        HitResult hit = level().clip(new ClipContext(
+                start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+        if (hit.getType() == HitResult.Type.BLOCK && hit instanceof BlockHitResult blockHit) {
+            stick(blockHit.getLocation());
+        }
     }
 
     @Override
@@ -86,6 +117,10 @@ public class ColletisVineEntity extends ThrowableItemProjectile {
 
     @Override
     public void tick() {
+        if (!level().isClientSide && !isStuck()) {
+            checkChainBlockedByBlock();
+        }
+
         super.tick();
 
         Player owner = getOwnerPlayer();

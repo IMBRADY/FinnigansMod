@@ -10,7 +10,8 @@
     "LivingEntityTotemMixin",
     "ItemStackDurabilityMixin",
     "PlayerExhaustionMixin",
-    "PoiTypesMixin"
+    "PoiTypesMixin",
+    "EntityStepSoundMixin"
   ],
   "client": [
     "InventoryScreenMixin",
