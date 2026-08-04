@@ -51,6 +51,9 @@ public class TotemEffectEvents {
         if (!(event.getEntity() instanceof Player player)) return;
         if (player.level().isClientSide) return;
         if (player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) return;
+        // Post Mortem already banked the inventory (and runs at a higher priority than this), so there
+        // is nothing left to snapshot - bail out rather than spend the Greed totem for no benefit.
+        if (PostMortemHandler.isHoldingInventory(player)) return;
 
         player.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(handler -> {
             ItemStack totemStack = handler.getStackInSlot(AccessoryHandler.SLOT_TOTEM_ACCESSORY);

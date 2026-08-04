@@ -45,6 +45,11 @@
     { "predicate": { "tommemod:enchant_type": 39.0 }, "model": "tommemod:item/unbreaking" },
     { "predicate": { "tommemod:enchant_type": 40.0 }, "model": "tommemod:item/swift_sneak" },
     { "predicate": { "tommemod:enchant_type": 41.0 }, "model": "tommemod:item/life_steal" },
-    { "predicate": { "tommemod:enchant_type": 42.0 }, "model": "tommemod:item/poison" }
+    { "predicate": { "tommemod:enchant_type": 42.0 }, "model": "tommemod:item/poison" },
+    { "predicate": { "tommemod:enchant_type": 43.0 }, "model": "tommemod:item/skybound" },
+    { "predicate": { "tommemod:enchant_type": 44.0 }, "model": "tommemod:item/resilience" },
+    { "predicate": { "tommemod:enchant_type": 45.0 }, "model": "tommemod:item/immunity" },
+    { "predicate": { "tommemod:enchant_type": 46.0 }, "model": "tommemod:item/post_mortem" },
+    { "predicate": { "tommemod:enchant_type": 47.0 }, "model": "tommemod:item/fleet" }
   ]
 }

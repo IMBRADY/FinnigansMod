@@ -14,7 +14,9 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Candeliere's three firework-like flares. There is deliberately no projectile entity: per spec these
@@ -27,7 +29,7 @@ public class CandeliereFlareManager {
     private static final List<Flare> activeFlares = new ArrayList<>();
 
     private static final int FLARE_COUNT = 3;
-    private static final double SPEED = 0.9;           // blocks per tick
+    private static final double SPEED = 1.1;           // blocks per tick
     private static final int MAX_LIFETIME_TICKS = 60;  // ~54 blocks of travel before fizzling out
     private static final double HIT_RADIUS = 1.2;
     private static final double SPREAD = 0.16;         // lateral fan so the three flares don't overlap
@@ -87,7 +89,7 @@ public class CandeliereFlareManager {
         HitResult blockHit = flare.level.clip(new ClipContext(
                 from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, flare.owner));
         if (blockHit.getType() == HitResult.Type.BLOCK && blockHit instanceof BlockHitResult hit) {
-            explode(flare, hit.getLocation());
+            explode(flare, hit.getLocation(), null);
             return true;
         }
 
@@ -96,7 +98,7 @@ public class CandeliereFlareManager {
 
         LivingEntity struck = firstTargetAt(flare);
         if (struck != null) {
-            explode(flare, flare.position);
+            explode(flare, flare.position, struck);
             return true;
         }
 
@@ -117,18 +119,35 @@ public class CandeliereFlareManager {
                 flare.position.x, flare.position.y, flare.position.z, 2, 0.08, 0.08, 0.08, 0.0);
     }
 
-    private static void explode(Flare flare, Vec3 at) {
+    /**
+     * @param directHit the mob the flare physically ran into, if any. It is always damaged regardless of
+     *                  the radius test below - a flare that visibly detonated on a mob must never leave it
+     *                  untouched, which is precisely the bug the hitbox-distance change here fixes.
+     */
+    private static void explode(Flare flare, Vec3 at, LivingEntity directHit) {
         flare.level.sendParticles(ParticleTypes.FLAME, at.x, at.y, at.z, 60, 0.4, 0.4, 0.4, 0.08);
         flare.level.sendParticles(ParticleTypes.LAVA, at.x, at.y, at.z, 8, 0.3, 0.3, 0.3, 0.0);
         flare.level.playSound(null, at.x, at.y, at.z,
                 SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.PLAYERS, 1.7F, 4.0F);
 
         AABB box = new AABB(at, at).inflate(EXPLOSION_RADIUS);
-        List<LivingEntity> targets = flare.level.getEntitiesOfClass(LivingEntity.class, box,
+        List<LivingEntity> nearby = flare.level.getEntitiesOfClass(LivingEntity.class, box,
                 e -> e.isAlive() && e != flare.owner && FireKatanaItem.isValidFireTarget(e));
 
-        for (LivingEntity target : targets) {
-            if (target.position().distanceTo(at) > EXPLOSION_RADIUS) continue;
+        // LinkedHashSet so a direct hit that also falls inside the radius isn't damaged twice, while the
+        // damage order stays deterministic.
+        Set<LivingEntity> caught = new LinkedHashSet<>();
+        if (directHit != null) caught.add(directHit);
+
+        double radiusSqr = EXPLOSION_RADIUS * EXPLOSION_RADIUS;
+        for (LivingEntity target : nearby) {
+            // Distance to the nearest point of the hitbox, NOT to position() - position() is the entity's
+            // feet, so a flare detonating at head height on anything tall measured as several blocks away
+            // and got skipped, which is why head-level shots burst without hurting anything.
+            if (target.getBoundingBox().distanceToSqr(at) <= radiusSqr) caught.add(target);
+        }
+
+        for (LivingEntity target : caught) {
             target.hurt(flare.owner.damageSources().playerAttack(flare.owner), EXPLOSION_DAMAGE);
             CandeliereBurnTracker.igniteFresh(target, flare.owner, BASE_BURN_SECONDS);
         }

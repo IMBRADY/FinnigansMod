@@ -5,6 +5,7 @@ import net.finnigan.tommemod.item.custom.ArackopeshItem;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
@@ -15,39 +16,43 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Arackopesh's web line, tuned to swing like Spider-Man rather than winch like a fishing rod. The hook
- * itself flies fast and dead straight (no gravity), and the reel does not drag the player onto the
- * anchor point: it lifts them off hard once, then hands them back to a heavier-than-normal gravity, so
- * they arc through a parabola under the anchor instead of being parked at it. Letting go mid-arc is
- * the point - see {@link #launchOnRelease}.
+ * Arackopesh's web line: a straight winch, not a pendulum.
+ *
+ * The line is entirely governed by whether right click is still held. Held, it keeps paying out until it
+ * bites; once anchored, held keeps reeling the player straight along the line. Let go at any point and the
+ * hook stops whatever it was doing and flies home, at which point it is gone.
+ *
+ * Nothing here applies gravity - not to the hook, and not to the player on a taut line. The pull is
+ * resolved along the line and everything off-axis is left to the player, who can shove it around hard with
+ * the crosshair (see {@link #reel}); that off-axis freedom is the whole feel of the weapon, so it is
+ * rebuilt from the horizontal plane every tick rather than being allowed to accumulate a downward sag.
  */
 public class GrappleHookEntity extends ThrowableItemProjectile {
 
     private static final EntityDataAccessor<Boolean> STUCK =
             SynchedEntityData.defineId(GrappleHookEntity.class, EntityDataSerializers.BOOLEAN);
+    /** Synced because the client runs the reel for its own player and has to stop when the line lets go. */
+    private static final EntityDataAccessor<Boolean> RETRACTING =
+            SynchedEntityData.defineId(GrappleHookEntity.class, EntityDataSerializers.BOOLEAN);
 
-    /** Distance the line can reach before it gives up. Bounded by distance rather than by a tick count
-     * because the hook now flies several blocks per tick - the old 60-tick budget would let it cross
-     * hundreds of blocks. */
-    private static final double MAX_FLIGHT_DISTANCE = 32.0;
+    /** Speed the winch settles at once taut, in blocks per tick. */
+    private static final double REEL_SPEED = 1.15;
+    /** Ramp onto REEL_SPEED over a few ticks so the line grabs instead of snapping the player's neck. */
+    private static final double REEL_ACCELERATION = 0.32;
+    /** Close enough to the anchor that pulling harder would only grind the player into it. */
+    private static final double ARRIVAL_DISTANCE = 1.6;
 
-    private Vec3 launchPos = null;
+    /** Per-tick sideways shove the player gets from where they are looking. */
+    private static final double STEER_ACCELERATION = 0.10;
+    /** Ceiling on off-line horizontal speed - high on purpose, this is the "adjust it a lot" knob. */
+    private static final double MAX_STEER_SPEED = 0.9;
+    /** Bleeds off old steering so re-aiming turns the player promptly instead of fighting stale momentum. */
+    private static final double STEER_DECAY = 0.90;
 
-    /** One-off upward/inward kick applied on the tick the line goes taut. */
-    private static final double INITIAL_PULL_STRENGTH = 1.35;
-    /** Extra downward acceleration during the swing - what bends the pull into an arc. */
-    private static final double SWING_GRAVITY = 0.075;
-    /** Gentle inward tug, so the swing tracks toward the anchor instead of flying off tangentially. */
-    private static final double REEL_STRENGTH = 0.055;
-    /** Below this the player has arrived; the line stops pulling rather than shoving them around. */
-    private static final double ARRIVAL_DISTANCE = 2.5;
-
-    /** Speed of the boost given when the player lets go of a taut line. */
-    private static final double RELEASE_BOOST = 0.95;
-    /** How much of the swing's own momentum is folded into that boost's direction. */
-    private static final double RELEASE_MOMENTUM_BLEND = 0.55;
-
-    private boolean initialPullApplied = false;
+    /** How fast the line comes home once released. */
+    private static final double RETRACT_SPEED = 3.0;
+    /** Near enough to the hand to be considered stowed. */
+    private static final double RETRACT_ARRIVAL = 1.5;
 
     public GrappleHookEntity(EntityType<? extends GrappleHookEntity> type, Level level) {
         super(type, level);
@@ -60,10 +65,22 @@ public class GrappleHookEntity extends ThrowableItemProjectile {
     @Override
     protected void defineSynchedData() {
         this.entityData.define(STUCK, false);
+        this.entityData.define(RETRACTING, false);
     }
 
     public boolean isStuck() {
         return this.entityData.get(STUCK);
+    }
+
+    public boolean isRetracting() {
+        return this.entityData.get(RETRACTING);
+    }
+
+    /** Stops the line doing anything else and sends it home; it discards itself on arrival. */
+    public void startRetract() {
+        if (this.level().isClientSide) return;
+        this.entityData.set(STUCK, false);
+        this.entityData.set(RETRACTING, true);
     }
 
     @Override
@@ -73,6 +90,7 @@ public class GrappleHookEntity extends ThrowableItemProjectile {
 
     @Override
     protected void onHitBlock(BlockHitResult result) {
+        if (isRetracting()) return; // on the way home it passes through everything
         super.onHitBlock(result);
         this.entityData.set(STUCK, true);
         this.setDeltaMovement(Vec3.ZERO);
@@ -80,6 +98,7 @@ public class GrappleHookEntity extends ThrowableItemProjectile {
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
+        if (isRetracting()) return;
         super.onHitEntity(result);
         this.entityData.set(STUCK, true);
         this.setDeltaMovement(Vec3.ZERO);
@@ -91,69 +110,91 @@ public class GrappleHookEntity extends ThrowableItemProjectile {
 
         Player owner = getOwnerPlayer();
         if (owner == null || !owner.isAlive()) {
-            this.discard();
+            if (!this.level().isClientSide) this.discard();
+            return;
+        }
+
+        if (isRetracting()) {
+            if (!this.level().isClientSide) retractStep(owner);
             return;
         }
 
         boolean stillHolding = owner.isUsingItem() && owner.getUseItem().getItem() instanceof ArackopeshItem;
         if (!stillHolding) {
-            this.discard(); // released -> detach immediately
+            startRetract();
             return;
         }
 
         if (isStuck()) {
-            swing(owner);
-        } else {
-            if (launchPos == null) launchPos = this.position();
-            if (this.position().distanceTo(launchPos) > MAX_FLIGHT_DISTANCE) this.discard();
+            // Run on the server for authority and on the owning client for smooth prediction, the same way
+            // vanilla firework boosting drives elytra flight from both sides.
+            if (!this.level().isClientSide || owner.isLocalPlayer()) reel(owner);
+        } else if (!this.level().isClientSide && hasOutrunTheLoadedWorld(owner)) {
+            startRetract();
         }
     }
 
     /**
-     * One hard yank to get the player airborne, then a light inward tug fighting a heavier-than-normal
-     * gravity. The player is never snapped to the anchor - they fall through an arc beneath it, which
-     * is what makes the release boost's direction meaningful.
+     * Winch the player along the line. The velocity is rebuilt from scratch every tick out of exactly two
+     * parts - travel along the line, and horizontal steering - which is what keeps gravity out of it: any
+     * downward drift vanilla added since the last tick is simply not carried forward.
      */
-    private void swing(Player owner) {
-        Vec3 toHook = this.position().subtract(owner.position());
-        double distance = toHook.length();
-
-        if (!initialPullApplied) {
-            initialPullApplied = true;
-            owner.setDeltaMovement(toHook.normalize().scale(INITIAL_PULL_STRENGTH));
-            owner.hurtMarked = true;
-            owner.fallDistance = 0;
-            return;
-        }
+    private void reel(Player owner) {
+        Vec3 toAnchor = this.position().subtract(owner.getEyePosition());
+        double distance = toAnchor.length();
+        if (distance < 1.0E-4) return;
+        Vec3 line = toAnchor.scale(1.0 / distance);
 
         Vec3 velocity = owner.getDeltaMovement();
-        if (distance > ARRIVAL_DISTANCE) {
-            velocity = velocity.add(toHook.normalize().scale(REEL_STRENGTH));
-        }
-        velocity = velocity.subtract(0, SWING_GRAVITY, 0);
 
-        owner.setDeltaMovement(velocity);
+        // Travel along the line, easing up to speed. Once the player has arrived the winch targets zero and
+        // they simply hang on the line, since nothing here is pulling them down.
+        double along = velocity.dot(line);
+        double target = distance > ARRIVAL_DISTANCE ? REEL_SPEED : 0.0;
+        along = approach(along, target, REEL_ACCELERATION);
+
+        // Everything off the line, flattened to the horizontal plane and pushed toward the crosshair.
+        Vec3 offLine = velocity.subtract(line.scale(velocity.dot(line)));
+        Vec3 steer = new Vec3(offLine.x, 0.0, offLine.z).scale(STEER_DECAY);
+
+        Vec3 look = owner.getLookAngle();
+        Vec3 lookFlat = new Vec3(look.x, 0.0, look.z);
+        if (lookFlat.lengthSqr() > 1.0E-6) {
+            steer = steer.add(lookFlat.normalize().scale(STEER_ACCELERATION));
+        }
+        if (steer.length() > MAX_STEER_SPEED) {
+            steer = steer.normalize().scale(MAX_STEER_SPEED);
+        }
+
+        owner.setDeltaMovement(line.scale(along).add(steer));
         owner.hurtMarked = true;
         owner.fallDistance = 0;
     }
 
+    private void retractStep(Player owner) {
+        Vec3 hand = owner.getEyePosition().add(0, -0.2, 0);
+        Vec3 toHand = hand.subtract(this.position());
+        if (toHand.length() <= RETRACT_ARRIVAL) {
+            this.discard();
+            return;
+        }
+        this.setDeltaMovement(toHand.normalize().scale(RETRACT_SPEED));
+    }
+
     /**
-     * Called when the player lets go of a taut line: sends them off along their facing, blended with
-     * wherever the swing was already carrying them. Release at the bottom of the arc (moving level)
-     * and they shoot forward; release on the way up and they carry that climb with them.
+     * The line has no design range - it reaches as far as the player can hold the button. It does still have
+     * to come home if it outruns the part of the world the server is simulating, because past that boundary
+     * it would stop ticking and simply hang in the air forever.
      */
-    public void launchOnRelease(Player owner) {
-        if (!isStuck() || !initialPullApplied) return;
+    private boolean hasOutrunTheLoadedWorld(Player owner) {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return false;
+        double limit = serverLevel.getServer().getPlayerList().getSimulationDistance() * 16.0;
+        return this.distanceToSqr(owner) > limit * limit;
+    }
 
-        Vec3 facing = owner.getLookAngle().normalize();
-        Vec3 momentum = owner.getDeltaMovement();
-
-        Vec3 direction = facing.add(momentum.scale(RELEASE_MOMENTUM_BLEND));
-        if (direction.lengthSqr() < 1.0E-6) direction = facing;
-
-        owner.setDeltaMovement(direction.normalize().scale(RELEASE_BOOST));
-        owner.hurtMarked = true;
-        owner.fallDistance = 0;
+    private static double approach(double current, double target, double step) {
+        if (current < target) return Math.min(target, current + step);
+        return Math.max(target, current - step);
     }
 
     @Override
@@ -173,6 +214,6 @@ public class GrappleHookEntity extends ThrowableItemProjectile {
 
     @Override
     protected float getGravity() {
-        return 0F; // flies dead straight out, and holds position once anchored
+        return 0F; // flies dead straight out, holds position once anchored, and comes straight back
     }
 }

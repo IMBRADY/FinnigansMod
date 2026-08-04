@@ -72,6 +72,8 @@ public class AccessoryEffectEvents {
     public static void onPlayerDeath(net.minecraftforge.event.entity.living.LivingDeathEvent event) {
         if (!(event.getEntity() instanceof Player player) || player.level().isClientSide) return;
         if (player.level().getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_KEEPINVENTORY)) return;
+        // Post Mortem is a per-player keepInventory, so accessories ride along with it too.
+        if (PostMortemHandler.isHoldingInventory(player)) return;
 
         player.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(h -> {
             for (int slot = 0; slot < 3; slot++) {

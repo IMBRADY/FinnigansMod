@@ -2,10 +2,14 @@ package net.finnigan.tommemod.item;
 
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.block.ModBlocks;
+import net.finnigan.tommemod.enchantment.ModEnchantments;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -106,6 +110,12 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.BEE_NADE.get());
 
                         // ENCHANTS
+                        pOutput.accept(enchantedBook(ModEnchantments.GLOW.get(), 1));
+                        pOutput.accept(enchantedBook(ModEnchantments.FLEET.get(), 3));
+                        pOutput.accept(enchantedBook(ModEnchantments.SKYBOUND.get(), 1));
+                        pOutput.accept(enchantedBook(ModEnchantments.RESILIENCE.get(), 3));
+                        pOutput.accept(enchantedBook(ModEnchantments.IMMUNITY.get(), 1));
+                        pOutput.accept(enchantedBook(ModEnchantments.POST_MORTEM.get(), 1));
 
                         // MISC
                         pOutput.accept(ModItems.END_LANTERN.get());
@@ -122,6 +132,11 @@ public class ModCreativeModTabs {
 
                     })
                     .build());
+
+    /** Enchanted book stack for a modded enchantment, so the tab can show it without a dedicated item. */
+    private static ItemStack enchantedBook(Enchantment enchantment, int level) {
+        return EnchantedBookItem.createForEnchantment(new EnchantmentInstance(enchantment, level));
+    }
 
     public static void register(IEventBus eventBus) {
         CREATIVE_MODE_TABS.register(eventBus);

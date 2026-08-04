@@ -14,4 +14,16 @@ public class ModEnchantments {
             ENCHANTMENTS.register("life_steal", LifestealEnchantment::new);
     public static final RegistryObject<Enchantment> POISON =
             ENCHANTMENTS.register("poison", PoisonEnchantment::new);
+    public static final RegistryObject<Enchantment> GLOW =
+            ENCHANTMENTS.register("glow", GlowEnchantment::new);
+    public static final RegistryObject<Enchantment> FLEET =
+            ENCHANTMENTS.register("fleet", FleetEnchantment::new);
+    public static final RegistryObject<Enchantment> SKYBOUND =
+            ENCHANTMENTS.register("skybound", SkyboundEnchantment::new);
+    public static final RegistryObject<Enchantment> RESILIENCE =
+            ENCHANTMENTS.register("resilience", ResilienceEnchantment::new);
+    public static final RegistryObject<Enchantment> IMMUNITY =
+            ENCHANTMENTS.register("immunity", ImmunityEnchantment::new);
+    public static final RegistryObject<Enchantment> POST_MORTEM =
+            ENCHANTMENTS.register("post_mortem", PostMortemEnchantment::new);
 }

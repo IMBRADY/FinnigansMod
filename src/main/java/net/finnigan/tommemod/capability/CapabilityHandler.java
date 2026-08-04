@@ -5,6 +5,7 @@ import net.finnigan.tommemod.capability.accessory.AccessoryProvider;
 import net.finnigan.tommemod.capability.accessory.ModCapabilities;
 import net.finnigan.tommemod.capability.reputation.ModReputationCapabilities;
 import net.finnigan.tommemod.capability.reputation.ReputationProvider;
+import net.finnigan.tommemod.event.PostMortemHandler;
 import net.finnigan.tommemod.network.ModNetwork;
 import net.finnigan.tommemod.network.packet.SyncAccessoryPacket;
 import net.finnigan.tommemod.network.packet.SyncReputationPacket;
@@ -60,7 +61,7 @@ public class CapabilityHandler {
         boolean keepInventory = event.getEntity().level().getGameRules()
                 .getBoolean(net.minecraft.world.level.GameRules.RULE_KEEPINVENTORY);
 
-        if (keepInventory) {
+        if (keepInventory || PostMortemHandler.isHoldingInventory(event.getOriginal())) {
             event.getOriginal().getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(oldHandler ->
                     event.getEntity().getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(newHandler ->
                             newHandler.deserializeNBT(oldHandler.serializeNBT())));

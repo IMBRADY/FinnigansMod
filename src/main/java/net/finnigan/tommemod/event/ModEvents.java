@@ -81,86 +81,125 @@ public class ModEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void registerSpawnPlacements(SpawnPlacementRegisterEvent event) {
-        event.register(ModEntityTypes.MUSHLING.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                MushlingEntity::checkMushlingSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.CAPYBARA.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                CapybaraEntity::checkCapybaraSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.END_LANTERN.get(),
-                SpawnPlacements.Type.NO_RESTRICTIONS,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                EndLanternEntity::checkEndLanternSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.MANTA.get(),
-                SpawnPlacements.Type.IN_WATER,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                MantaEntity::checkMantaSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.JELLYFISH.get(),
-                SpawnPlacements.Type.IN_WATER,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                JellyfishEntity::checkSurfaceWaterAnimalSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.TIGER.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                TigerEntity::checkTigerSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.BIRDIE.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                BirdieEntity::checkBirdieSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.SEAGULL.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                SeagullEntity::checkSeagullSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.DUNGEON_CRAB.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.WORLD_SURFACE,
-                DungeonCrabEntity::checkDungeonCrabSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        SpawnPlacements.register(ModEntityTypes.LIVING_ARMOR.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                LivingArmorEntity::checkLivingArmorSpawnRules);
-        event.register(ModEntityTypes.DUCK.get(),
-                SpawnPlacements.Type.IN_WATER,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                DuckEntity::checkDuckSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.CRAB.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                CrabEntity::checkCrabSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.HERMIT_CRAB.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                HermitCrabEntity::checkHermitCrabSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.SCARECROW.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                ScarecrowEntity::checkScarecrowSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.CYCLOPS.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                CyclopsEntity::checkCyclopsSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
-        event.register(ModEntityTypes.HAMMERHEAD_SHARK.get(),
-                SpawnPlacements.Type.IN_WATER,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                HammerheadSharkEntity::checkHammerheadSpawnRules,
-                SpawnPlacementRegisterEvent.Operation.REPLACE);
+    /**
+     * Mod-bus half of ModEvents. EntityAttributeCreationEvent and SpawnPlacementRegisterEvent are both
+     * IModBusEvent - they are only ever posted to the mod bus, and the enclosing class is on the Forge
+     * bus, where EventBus accepts a mod-bus listener without complaint and then never calls it. That is
+     * why an earlier copy of these two sitting directly in ModEvents did nothing.
+     *
+     * Attributes in particular must be registered on BOTH physical sides: without them every mod entity
+     * NPEs in the LivingEntity constructor (getMaxHealth on a null AttributeSupplier), which a physical
+     * client hides because it runs both logical sides, and a dedicated server does not.
+     */
+    @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    public static class ModBusEvents {
+
+        @SubscribeEvent
+        public static void registerAttributes(EntityAttributeCreationEvent event) {
+            event.put(ModEntityTypes.JELLYFISH.get(), JellyfishEntity.createAttributes().build());
+            event.put(ModEntityTypes.BUTTERFLY.get(), ButterflyEntity.createAttributes().build());
+            event.put(ModEntityTypes.END_LANTERN.get(), EndLanternEntity.createAttributes().build());
+            event.put(ModEntityTypes.MUSHLING.get(), MushlingEntity.createAttributes().build());
+            event.put(ModEntityTypes.BOSS_CRAB.get(), BossCrabEntity.createAttributes().build());
+            event.put(ModEntityTypes.CAPYBARA.get(), CapybaraEntity.createAttributes().build());
+            event.put(ModEntityTypes.MANTA.get(), MantaEntity.createAttributes().build());
+            event.put(ModEntityTypes.TIGER.get(), TigerEntity.createAttributes().build());
+            event.put(ModEntityTypes.BIRDIE.get(), BirdieEntity.createAttributes().build());
+            event.put(ModEntityTypes.SEAGULL.get(), SeagullEntity.createAttributes().build());
+            event.put(ModEntityTypes.DUNGEON_CRAB.get(), DungeonCrabEntity.createAttributes().build());
+            event.put(ModEntityTypes.LIVING_ARMOR.get(), LivingArmorEntity.createAttributes().build());
+            event.put(ModEntityTypes.DUCK.get(), DuckEntity.createAttributes().build());
+            event.put(ModEntityTypes.CRAB.get(), CrabEntity.createAttributes().build());
+            event.put(ModEntityTypes.HERMIT_CRAB.get(), HermitCrabEntity.createAttributes().build());
+            event.put(ModEntityTypes.ELDER_VILLAGER.get(), ElderVillagerEntity.createAttributes().build());
+            event.put(ModEntityTypes.WARRIOR_VILLAGER.get(), WarriorVillagerEntity.createAttributes().build());
+            event.put(ModEntityTypes.SCARECROW.get(), ScarecrowEntity.createAttributes().build());
+            event.put(ModEntityTypes.CYCLOPS.get(), CyclopsEntity.createAttributes().build());
+            event.put(ModEntityTypes.HAMMERHEAD_SHARK.get(), HammerheadSharkEntity.createAttributes().build());
+        }
+
+        @SubscribeEvent
+        public static void registerSpawnPlacements(SpawnPlacementRegisterEvent event) {
+            event.register(ModEntityTypes.MUSHLING.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    MushlingEntity::checkMushlingSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.CAPYBARA.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    CapybaraEntity::checkCapybaraSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.END_LANTERN.get(),
+                    SpawnPlacements.Type.NO_RESTRICTIONS,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    EndLanternEntity::checkEndLanternSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.MANTA.get(),
+                    SpawnPlacements.Type.IN_WATER,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    MantaEntity::checkMantaSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.JELLYFISH.get(),
+                    SpawnPlacements.Type.IN_WATER,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    JellyfishEntity::checkSurfaceWaterAnimalSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.TIGER.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    TigerEntity::checkTigerSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.BIRDIE.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    BirdieEntity::checkBirdieSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.SEAGULL.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    SeagullEntity::checkSeagullSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.DUNGEON_CRAB.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.WORLD_SURFACE,
+                    DungeonCrabEntity::checkDungeonCrabSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            SpawnPlacements.register(ModEntityTypes.LIVING_ARMOR.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    LivingArmorEntity::checkLivingArmorSpawnRules);
+            event.register(ModEntityTypes.DUCK.get(),
+                    SpawnPlacements.Type.IN_WATER,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    DuckEntity::checkDuckSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.CRAB.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    CrabEntity::checkCrabSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.HERMIT_CRAB.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    HermitCrabEntity::checkHermitCrabSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.SCARECROW.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    ScarecrowEntity::checkScarecrowSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.CYCLOPS.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    CyclopsEntity::checkCyclopsSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.HAMMERHEAD_SHARK.get(),
+                    SpawnPlacements.Type.IN_WATER,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    HammerheadSharkEntity::checkHammerheadSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+        }
     }
+
 }

@@ -20,16 +20,12 @@ import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
-import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -110,7 +106,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                                 if ("minecraft:frost_walker".equals(id)) {
                                     return 14.0F;
                                 }
-                                if ("minecraft:glowing".equals(id)) {
+                                if ("tommemod:glow".equals(id)) {
                                     return 15.0F;
                                 }
                                 if ("minecraft:impailing".equals(id)) {
@@ -194,6 +190,21 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                                 if ("tommemod:poison".equals(id)) {
                                     return 42.0F;
                                 }
+                                if ("tommemod:skybound".equals(id)) {
+                                    return 43.0F;
+                                }
+                                if ("tommemod:resilience".equals(id)) {
+                                    return 44.0F;
+                                }
+                                if ("tommemod:immunity".equals(id)) {
+                                    return 45.0F;
+                                }
+                                if ("tommemod:post_mortem".equals(id)) {
+                                    return 46.0F;
+                                }
+                                if ("tommemod:fleet".equals(id)) {
+                                    return 47.0F;
+                                }
                             }
                         }
                         return 0.0F;
@@ -236,33 +247,6 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                 ModParticleTypes.COLLETIS_GLOWSPORE, ModParticleTypes.COLLETIS_GLOWSPORE_E}) {
             event.registerSpriteSet((net.minecraft.core.particles.ParticleType) particle.get(), AquatanaParticle.Provider::new);
         }
-    }
-
-    // IMPORTANT
-    // FOR MULTIPLAYER SERVERS MOB SPAWNS MUST GO IN HERE OR ELSE THEY WILL NOT SPAWN!!!
-
-    @SubscribeEvent
-    public static void registerAttributes(EntityAttributeCreationEvent event) {
-        event.put(ModEntityTypes.JELLYFISH.get(), JellyfishEntity.createAttributes().build());
-        event.put(ModEntityTypes.BUTTERFLY.get(), ButterflyEntity.createAttributes().build());
-        event.put(ModEntityTypes.END_LANTERN.get(), EndLanternEntity.createAttributes().build());
-        event.put(ModEntityTypes.MUSHLING.get(), MushlingEntity.createAttributes().build());
-        event.put(ModEntityTypes.BOSS_CRAB.get(), BossCrabEntity.createAttributes().build());
-        event.put(ModEntityTypes.CAPYBARA.get(), CapybaraEntity.createAttributes().build());
-        event.put(ModEntityTypes.MANTA.get(), MantaEntity.createAttributes().build());
-        event.put(ModEntityTypes.TIGER.get(), TigerEntity.createAttributes().build());
-        event.put(ModEntityTypes.BIRDIE.get(), BirdieEntity.createAttributes().build());
-        event.put(ModEntityTypes.SEAGULL.get(), SeagullEntity.createAttributes().build());
-        event.put(ModEntityTypes.DUNGEON_CRAB.get(), DungeonCrabEntity.createAttributes().build());
-        event.put(ModEntityTypes.LIVING_ARMOR.get(), LivingArmorEntity.createAttributes().build());
-        event.put(ModEntityTypes.DUCK.get(), DuckEntity.createAttributes().build());
-        event.put(ModEntityTypes.CRAB.get(), CrabEntity.createAttributes().build());
-        event.put(ModEntityTypes.HERMIT_CRAB.get(), HermitCrabEntity.createAttributes().build());
-        event.put(ModEntityTypes.ELDER_VILLAGER.get(), ElderVillagerEntity.createAttributes().build());
-        event.put(ModEntityTypes.WARRIOR_VILLAGER.get(), WarriorVillagerEntity.createAttributes().build());
-        event.put(ModEntityTypes.SCARECROW.get(), ScarecrowEntity.createAttributes().build());
-        event.put(ModEntityTypes.CYCLOPS.get(), CyclopsEntity.createAttributes().build());
-        event.put(ModEntityTypes.HAMMERHEAD_SHARK.get(), HammerheadSharkEntity.createAttributes().build());
     }
 
     @SubscribeEvent

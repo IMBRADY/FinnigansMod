@@ -71,12 +71,29 @@ public class ArackopeshItem extends SwordItem {
         }
     }
 
+    /**
+     * Holding past getUseDuration ends the use through finishUsingItem, not releaseUsing, so without this
+     * the line would time out having never gone through detachHook and never taken its cooldown.
+     */
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entityLiving) {
+        if (entityLiving instanceof Player player && !level.isClientSide) {
+            detachHook(player);
+        }
+        return stack;
+    }
+
     private InteractionResultHolder<ItemStack> performGrappleStart(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
         if (player.getCooldowns().isOnCooldown(this) || ACTIVE_HOOKS.containsKey(player.getUUID())) {
             return InteractionResultHolder.pass(stack);
         }
+
+        // Both sides, the way BowItem does it: the whole weapon is now "hold right click", so the client
+        // has to agree it is using the item or isUsingItem() stays false there - which would cost the use
+        // animation and, more importantly, stop GrappleHookEntity predicting the reel on the owning client.
+        player.startUsingItem(hand);
 
         if (!level.isClientSide) {
             GrappleHookEntity hook = new GrappleHookEntity(level, player);
@@ -86,7 +103,6 @@ public class ArackopeshItem extends SwordItem {
             level.addFreshEntity(hook);
             ACTIVE_HOOKS.put(player.getUUID(), hook.getId());
 
-            player.startUsingItem(hand);
             level.playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.FISHING_BOBBER_THROW, SoundSource.PLAYERS, 1.0F, 0.8F);
         }
@@ -99,11 +115,12 @@ public class ArackopeshItem extends SwordItem {
         Integer hookId = ACTIVE_HOOKS.get(player.getUUID());
         if (hookId != null && player.level() instanceof ServerLevel serverLevel) {
             var entity = serverLevel.getEntity(hookId);
-            if (entity != null) {
-                // The boost has to be handed out before the hook goes away, since the hook is what
-                // knows whether the line was ever taut (see GrappleHookEntity.launchOnRelease).
-                if (entity instanceof GrappleHookEntity hook) hook.launchOnRelease(player);
-                entity.discard(); // triggers GrappleHookEntity.remove() -> cleans up the map
+            // Letting go draws the line back in rather than deleting it - the hook removes itself once it
+            // reaches the hand, which is what clears ACTIVE_HOOKS via GrappleHookEntity.remove().
+            if (entity instanceof GrappleHookEntity hook) {
+                hook.startRetract();
+            } else if (entity != null) {
+                entity.discard();
             }
         }
         player.getCooldowns().addCooldown(this, TotemUtil.applyCooldownReduction(player, GRAPPLE_COOLDOWN_TICKS));

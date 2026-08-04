@@ -1,10 +1,13 @@
 package net.finnigan.tommemod.villager;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.enchantment.ModEnchantments;
 import net.finnigan.tommemod.item.ModItems;
 import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -53,6 +56,14 @@ public class ModVillagerTrades {
             trades.get(5).add((trader, random) -> new MerchantOffer(
                     new ItemStack(Items.HONEY_BOTTLE, 1), new ItemStack(Items.EMERALD, 4),
                     new ItemStack(ModItems.PREMIUM_HONEY.get(), 1), 12, 30, 0.05F));
+
+            // Level 5 - the Immunity book. This trade is the enchantment's only source: it's flagged
+            // treasure/undiscoverable/untradeable so it can't turn up in tables, loot or librarian offers.
+            trades.get(5).add((trader, random) -> new MerchantOffer(
+                    new ItemStack(Items.EMERALD, 48), new ItemStack(Items.HONEYCOMB, 16),
+                    EnchantedBookItem.createForEnchantment(
+                            new EnchantmentInstance(ModEnchantments.IMMUNITY.get(), 1)),
+                    2, 30, 0.05F));
         }
 
         if (event.getType() == ModVillagers.BAKER.get()) {
