@@ -116,6 +116,16 @@ public class ModEvents {
             event.put(ModEntityTypes.SCARECROW.get(), ScarecrowEntity.createAttributes().build());
             event.put(ModEntityTypes.CYCLOPS.get(), CyclopsEntity.createAttributes().build());
             event.put(ModEntityTypes.HAMMERHEAD_SHARK.get(), HammerheadSharkEntity.createAttributes().build());
+            event.put(ModEntityTypes.MINIFLY.get(), MiniflyEntity.createAttributes().build());
+            event.put(ModEntityTypes.LANTERNFLY.get(), LanternflyEntity.createAttributes().build());
+            event.put(ModEntityTypes.FALCON.get(), FalconEntity.createAttributes().build());
+            event.put(ModEntityTypes.HERON.get(), HeronEntity.createAttributes().build());
+            event.put(ModEntityTypes.LIVING_GUARD.get(), LivingGuardEntity.createAttributes().build());
+            event.put(ModEntityTypes.PURLING.get(), PurlingEntity.createAttributes().build());
+            event.put(ModEntityTypes.ROLLIE_POLLIE.get(), RolliePollieEntity.createAttributes().build());
+            event.put(ModEntityTypes.SAND_SHARK.get(), SandSharkEntity.createAttributes().build());
+            event.put(ModEntityTypes.WYVERN.get(), WyvernEntity.createAttributes().build());
+            event.put(ModEntityTypes.SCREAMING.get(), ScreamingEntity.createAttributes().build());
         }
 
         @SubscribeEvent
@@ -199,6 +209,42 @@ public class ModEvents {
                     Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     HammerheadSharkEntity::checkHammerheadSpawnRules,
                     SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.MINIFLY.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    MiniflyEntity::checkMiniflySpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.FALCON.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    FalconEntity::checkFalconSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.HERON.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    HeronEntity::checkHeronSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.PURLING.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    PurlingEntity::checkPurlingSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.SAND_SHARK.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    SandSharkEntity::checkSandSharkSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.WYVERN.get(),
+                    SpawnPlacements.Type.NO_RESTRICTIONS,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    WyvernEntity::checkWyvernSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            event.register(ModEntityTypes.SCREAMING.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    ScreamingEntity::checkScreamingSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            // Lanternfly, Living Guard and Rollie Pollie are deliberately absent: none spawn naturally.
         }
     }
 

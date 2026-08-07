@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:campfire_cooking",
+  "ingredient": {
+    "item": "tommemod:purmeat"
+  },
+  "result": "tommemod:cooked_purmeat",
+  "experience": 0.35,
+  "cookingtime": 600
+}

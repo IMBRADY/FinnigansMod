@@ -379,6 +379,21 @@ public class ModItems {
                     .saturationMod(4.0f)
                     .nutrition(5)
                     .build())));
+    // Purling drop. Beef is 3/0.3 and cooked beef 8/0.8; both get the brief's +1 hunger point.
+    public static final RegistryObject<Item> PURMEAT = ITEMS.register("purmeat",
+            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(4)
+                    .saturationMod(0.3f)
+                    .meat()
+                    .build())));
+    public static final RegistryObject<Item> COOKED_PURMEAT = ITEMS.register("cooked_purmeat",
+            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(9)
+                    .saturationMod(0.8f)
+                    .meat()
+                    .build())));
+    public static final RegistryObject<Item> EXOSKELETON = ITEMS.register("exoskeleton",
+            () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> DUCK_FEATHER = ITEMS.register("duck_feather",
             () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> CRAB_LEGS = ITEMS.register("crab_legs",

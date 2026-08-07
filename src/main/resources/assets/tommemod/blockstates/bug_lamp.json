@@ -1,0 +1,29 @@
+{
+  "variants": {
+    "facing=up": {
+      "model": "tommemod:block/bug_lamp"
+    },
+    "facing=down": {
+      "model": "tommemod:block/bug_lamp",
+      "x": 180
+    },
+    "facing=north": {
+      "model": "tommemod:block/bug_lamp",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "tommemod:block/bug_lamp",
+      "x": 270
+    },
+    "facing=east": {
+      "model": "tommemod:block/bug_lamp",
+      "x": 90,
+      "y": 90
+    },
+    "facing=west": {
+      "model": "tommemod:block/bug_lamp",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

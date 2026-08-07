@@ -222,6 +222,71 @@ public class ModEntityTypes {
                     .updateInterval(10)
                     .build("dagger"));
 
+    public static final RegistryObject<EntityType<MiniflyEntity>> MINIFLY =
+            ENTITY_TYPES.register("minifly", () -> EntityType.Builder.of(MiniflyEntity::new, MobCategory.CREATURE)
+                    .sized(0.4f, 0.3f)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("minifly"));
+    // Does not spawn naturally yet - registered, rendered and lootable, but with no spawn placement
+    // and no biome modifier.
+    public static final RegistryObject<EntityType<LanternflyEntity>> LANTERNFLY =
+            ENTITY_TYPES.register("lanternfly", () -> EntityType.Builder.of(LanternflyEntity::new, MobCategory.CREATURE)
+                    .sized(1.4f, 0.9f)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("lanternfly"));
+    public static final RegistryObject<EntityType<FalconEntity>> FALCON =
+            ENTITY_TYPES.register("falcon", () -> EntityType.Builder.of(FalconEntity::new, MobCategory.CREATURE)
+                    .sized(0.6f, 0.5f)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("falcon"));
+    public static final RegistryObject<EntityType<HeronEntity>> HERON =
+            ENTITY_TYPES.register("heron", () -> EntityType.Builder.of(HeronEntity::new, MobCategory.CREATURE)
+                    .sized(0.7f, 1.9f)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("heron"));
+    public static final RegistryObject<EntityType<LivingGuardEntity>> LIVING_GUARD =
+            ENTITY_TYPES.register("living_guard", () -> EntityType.Builder.of(LivingGuardEntity::new, MobCategory.MISC)
+                    .sized(1.4f, 2.7f)
+                    .clientTrackingRange(10)
+                    .updateInterval(3)
+                    .build("living_guard"));
+    // MobCategory.MONSTER so its spawn weight is directly comparable to the endermen it shares the End
+    // with - it is still a passive PathfinderMob, see PurlingEntity.
+    public static final RegistryObject<EntityType<PurlingEntity>> PURLING =
+            ENTITY_TYPES.register("purling", () -> EntityType.Builder.of(PurlingEntity::new, MobCategory.MONSTER)
+                    .sized(1.2f, 2.9f)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("purling"));
+    public static final RegistryObject<EntityType<RolliePollieEntity>> ROLLIE_POLLIE =
+            ENTITY_TYPES.register("rollie_pollie", () -> EntityType.Builder.of(RolliePollieEntity::new, MobCategory.CREATURE)
+                    .sized(1.4f, 0.6f)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("rollie_pollie"));
+    public static final RegistryObject<EntityType<SandSharkEntity>> SAND_SHARK =
+            ENTITY_TYPES.register("sand_shark", () -> EntityType.Builder.of(SandSharkEntity::new, MobCategory.MONSTER)
+                    .sized(1.6f, 1.2f)
+                    .clientTrackingRange(10)
+                    .updateInterval(3)
+                    .build("sand_shark"));
+    public static final RegistryObject<EntityType<WyvernEntity>> WYVERN =
+            ENTITY_TYPES.register("wyvern", () -> EntityType.Builder.of(WyvernEntity::new, MobCategory.MONSTER)
+                    .sized(1.4f, 1.0f)
+                    .clientTrackingRange(10)
+                    .updateInterval(3)
+                    .build("wyvern"));
+    public static final RegistryObject<EntityType<ScreamingEntity>> SCREAMING =
+            ENTITY_TYPES.register("screaming", () -> EntityType.Builder.of(ScreamingEntity::new, MobCategory.MONSTER)
+                    .sized(0.7f, 1.95f)
+                    .clientTrackingRange(10)
+                    .updateInterval(3)
+                    .build("screaming"));
+
     public static final RegistryObject<EntityType<LightBoltProjectileEntity>> LIGHT_BOLT_PROJECTILE =
             ENTITY_TYPES.register("light_bolt_projectile", () -> EntityType.Builder.<LightBoltProjectileEntity>of(LightBoltProjectileEntity::new, MobCategory.MISC)
                     .sized(0.25F, 0.25F)

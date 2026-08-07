@@ -2,8 +2,10 @@ package net.finnigan.tommemod.block;
 
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.block.custom.ArmageddonBlock;
+import net.finnigan.tommemod.block.custom.BugLampBlock;
 import net.finnigan.tommemod.block.custom.BuilderHubBlock;
 import net.finnigan.tommemod.block.custom.ConstructionBannerBlock;
+import net.finnigan.tommemod.block.custom.GlowGooBlock;
 import net.finnigan.tommemod.block.custom.InvisibleLightBlock;
 import net.finnigan.tommemod.block.custom.MonolithBlock;
 import net.finnigan.tommemod.block.custom.OvenBlock;
@@ -73,6 +75,24 @@ public class ModBlocks {
                     .noCollission()
                     .strength(1.0F)
                     .sound(SoundType.WOOL)));
+
+    // Lanternfly drops. Both are full-bright, instantly breakable by hand, and drop themselves.
+    public static final RegistryObject<Block> BUG_LAMP = registerBlock("bug_lamp",
+            () -> new BugLampBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_ORANGE)
+                    .strength(0.0F)
+                    .sound(SoundType.LANTERN)
+                    .lightLevel(state -> 15)
+                    .noOcclusion()));
+
+    public static final RegistryObject<Block> GLOW_GOO = registerBlock("glow_goo",
+            () -> new GlowGooBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.NONE)
+                    .strength(0.0F)
+                    .sound(SoundType.SLIME_BLOCK)
+                    .lightLevel(state -> 15)
+                    .noCollission()
+                    .noOcclusion()));
 
     // Lumapier's server-managed invisible light source (Phase 5c) - deliberately registered WITHOUT
     // registerBlock()/a BlockItem: it must never be player-placeable or obtainable, only ever

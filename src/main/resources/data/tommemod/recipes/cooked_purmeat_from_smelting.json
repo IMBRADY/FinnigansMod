@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "tommemod:purmeat"
+  },
+  "result": "tommemod:cooked_purmeat",
+  "experience": 0.35,
+  "cookingtime": 200
+}

@@ -69,6 +69,8 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModBlocks.MONOLITH.get());
                         pOutput.accept(ModBlocks.BLUEPRINT_STAND.get());
                         pOutput.accept(ModBlocks.BUILDER_HUB.get());
+                        pOutput.accept(ModBlocks.BUG_LAMP.get());
+                        pOutput.accept(ModBlocks.GLOW_GOO.get());
 
                         // UNIQUES
                         pOutput.accept(ModItems.HARMONY.get());
@@ -98,6 +100,8 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.COOKED_MUSHROOM_MEAT.get());
                         pOutput.accept((ModItems.BIRD_MEAT.get()));
                         pOutput.accept((ModItems.COOKED_BIRD_MEAT.get()));
+                        pOutput.accept(ModItems.PURMEAT.get());
+                        pOutput.accept(ModItems.COOKED_PURMEAT.get());
 
                         pOutput.accept(ModItems.CRAB_LEGS.get());
                         pOutput.accept(ModItems.PREMIUM_HONEY.get());
@@ -123,6 +127,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.DYNAMITE.get());
                         pOutput.accept(ModItems.FIN.get());
                         pOutput.accept(ModItems.ANCIENT_ARMOR_FRAGMENT.get());
+                        pOutput.accept(ModItems.EXOSKELETON.get());
 
                         // CREATIVE MODE ONLY
                         pOutput.accept(ModBlocks.ARMAGEDDON.get());

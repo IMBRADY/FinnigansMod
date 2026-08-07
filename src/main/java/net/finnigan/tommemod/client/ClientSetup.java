@@ -297,6 +297,16 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.DAGGER.get(), ThrownItemRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.LIGHT_BOLT_PROJECTILE.get(), LightBoltProjectileRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.ANCHOR.get(), AnchorRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.MINIFLY.get(), MiniflyRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.LANTERNFLY.get(), LanternflyRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.FALCON.get(), FalconRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.HERON.get(), HeronRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.LIVING_GUARD.get(), LivingGuardRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.PURLING.get(), PurlingRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.ROLLIE_POLLIE.get(), RolliePollieRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.SAND_SHARK.get(), SandSharkRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.WYVERN.get(), WyvernRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.SCREAMING.get(), ScreamingRenderer::new);
         }
     }
 }

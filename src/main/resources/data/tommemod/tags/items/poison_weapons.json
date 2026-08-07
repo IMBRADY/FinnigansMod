@@ -2,7 +2,7 @@
   "replace": false,
   "values": [
     "#minecraft:swords",
-    "#minecraft:bows",
+    "#minecraft:bow",
     "tommemod:long_bow",
     "tommemod:blossom_katana",
     "tommemod:sanguis_gladio",

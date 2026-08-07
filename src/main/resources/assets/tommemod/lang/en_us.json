@@ -4,12 +4,10 @@
   "item.tommemod.longbow": "Longbow",
   "item.tommemod.fin": "Fin",
   "item.tommemod.ancient_armor_fragment": "Ancient Armor Fragment",
-
   "item.tommemod.iron_cleaver": "Iron Cleaver",
   "item.tommemod.gold_cleaver": "Gold Cleaver",
   "item.tommemod.diamond_cleaver": "Diamond Cleaver",
   "item.tommemod.netherite_cleaver": "Netherite Cleaver",
-
   "enchantment.tommemod.life_steal": "Life Steal",
   "item.tommemod.life_steal": "Life Steal",
   "enchantment.tommemod.poison": "Poison",
@@ -26,7 +24,6 @@
   "item.tommemod.immunity": "Immunity",
   "enchantment.tommemod.post_mortem": "Post Mortem",
   "item.tommemod.post_mortem": "Post Mortem",
-
   "item.tommemod.wooden_pike": "Wooden Pike",
   "item.tommemod.stone_pike": "Stone Pike",
   "item.tommemod.iron_pike": "Iron Pike",
@@ -34,14 +31,12 @@
   "item.tommemod.gold_pike": "Gold Pike",
   "item.tommemod.diamond_pike": "Diamond Pike",
   "item.tommemod.netherite_pike": "Netherite Pike",
-
   "item.tommemod.wood_dagger": "Wood Dagger",
   "item.tommemod.stone_dagger": "Stone Dagger",
   "item.tommemod.iron_dagger": "Iron Dagger",
   "item.tommemod.gold_dagger": "Gold Dagger",
   "item.tommemod.diamond_dagger": "Diamond Dagger",
   "item.tommemod.netherite_dagger": "Netherite Dagger",
-
   "item.tommemod.totem_of_lucky_dice": "Totem of Lucky Dice",
   "item.tommemod.totem_of_the_sun": "Totem of the Sun",
   "item.tommemod.totem_of_the_moon": "Totem of the Moon",
@@ -57,27 +52,19 @@
   "item.tommemod.totem_of_maintenance": "Totem of Maintenance",
   "item.tommemod.totem_of_kinship": "Totem of Kinship",
   "item.tommemod.totem_of_first_aid": "Totem of First Aid",
-
   "block.tommemod.oven": "Oven",
   "item.tommemod.oven": "Oven",
-
   "block.tommemod.armageddon": "Armageddon",
   "item.tommemod.armageddon": "Armageddon",
-
   "block.tommemod.monolith": "Monolith",
   "item.tommemod.monolith": "Monolith",
-
   "block.tommemod.blueprint_stand": "Blueprint Stand",
   "item.tommemod.blueprint_stand": "Blueprint Stand",
-
   "block.tommemod.builder_hub": "Builder Hub",
   "item.tommemod.builder_hub": "Builder Hub",
-
   "block.tommemod.construction_banner": "Construction Banner",
   "item.tommemod.construction_banner": "Construction Banner",
-
   "entity.minecraft.villager.tommemod.builder": "Builder",
-
   "entity.minecraft.villager.tommemod.baker": "Baker",
   "entity.minecraft.villager.tommemod.beekeeper": "Beekeeper",
   "entity.tommemod.jellyfish": "Jellyfish",
@@ -100,7 +87,6 @@
   "entity.tommemod.scarecrow": "Scarecrow",
   "entity.tommemod.cyclops": "Cyclops",
   "entity.tommemod.hammerhead": "Hammerhead Shark",
-
   "item.tommemod.mushroom_meat": "Mushroom Meat",
   "item.tommemod.cooked_mushroom_meat": "Cooked Mushroom Meat",
   "item.tommemod.bird_meat": "Bird Meat",
@@ -115,11 +101,8 @@
   "item.tommemod.god_sword": "God Sword",
   "item.tommemod.ride_stick": "Ride Stick",
   "item.tommemod.rivalry_flag": "Rivalry Flag",
-
   "item.tommemod.end_lantern": "End Lantern",
-
   "item.tommemod.musket": "Musket",
-
   "item.tommemod.harmony": "Harmony",
   "item.tommemod.featherlight": "Featherlight",
   "entity.tommemod.music_note1": "Music Note",
@@ -144,9 +127,22 @@
   "item.tommemod.unhoisted_titan": "Unhoisted Titan",
   "item.tommemod.candeliere": "Candeliere",
   "item.tommemod.custodire_gladio": "Custodire Gladio",
-
   "creativetab.tutorial_tab": "What You've Been Waiting For...",
-
   "key.tommemod.release_souls_confirm": "Ranseur of Undead - Confirm Soul Release",
-  "key.categories.tommemod": "Finnigan's Mod"
+  "key.categories.tommemod": "Finnigan's Mod",
+  "entity.tommemod.minifly": "Minifly",
+  "entity.tommemod.falcon": "Falcon",
+  "entity.tommemod.heron": "Heron",
+  "entity.tommemod.living_guard": "Living Guard",
+  "entity.tommemod.purling": "Purling",
+  "entity.tommemod.rollie_pollie": "Rollie Pollie",
+  "entity.tommemod.sand_shark": "Sand Shark",
+  "entity.tommemod.wyvern": "Wyvern",
+  "entity.tommemod.screaming": "Screaming",
+  "item.tommemod.purmeat": "Purmeat",
+  "item.tommemod.cooked_purmeat": "Cooked Purmeat",
+  "item.tommemod.exoskeleton": "Exoskeleton",
+  "block.tommemod.bug_lamp": "Bug Lamp",
+  "block.tommemod.glow_goo": "Glow Goo",
+  "entity.tommemod.lanternfly": "Lanternfly"
 }
