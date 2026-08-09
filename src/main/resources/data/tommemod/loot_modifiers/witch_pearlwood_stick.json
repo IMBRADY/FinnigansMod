@@ -1,0 +1,11 @@
+{
+  "type": "tommemod:add_item_with_chance",
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:entities/witch"
+    }
+  ],
+  "item": "tommemod:pearlwood_stick",
+  "chance": 0.5
+}

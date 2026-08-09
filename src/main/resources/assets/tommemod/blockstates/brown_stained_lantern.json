@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "hanging=false": {
+      "model": "tommemod:block/brown_stained_lantern"
+    },
+    "hanging=true": {
+      "model": "tommemod:block/brown_stained_lantern_hanging"
+    }
+  }
+}

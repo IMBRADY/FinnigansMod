@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/template_lantern",
+  "textures": {
+    "lantern": "tommemod:block/brown_stained_lantern"
+  }
+}

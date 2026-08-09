@@ -11,7 +11,9 @@ import net.finnigan.tommemod.menu.WarriorVillagerMenu;
 import net.finnigan.tommemod.village.VillageManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -42,6 +44,7 @@ import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -71,6 +74,12 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
             SynchedEntityData.defineId(WarriorVillagerEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Boolean> DATA_CHARGING_CROSSBOW =
             SynchedEntityData.defineId(WarriorVillagerEntity.class, EntityDataSerializers.BOOLEAN);
+    // Biome variant carried over from the Villager this one was conscripted from, so a desert
+    // villager stays a desert villager once armed. Synched because only the renderer consumes it.
+    private static final EntityDataAccessor<String> DATA_VILLAGER_TYPE =
+            SynchedEntityData.defineId(WarriorVillagerEntity.class, EntityDataSerializers.STRING);
+
+    public static final String DEFAULT_VILLAGER_TYPE = "plains";
 
     public WarriorVillagerEntity(EntityType<? extends WarriorVillagerEntity> type, Level level) {
         super(type, level);
@@ -101,6 +110,17 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
         super.defineSynchedData();
         this.entityData.define(DATA_VILLAGE_ID, Optional.empty());
         this.entityData.define(DATA_CHARGING_CROSSBOW, false);
+        this.entityData.define(DATA_VILLAGER_TYPE, DEFAULT_VILLAGER_TYPE);
+    }
+
+    /** The villager biome variant's registry path ("desert", "snow", "taiga", ...). */
+    public String getVillagerType() {
+        return this.entityData.get(DATA_VILLAGER_TYPE);
+    }
+
+    public void setVillagerType(VillagerType type) {
+        ResourceLocation id = BuiltInRegistries.VILLAGER_TYPE.getKey(type);
+        this.entityData.set(DATA_VILLAGER_TYPE, id != null ? id.getPath() : DEFAULT_VILLAGER_TYPE);
     }
 
     @Nullable
@@ -147,12 +167,17 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
         super.addAdditionalSaveData(tag);
         UUID villageId = getVillageId();
         if (villageId != null) tag.putUUID("VillageId", villageId);
+        tag.putString("VillagerType", getVillagerType());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.hasUUID("VillageId")) setVillageId(tag.getUUID("VillageId"));
+        // Warriors saved before biome variants existed have no tag - they read as the default.
+        if (tag.contains("VillagerType", CompoundTag.TAG_STRING)) {
+            this.entityData.set(DATA_VILLAGER_TYPE, tag.getString("VillagerType"));
+        }
     }
 
     @Override

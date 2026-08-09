@@ -4,6 +4,7 @@ import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.block.ModBlocks;
 import net.finnigan.tommemod.block.custom.InvisibleLightBlock;
 import net.finnigan.tommemod.enchantment.ModEnchantments;
+import net.finnigan.tommemod.entity.custom.LanternflyEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -77,6 +78,11 @@ public class GlowLightHandler {
             AABB box = player.getBoundingBox().inflate(ITEM_SCAN_RADIUS);
             for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, box, GlowLightHandler::isGlowingItem)) {
                 sources.putIfAbsent(item.getUUID(), item);
+            }
+            // Lanternflies glow in their own right - folded in here rather than given a parallel
+            // handler so two handlers can't race over the same invisible-light block position.
+            for (LanternflyEntity lanternfly : level.getEntitiesOfClass(LanternflyEntity.class, box, Entity::isAlive)) {
+                sources.putIfAbsent(lanternfly.getUUID(), lanternfly);
             }
         }
         return sources;

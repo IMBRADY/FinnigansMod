@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:lantern"
+    },
+    {
+      "item": "minecraft:purple_stained_glass_pane"
+    }
+  ],
+  "result": {
+    "item": "tommemod:purple_stained_lantern",
+    "count": 1
+  }
+}

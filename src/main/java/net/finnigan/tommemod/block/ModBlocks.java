@@ -11,8 +11,10 @@ import net.finnigan.tommemod.block.custom.MonolithBlock;
 import net.finnigan.tommemod.block.custom.OvenBlock;
 import net.finnigan.tommemod.item.ModItems;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LanternBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -20,6 +22,9 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class ModBlocks {
@@ -104,6 +109,25 @@ public class ModBlocks {
                     .lightLevel(state -> 14)
                     .noLootTable()
                     .strength(-1.0F, 3600000.0F)));
+
+    // One lantern per dye colour, crafted from a lantern + the matching stained glass pane. Vanilla's
+    // LanternBlock is reused wholesale, so hanging/waterlogging/placement all behave like the real thing.
+    public static final Map<DyeColor, RegistryObject<Block>> STAINED_LANTERNS = registerStainedLanterns();
+
+    private static Map<DyeColor, RegistryObject<Block>> registerStainedLanterns() {
+        EnumMap<DyeColor, RegistryObject<Block>> lanterns = new EnumMap<>(DyeColor.class);
+        for (DyeColor color : DyeColor.values()) {
+            lanterns.put(color, registerBlock(color.getName() + "_stained_lantern",
+                    () -> new LanternBlock(BlockBehaviour.Properties.of()
+                            .mapColor(color.getMapColor())
+                            .requiresCorrectToolForDrops()
+                            .strength(3.5F)
+                            .sound(SoundType.LANTERN)
+                            .lightLevel(state -> 15)
+                            .noOcclusion())));
+        }
+        return Collections.unmodifiableMap(lanterns);
+    }
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);

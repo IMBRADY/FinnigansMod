@@ -1,6 +1,7 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube_column",
   "textures": {
-    "all": "tommemod:block/bug_lamp"
+    "end": "tommemod:block/bug_lamp_top",
+    "side": "tommemod:block/bug_lamp_side"
   }
 }

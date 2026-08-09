@@ -1,6 +1,50 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "tommemod:item/better_buzz"
-  }
+    "layer0": "tommemod:item/better_buzz_1"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "tommemod:buzz_level": 0.25
+      },
+      "model": "tommemod:item/better_buzz_2"
+    },
+    {
+      "predicate": {
+        "tommemod:buzz_level": 0.375
+      },
+      "model": "tommemod:item/better_buzz_3"
+    },
+    {
+      "predicate": {
+        "tommemod:buzz_level": 0.5
+      },
+      "model": "tommemod:item/better_buzz_4"
+    },
+    {
+      "predicate": {
+        "tommemod:buzz_level": 0.625
+      },
+      "model": "tommemod:item/better_buzz_5"
+    },
+    {
+      "predicate": {
+        "tommemod:buzz_level": 0.75
+      },
+      "model": "tommemod:item/better_buzz_6"
+    },
+    {
+      "predicate": {
+        "tommemod:buzz_level": 0.875
+      },
+      "model": "tommemod:item/better_buzz_7"
+    },
+    {
+      "predicate": {
+        "tommemod:buzz_level": 1.0
+      },
+      "model": "tommemod:item/better_buzz_8"
+    }
+  ]
 }

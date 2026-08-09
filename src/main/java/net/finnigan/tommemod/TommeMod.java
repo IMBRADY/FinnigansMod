@@ -9,6 +9,7 @@ import net.finnigan.tommemod.enchantment.ModEnchantments;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.item.ModCreativeModTabs;
 import net.finnigan.tommemod.item.ModItems;
+import net.finnigan.tommemod.loot.ModLootModifiers;
 import net.finnigan.tommemod.menu.ModMenuTypes;
 import net.finnigan.tommemod.network.ModNetwork;
 import net.finnigan.tommemod.particle.ModParticleTypes;
@@ -50,6 +51,8 @@ public class TommeMod
         ModRecipes.register(modEventBus);
         ModEnchantments.ENCHANTMENTS.register(modEventBus);
         ModMobEffects.MOB_EFFECTS.register(modEventBus);
+
+        ModLootModifiers.LOOT_MODIFIER_SERIALIZERS.register(modEventBus);
 
         ModSounds.SOUND_EVENTS.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);

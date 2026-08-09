@@ -51,6 +51,10 @@ public class ScreamingEntity extends Monster implements GeoEntity {
 
     private static final EntityDataAccessor<Boolean> DATA_SCREAMING =
             SynchedEntityData.defineId(ScreamingEntity.class, EntityDataSerializers.BOOLEAN);
+    // Mob#getTarget is server-only state, and GeckoLib evaluates its predicates on the client - reading
+    // it there always came back null, which is why the chase never played "run". Mirror it explicitly.
+    private static final EntityDataAccessor<Boolean> DATA_HUNTING =
+            SynchedEntityData.defineId(ScreamingEntity.class, EntityDataSerializers.BOOLEAN);
 
     private static final RawAnimation RUN_ANIM = RawAnimation.begin().thenLoop("run");
     private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
@@ -69,13 +73,14 @@ public class ScreamingEntity extends Monster implements GeoEntity {
                 .add(Attributes.MAX_HEALTH, 12.0D)
                 .add(Attributes.ATTACK_DAMAGE, 6.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.60D) // very fast
-                .add(Attributes.FOLLOW_RANGE, 32.0D);
+                .add(Attributes.FOLLOW_RANGE, 64.0D);
     }
 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_SCREAMING, false);
+        this.entityData.define(DATA_HUNTING, false);
     }
 
     public boolean isScreaming() {
@@ -86,13 +91,24 @@ public class ScreamingEntity extends Monster implements GeoEntity {
         this.entityData.set(DATA_SCREAMING, screaming);
     }
 
+    public boolean isHunting() {
+        return this.entityData.get(DATA_HUNTING);
+    }
+
+    @Override
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+        LivingEntity target = this.getTarget();
+        this.entityData.set(DATA_HUNTING, target != null && target.isAlive());
+    }
+
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new ScreamGoal(this));
         this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0D, false));
         this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 0.7D));
-        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 12.0F));
+        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 64.0F));
         this.goalSelector.addGoal(5, new RandomLookAroundGoal(this));
 
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
@@ -143,8 +159,7 @@ public class ScreamingEntity extends Monster implements GeoEntity {
             // no idle animation on this model - hold the rest pose
             return PlayState.STOP;
         }
-        boolean hunting = this.getTarget() != null && this.getTarget().isAlive();
-        state.getController().setAnimation(hunting ? RUN_ANIM : WALK_ANIM);
+        state.getController().setAnimation(this.isHunting() ? RUN_ANIM : WALK_ANIM);
         return PlayState.CONTINUE;
     }
 

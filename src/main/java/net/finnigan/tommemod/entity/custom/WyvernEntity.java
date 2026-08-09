@@ -1,5 +1,6 @@
 package net.finnigan.tommemod.entity.custom;
 
+import net.finnigan.tommemod.entity.ai.FlutterGoal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -15,7 +16,6 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomFlyingGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
@@ -41,6 +41,9 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  */
 public class WyvernEntity extends Monster implements GeoEntity {
 
+    /** Cruise speed while it has nothing to chase, as a fraction of its hunting speed. */
+    private static final double IDLE_SPEED_MODIFIER = 0.5D;
+
     private static final RawAnimation FLY_ANIM = RawAnimation.begin().thenLoop("fly");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -56,7 +59,7 @@ public class WyvernEntity extends Monster implements GeoEntity {
         return Monster.createMonsterAttributes()
                 .add(Attributes.MAX_HEALTH, 26.0D)
                 .add(Attributes.ATTACK_DAMAGE, 7.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.12D)
+                .add(Attributes.MOVEMENT_SPEED, 0.03D)
                 .add(Attributes.FLYING_SPEED, 0.8D)
                 .add(Attributes.FOLLOW_RANGE, 32.0D);
     }
@@ -74,7 +77,10 @@ public class WyvernEntity extends Monster implements GeoEntity {
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0D, true));
-        this.goalSelector.addGoal(2, new WaterAvoidingRandomFlyingGoal(this, 1.0D));
+        // FlutterGoal, not WaterAvoidingRandomFlyingGoal: the latter idles between picks, and this one
+        // is meant to never hang motionless in the air. It shares Flag.MOVE with the melee goal above,
+        // so it only drives the Wyvern while it has no target - hence the untargeted 50% cruise speed.
+        this.goalSelector.addGoal(2, new FlutterGoal(this, IDLE_SPEED_MODIFIER, 12.0D, 6.0D));
         this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 12.0F));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
 

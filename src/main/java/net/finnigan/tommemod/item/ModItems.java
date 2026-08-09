@@ -260,6 +260,8 @@ public class ModItems {
             () -> new TotemOfFirstAidItem(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> TOTEM_OF_KINSHIP = ITEMS.register("totem_of_kinship",
             () -> new TotemOfKinshipItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_THE_BEARDED_MAN = ITEMS.register("totem_of_the_bearded_man",
+            () -> new TotemOfTheBeardedManItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> MUSKET = ITEMS.register("musket",
             () -> new MusketItem(new Item.Properties().stacksTo(1)));
@@ -403,6 +405,35 @@ public class ModItems {
                     .fast()
                     .build())));
 
+    public static final RegistryObject<Item> FRIED_EGG = ITEMS.register("fried_egg",
+            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(5)
+                    .saturationMod(0.6f)
+                    .build())));
+    // Sweet-berry parity: same nutrition/saturation, same quick bite.
+    public static final RegistryObject<Item> STRAWBERRY = ITEMS.register("strawberry",
+            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(2)
+                    .saturationMod(0.1f)
+                    .fast()
+                    .build())));
+    public static final RegistryObject<Item> BLUEBERRY = ITEMS.register("blueberry",
+            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(2)
+                    .saturationMod(0.1f)
+                    .fast()
+                    .build())));
+    public static final RegistryObject<Item> BOTTLE_OF_ALE = ITEMS.register("bottle_of_ale",
+            () -> new BottleOfAleItem(new Item.Properties().stacksTo(16)));
+
+    // No recipe, no loot table, no drop - creative/command only until it gets a source.
+    public static final RegistryObject<Item> AMETRINE = ITEMS.register("ametrine",
+            () -> new Item(new Item.Properties()));
+
+    // Witch drop - see loot.ModLootModifiers.
+    public static final RegistryObject<Item> PEARLWOOD_STICK = ITEMS.register("pearlwood_stick",
+            () -> new Item(new Item.Properties()));
+
     public static final RegistryObject<Item> STINGER = ITEMS.register("stinger",
             () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> BEE_WINGS = ITEMS.register("bee_wings",
@@ -413,8 +444,10 @@ public class ModItems {
                     .saturationMod(0.8f)
                     .effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 100, 0), 1.0f)
                     .build())));
+    // stacksTo(1): its remaining swigs live in NBT, and stacking would let two bottles at different
+    // fill levels merge into one.
     public static final RegistryObject<Item> BETTER_BUZZ = ITEMS.register("better_buzz",
-            () -> new BetterBuzzItem(new Item.Properties().stacksTo(16)));
+            () -> new BetterBuzzItem(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> BEE_NADE = ITEMS.register("bee_nade",
             () -> new BeeNadeItem(new Item.Properties()));
 

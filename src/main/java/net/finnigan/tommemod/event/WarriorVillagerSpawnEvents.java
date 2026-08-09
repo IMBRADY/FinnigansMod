@@ -84,6 +84,7 @@ public class WarriorVillagerSpawnEvents {
         if (warrior == null) return;
 
         warrior.copyPosition(villager);
+        warrior.setVillagerType(villager.getVillagerData().getType());
         villageId.ifPresent(warrior::setVillageId);
 
         ItemStack armedHalberd = heldStack.copy();

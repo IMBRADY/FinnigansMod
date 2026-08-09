@@ -3,6 +3,7 @@ package net.finnigan.tommemod.event;
 import net.finnigan.tommemod.capability.accessory.AccessoryHandler;
 import net.finnigan.tommemod.capability.accessory.AccessoryItems;
 import net.finnigan.tommemod.capability.accessory.ModCapabilities;
+import net.finnigan.tommemod.effect.ModMobEffects;
 import net.finnigan.tommemod.item.custom.ITotemEffect;
 import net.finnigan.tommemod.item.custom.totems.*;
 import net.minecraft.core.particles.ParticleTypes;
@@ -78,6 +79,7 @@ public class TotemEffectEvents {
             if (!(equipped instanceof TotemOfTheSunItem)) TotemOfTheSunItem.clearModifiers(player);
             if (!(equipped instanceof TotemOfTheMoonItem)) TotemOfTheMoonItem.clearModifiers(player);
             if (!(equipped instanceof TotemOfWrathItem)) TotemOfWrathItem.clearModifiers(player);
+            if (!(equipped instanceof TotemOfFastingItem)) TotemOfFastingItem.clearBuff(player);
 
             if (!totemStack.isEmpty() && equipped instanceof ITotemEffect totemEffect) {
                 totemEffect.onPlayerTick(player, totemStack);
@@ -184,17 +186,15 @@ public class TotemEffectEvents {
                 }));
     }
 
+    // Keyed off the Well-Fed effect rather than off the totem directly, so anything that grants
+    // Well-Fed later gets the same bonus without a second copy of this handler.
     @SubscribeEvent
-    public static void onFastingDamageBoost(LivingHurtEvent event) {
-        if (!(event.getSource().getEntity() instanceof Player attacker)) return;
+    public static void onWellFedDamageBoost(LivingHurtEvent event) {
+        if (!(event.getSource().getEntity() instanceof LivingEntity attacker)) return;
         if (attacker.level().isClientSide) return;
+        if (!attacker.hasEffect(ModMobEffects.WELL_FED.get())) return;
 
-        attacker.getCapability(ModCapabilities.ACCESSORY_HANDLER).ifPresent(handler -> {
-            ItemStack totemStack = handler.getStackInSlot(AccessoryHandler.SLOT_TOTEM_ACCESSORY);
-            if (totemStack.getItem() instanceof TotemOfFastingItem && attacker.getFoodData().getFoodLevel() >= 20) {
-                event.setAmount(event.getAmount() * 1.1F);
-            }
-        });
+        event.setAmount(event.getAmount() * 1.2F);
     }
 
     @SubscribeEvent

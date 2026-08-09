@@ -78,6 +78,12 @@ public class ModConfig {
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> BUILDER_HUB_RESOURCE_COUNT;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> BUILDER_HUB_REQUIRED_BUILDERS;
 
+    // quality of life
+    public static final ForgeConfigSpec.BooleanValue SWING_THROUGH_PLANTS;
+    public static final ForgeConfigSpec.BooleanValue PET_FRIENDLY_FIRE_PROTECTION;
+    public static final ForgeConfigSpec.BooleanValue POISONOUS_POTATO_AGE_LOCK;
+    public static final ForgeConfigSpec.BooleanValue FIRE_ENCHANT_PARTICLES;
+
     // unhoisted titan
     public static final ForgeConfigSpec.DoubleValue TITAN_BLAST_RADIUS_BLOCKS;
     public static final ForgeConfigSpec.DoubleValue TITAN_ARMOR_SCAN_RADIUS_BLOCKS;
@@ -215,6 +221,21 @@ public class ModConfig {
                 .defineList("builderHubResourceCount", List.of(32, 48, 8, 24, 64), obj -> obj instanceof Integer i && i >= 0);
         BUILDER_HUB_REQUIRED_BUILDERS = builder.comment("Minimum Builder Villagers the village must have to unlock each building type")
                 .defineList("builderHubRequiredBuilders", List.of(0, 1, 2, 3, 2), obj -> obj instanceof Integer i && i >= 0);
+        builder.pop();
+
+        builder.push("qualityOfLife");
+        builder.comment("Small standalone behaviour tweaks. Each is a separate toggle because these are",
+                "the features most likely to overlap with another mod doing the same thing - turn one off",
+                "rather than uninstalling the other mod.");
+        SWING_THROUGH_PLANTS = builder.comment("Left-clicking through grass/flowers hits the mob behind them instead of breaking the plant.",
+                        "Turn this off if you also run Swing Through Grass or similar, or attacks may register twice.")
+                .define("swingThroughPlants", true);
+        PET_FRIENDLY_FIRE_PROTECTION = builder.comment("You cannot damage your own tamed pets unless they are sitting")
+                .define("petFriendlyFireProtection", true);
+        POISONOUS_POTATO_AGE_LOCK = builder.comment("Feeding a baby animal a poisonous potato freezes it as a baby; feeding it again releases it")
+                .define("poisonousPotatoAgeLock", true);
+        FIRE_ENCHANT_PARTICLES = builder.comment("Purely cosmetic flame particles trail items enchanted with Fire Aspect or Flame")
+                .define("fireEnchantParticles", true);
         builder.pop();
 
         builder.push("unhoistedTitan");

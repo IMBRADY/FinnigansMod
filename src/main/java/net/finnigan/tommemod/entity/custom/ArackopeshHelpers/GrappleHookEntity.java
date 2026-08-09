@@ -10,9 +10,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -104,8 +106,42 @@ public class GrappleHookEntity extends ThrowableItemProjectile {
         this.setDeltaMovement(Vec3.ZERO);
     }
 
+    /**
+     * A ThrowableItemProjectile's swept collision only ever tests the small hitbox at the hook's tip, so
+     * a line thrown past the top of a low wall never registers a hit even though the straight rendered
+     * chain (owner's eye -> current tip, see GrappleHookRenderer) visibly passes clean through it. Each
+     * tick before the hook moves on, raycast along that same rendered line and anchor at the first block
+     * it crosses - which is what makes the chain behave like a real line rather than a projectile that
+     * can fly over obstacles. Same treatment ColletisVineEntity already gets.
+     */
+    private void checkChainBlockedByBlock() {
+        Player owner = getOwnerPlayer();
+        if (owner == null) return;
+
+        Vec3 start = owner.getEyePosition();
+        Vec3 end = this.position();
+        if (start.distanceToSqr(end) < 0.04) return; // hasn't flown far enough yet for this to matter
+
+        HitResult hit = level().clip(new ClipContext(
+                start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+        if (hit.getType() != HitResult.Type.BLOCK || !(hit instanceof BlockHitResult blockHit)) return;
+
+        // Anchor AT the contact point, not out where the tip already flew to, or the player would be
+        // winched to a spot on the far side of the wall the line is snagged on.
+        Vec3 contact = blockHit.getLocation();
+        this.setPos(contact.x, contact.y, contact.z);
+        this.entityData.set(STUCK, true);
+        this.setDeltaMovement(Vec3.ZERO);
+    }
+
     @Override
     public void tick() {
+        // Before super.tick() moves it any further, and never while retracting - on the way home the
+        // hook is explicitly allowed to pass through everything.
+        if (!level().isClientSide && !isStuck() && !isRetracting()) {
+            checkChainBlockedByBlock();
+        }
+
         super.tick();
 
         Player owner = getOwnerPlayer();

@@ -11,6 +11,7 @@ import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.entity.custom.*;
 import net.finnigan.tommemod.entity.custom.Bosses.BossCrab.BossCrabEntity;
 import net.finnigan.tommemod.item.ModItems;
+import net.finnigan.tommemod.item.custom.BetterBuzzItem;
 import net.finnigan.tommemod.item.custom.BlossomKatanaItem;
 import net.finnigan.tommemod.item.custom.LumapierItem;
 import net.finnigan.tommemod.menu.ModMenuTypes;
@@ -223,6 +224,12 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                     (stack, level, entity, seed) ->
                             LumapierItem.isFiring(stack, level) ? 1.0F : 0.0F
                 );
+            ItemProperties.register(
+                    ModItems.BETTER_BUZZ.get(),
+                    new ResourceLocation(TommeMod.MOD_ID, "buzz_level"),
+                    (stack, level, entity, seed) ->
+                            BetterBuzzItem.getLevels(stack) / (float) BetterBuzzItem.MAX_LEVELS
+                );
             });
         }
 
@@ -262,6 +269,12 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
 
     @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientEvents {
+        @SubscribeEvent
+        public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+            event.registerLayerDefinition(ModModelLayers.WARRIOR_VILLAGER,
+                    net.finnigan.tommemod.client.model.WarriorVillagerModel::createBodyLayer);
+        }
+
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(ModEntityTypes.JELLYFISH.get(), JellyfishRenderer::new);

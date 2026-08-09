@@ -38,6 +38,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.TOTEM_OF_THE_PHOENIX.get());
                         pOutput.accept(ModItems.TOTEM_OF_KINSHIP.get());
                         pOutput.accept(ModItems.TOTEM_OF_FIRST_AID.get());
+                        pOutput.accept(ModItems.TOTEM_OF_THE_BEARDED_MAN.get());
 
                         // WEAPONS
                         pOutput.accept(ModItems.LONGBOW.get());
@@ -71,6 +72,9 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModBlocks.BUILDER_HUB.get());
                         pOutput.accept(ModBlocks.BUG_LAMP.get());
                         pOutput.accept(ModBlocks.GLOW_GOO.get());
+                        for (net.minecraft.world.item.DyeColor color : net.minecraft.world.item.DyeColor.values()) {
+                            pOutput.accept(ModBlocks.STAINED_LANTERNS.get(color).get());
+                        }
 
                         // UNIQUES
                         pOutput.accept(ModItems.HARMONY.get());
@@ -103,9 +107,14 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.PURMEAT.get());
                         pOutput.accept(ModItems.COOKED_PURMEAT.get());
 
+                        pOutput.accept(ModItems.FRIED_EGG.get());
+                        pOutput.accept(ModItems.STRAWBERRY.get());
+                        pOutput.accept(ModItems.BLUEBERRY.get());
+
                         pOutput.accept(ModItems.CRAB_LEGS.get());
                         pOutput.accept(ModItems.PREMIUM_HONEY.get());
                         pOutput.accept(ModItems.BETTER_BUZZ.get());
+                        pOutput.accept(ModItems.BOTTLE_OF_ALE.get());
 
                         // MISC (feathers)
                         pOutput.accept(ModItems.DUCK_FEATHER.get());
@@ -128,6 +137,8 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.FIN.get());
                         pOutput.accept(ModItems.ANCIENT_ARMOR_FRAGMENT.get());
                         pOutput.accept(ModItems.EXOSKELETON.get());
+                        pOutput.accept(ModItems.AMETRINE.get());
+                        pOutput.accept(ModItems.PEARLWOOD_STICK.get());
 
                         // CREATIVE MODE ONLY
                         pOutput.accept(ModBlocks.ARMAGEDDON.get());

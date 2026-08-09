@@ -34,8 +34,8 @@ public class ArackopeshItem extends SwordItem {
     private static final Map<UUID, Integer> ACTIVE_HOOKS = new HashMap<>();
 
     private static final double GRAPPLE_RANGE = 20.0;
-    private static final int GRAPPLE_COOLDOWN_TICKS = 20; // 1s
-    private static final float HOOK_SPEED = 4.0F;
+    private static final int GRAPPLE_COOLDOWN_TICKS = 10;
+    private static final float HOOK_SPEED = 7.0F;
 
     private static final int WEB_RADIUS = 4;
     private static final int MAX_ALLY_SPIDERS = 2;
