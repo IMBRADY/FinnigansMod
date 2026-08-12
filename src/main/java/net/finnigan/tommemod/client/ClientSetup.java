@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.client;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.block.entity.ModBlockEntities;
 import net.finnigan.tommemod.client.particle.AquatanaParticle;
 import net.finnigan.tommemod.client.particle.FireRingParticle;
 import net.finnigan.tommemod.client.renderer.*;
@@ -320,6 +321,8 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.SAND_SHARK.get(), SandSharkRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.WYVERN.get(), WyvernRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.SCREAMING.get(), ScreamingRenderer::new);
+
+            event.registerBlockEntityRenderer(ModBlockEntities.CHIEF_DESK.get(), ChiefDeskRenderer::new);
         }
     }
 }

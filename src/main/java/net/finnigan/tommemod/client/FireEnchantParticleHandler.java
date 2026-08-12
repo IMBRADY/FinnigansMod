@@ -9,6 +9,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -35,6 +36,13 @@ public class FireEnchantParticleHandler {
     private static final double SCAN_RADIUS = 24.0D;
     /** Particles laid down per tick along a burning projectile's path. */
     private static final int TRAIL_SEGMENTS = 6;
+    /**
+     * Distance from an arrow's entity position to the point of its head, from ArrowRenderer's
+     * geometry: the shaft spans local x -8..8, shifted by -4 and scaled by 0.05625.
+     */
+    private static final double ARROW_TIP_OFFSET = 0.225D;
+    /** Below this much movement in a tick a projectile counts as stopped (stuck in a block). */
+    private static final double MOVING_EPSILON_SQR = 1.0E-6D;
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
@@ -102,12 +110,38 @@ public class FireEnchantParticleHandler {
      * current position - an arrow crosses several blocks per tick and this only runs every few ticks,
      * so a single point per pass would read as scattered embers instead of a trail. Velocity is near
      * enough constant over that window to walk the gap back from the current position.
+     *
+     * Once the projectile stops - an arrow stuck in the ground - there is no stretch left to trail,
+     * and laying one down anyway is what used to leave a burning smear hanging off the back of every
+     * landed arrow forever. A stopped arrow gets a single flame at its head instead.
+     *
+     * Measured from last tick's position rather than getDeltaMovement(): a stuck arrow keeps whatever
+     * residual delta AbstractArrow#onHitBlock left on it, so velocity never actually reads as zero.
      */
     private static void spawnTrail(ClientLevel level, Projectile projectile) {
         Vec3 head = projectile.position();
-        Vec3 tail = head.subtract(projectile.getDeltaMovement().scale(SPAWN_INTERVAL_TICKS));
-        for (int i = 0; i < TRAIL_SEGMENTS; i++) {
-            spawnFlame(level, tail.lerp(head, (i + 1) / (double) TRAIL_SEGMENTS));
+        Vec3 movedLastTick = head.subtract(projectile.xo, projectile.yo, projectile.zo);
+
+        if (movedLastTick.lengthSqr() < MOVING_EPSILON_SQR) {
+            spawnFlame(level, tipOf(projectile, facing(projectile)));
+            return;
         }
+
+        Vec3 tip = tipOf(projectile, movedLastTick.normalize());
+        Vec3 tail = tip.subtract(movedLastTick.scale(SPAWN_INTERVAL_TICKS));
+        for (int i = 0; i < TRAIL_SEGMENTS; i++) {
+            spawnFlame(level, tail.lerp(tip, (i + 1) / (double) TRAIL_SEGMENTS));
+        }
+    }
+
+    /** Where a stopped projectile is pointing - its rotation, which an arrow keeps once embedded. */
+    private static Vec3 facing(Projectile projectile) {
+        return Vec3.directionFromRotation(projectile.getXRot(), projectile.getYRot());
+    }
+
+    /** An arrow's entity position sits back along its shaft; everything else is its own tip. */
+    private static Vec3 tipOf(Projectile projectile, Vec3 direction) {
+        if (!(projectile instanceof AbstractArrow)) return projectile.position();
+        return projectile.position().add(direction.scale(ARROW_TIP_OFFSET));
     }
 }

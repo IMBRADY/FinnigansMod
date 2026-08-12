@@ -1,0 +1,6 @@
+{
+  "_comment": "Geometry lives in geo/block/chief_desk.geo.json and is drawn by ChiefDeskRenderer; this model exists only so the blockstate resolves and break/step particles have a texture.",
+  "textures": {
+    "particle": "tommemod:block/chiefdesk"
+  }
+}

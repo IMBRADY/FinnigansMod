@@ -42,7 +42,6 @@ public class VillageManager extends SavedData {
     private final Map<BlockPos, UUID> anchorIndex = new HashMap<>();
     private final Map<UUID, UUID> elderByVillage = new HashMap<>();
     private final Map<UUID, UUID> chiefByVillage = new HashMap<>();
-    private final Map<UUID, Long> pendingSuccessionByVillage = new HashMap<>();
     private final Map<UUID, Integer> farmEfficiencyLevelByVillage = new HashMap<>();
     private final Map<BlockPos, CacheEntry> resolveCache = new HashMap<>();
 
@@ -212,33 +211,6 @@ public class VillageManager extends SavedData {
         if (chiefByVillage.remove(villageId) != null) setDirty();
     }
 
-    /**
-     * Schedules (or reschedules) a successor Elder to be chosen for this village once {@code readyAtTick}
-     * (compared against {@link ServerLevel#getGameTime()}) is reached. Left in place - not consumed here -
-     * until {@link #clearPendingSuccession} is called, so a check that finds no eligible Villager yet
-     * simply retries on the next pass instead of losing the succession entirely.
-     */
-    public void schedulePendingSuccession(UUID villageId, long readyAtTick) {
-        pendingSuccessionByVillage.put(villageId, readyAtTick);
-        setDirty();
-    }
-
-    public void clearPendingSuccession(UUID villageId) {
-        if (pendingSuccessionByVillage.remove(villageId) != null) setDirty();
-    }
-
-    /**
-     * Villages whose scheduled succession time has arrived (or passed), e.g. while the successor's
-     * village had no eligible unemployed Villager on a previous check.
-     */
-    public Set<UUID> duePendingSuccessions(long now) {
-        Set<UUID> due = new HashSet<>();
-        for (Map.Entry<UUID, Long> entry : pendingSuccessionByVillage.entrySet()) {
-            if (entry.getValue() <= now) due.add(entry.getKey());
-        }
-        return due;
-    }
-
     public int getFarmEfficiencyLevel(UUID villageId) {
         return farmEfficiencyLevelByVillage.getOrDefault(villageId, 0);
     }
@@ -263,11 +235,6 @@ public class VillageManager extends SavedData {
 
             UUID discardChief = chiefByVillage.remove(discard);
             if (discardChief != null) chiefByVillage.putIfAbsent(keep, discardChief);
-
-            Long discardSuccession = pendingSuccessionByVillage.remove(discard);
-            if (discardSuccession != null) {
-                pendingSuccessionByVillage.merge(keep, discardSuccession, Math::min);
-            }
 
             Integer discardFarmEfficiency = farmEfficiencyLevelByVillage.remove(discard);
             if (discardFarmEfficiency != null) {
@@ -319,15 +286,6 @@ public class VillageManager extends SavedData {
         });
         tag.put("Chiefs", chiefList);
 
-        ListTag successionList = new ListTag();
-        pendingSuccessionByVillage.forEach((village, readyAtTick) -> {
-            CompoundTag e = new CompoundTag();
-            e.putUUID("Village", village);
-            e.putLong("ReadyAtTick", readyAtTick);
-            successionList.add(e);
-        });
-        tag.put("PendingSuccessions", successionList);
-
         ListTag farmEfficiencyList = new ListTag();
         farmEfficiencyLevelByVillage.forEach((village, level) -> {
             CompoundTag e = new CompoundTag();
@@ -365,12 +323,6 @@ public class VillageManager extends SavedData {
         for (int i = 0; i < chiefList.size(); i++) {
             CompoundTag e = chiefList.getCompound(i);
             mgr.chiefByVillage.put(e.getUUID("Village"), e.getUUID("Chief"));
-        }
-
-        ListTag successionList = tag.getList("PendingSuccessions", Tag.TAG_COMPOUND);
-        for (int i = 0; i < successionList.size(); i++) {
-            CompoundTag e = successionList.getCompound(i);
-            mgr.pendingSuccessionByVillage.put(e.getUUID("Village"), e.getLong("ReadyAtTick"));
         }
 
         ListTag farmEfficiencyList = tag.getList("FarmEfficiency", Tag.TAG_COMPOUND);

@@ -68,6 +68,7 @@ public class ModCreativeModTabs {
                         // BLOCKS
                         pOutput.accept(ModBlocks.OVEN.get());
                         pOutput.accept(ModBlocks.MONOLITH.get());
+                        pOutput.accept(ModBlocks.CHIEF_DESK.get());
                         pOutput.accept(ModBlocks.BLUEPRINT_STAND.get());
                         pOutput.accept(ModBlocks.BUILDER_HUB.get());
                         pOutput.accept(ModBlocks.BUG_LAMP.get());
@@ -112,7 +113,6 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.BLUEBERRY.get());
 
                         pOutput.accept(ModItems.CRAB_LEGS.get());
-                        pOutput.accept(ModItems.PREMIUM_HONEY.get());
                         pOutput.accept(ModItems.BETTER_BUZZ.get());
                         pOutput.accept(ModItems.BOTTLE_OF_ALE.get());
 
@@ -143,6 +143,7 @@ public class ModCreativeModTabs {
                         // CREATIVE MODE ONLY
                         pOutput.accept(ModBlocks.ARMAGEDDON.get());
                         pOutput.accept(ModItems.GOD_SWORD.get());
+                        pOutput.accept(ModItems.INVINCIBOOTS.get());
                         pOutput.accept(ModItems.RIDE_STICK.get());
                         pOutput.accept(ModItems.RIVALRY_FLAG.get());
 

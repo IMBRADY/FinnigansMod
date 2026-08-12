@@ -4,8 +4,11 @@ import net.finnigan.tommemod.config.ModConfig;
 import net.finnigan.tommemod.entity.custom.ElderVillagerEntity;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerEntity;
 import net.finnigan.tommemod.menu.MonolithMenu;
+import net.finnigan.tommemod.village.ElderPromotion;
 import net.finnigan.tommemod.village.VillageManager;
 import net.finnigan.tommemod.village.VillageRegion;
+import net.finnigan.tommemod.villager.ModPoiTypes;
+import net.finnigan.tommemod.villager.ModVillagers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -16,6 +19,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Inventory;
@@ -23,6 +27,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
@@ -51,10 +56,24 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
     public record PoiPoint(int dx, int dz) {
     }
 
+    /** How often the job site's availability is re-evaluated. Cheap, but not free - it counts the
+     * village's Villagers - so it runs on its own slow cadence rather than every tick. */
+    private static final int RECRUIT_INTERVAL_TICKS = 100;
+    /** How often we look for a Villager that has arrived and claimed us. */
+    private static final int PROMOTION_CHECK_INTERVAL_TICKS = 5;
+    /** AssignProfessionFromJobSite fires within 2 blocks of the job site; a little slack on top. */
+    private static final double PROMOTION_SEARCH_RADIUS = 3.0D;
+
     @Nullable
     private UUID villageId;
     private int openViewers = 0;
     private int scanCooldown = 0;
+    private int recruitCooldown = 0;
+    private int promotionCooldown = 0;
+    /** Whether this Monolith is the one currently sitting on its own POI ticket, deliberately making
+     * itself unclaimable. Persisted so a reload doesn't lose track of a ticket we're responsible for
+     * releasing - releasing one we never took would strip it from a Villager on its way over. */
+    private boolean holdsOwnJobSite = false;
 
     private int ironGolemCount = 0;
     private int activeWarriorCount = 0;
@@ -64,7 +83,20 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
     private List<PoiPoint> poiPoints = new ArrayList<>();
 
     public MonolithBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.MONOLITH.get(), pos, state);
+        this(ModBlockEntities.MONOLITH.get(), pos, state);
+    }
+
+    protected MonolithBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+    }
+
+    /**
+     * Whether this block is the village's Elder job site. True for the Monolith itself; the Chief
+     * Desk shares everything else about a Monolith but is purely furniture as far as the Elder is
+     * concerned, so two job blocks never end up competing inside one village.
+     */
+    protected boolean isElderJobSite() {
+        return true;
     }
 
     public void incrementViewers() {
@@ -77,10 +109,107 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
 
     public static void tick(Level level, BlockPos pos, BlockState state, MonolithBlockEntity be) {
         if (level.isClientSide()) return;
+        ServerLevel serverLevel = (ServerLevel) level;
+
+        if (be.isElderJobSite()) {
+            if (--be.promotionCooldown <= 0) {
+                be.promotionCooldown = PROMOTION_CHECK_INTERVAL_TICKS;
+                be.promoteArrivedVillager(serverLevel);
+            }
+            if (--be.recruitCooldown <= 0) {
+                be.recruitCooldown = RECRUIT_INTERVAL_TICKS;
+                be.updateJobSiteAvailability(serverLevel);
+            }
+        }
+
         if (be.openViewers <= 0) return;
         if (be.scanCooldown-- > 0) return;
         be.scanCooldown = Math.max(1, ModConfig.MONOLITH_REFRESH_INTERVAL_TICKS.get());
-        be.refresh((ServerLevel) level);
+        be.refresh(serverLevel);
+    }
+
+    // ---- Elder job site ----
+
+    /**
+     * Opens or closes this Monolith as a claimable job block, by holding its own POI ticket when it
+     * shouldn't be claimable. Doing it this way rather than gating the promotion itself means a
+     * Villager is never sent on a pointless walk: vanilla only routes them to job sites with a free
+     * ticket, so an unavailable Monolith is simply invisible to them.
+     *
+     * <p>Unavailable means either the village already has an Elder, or it is still too small
+     * ({@link ModConfig#MIN_NEARBY_VILLAGERS}). Re-evaluated from scratch every pass, so an Elder
+     * dying anywhere - including out of sight, or while this chunk was unloaded - reopens the job.
+     */
+    private void updateJobSiteAvailability(ServerLevel level) {
+        PoiManager poiManager = level.getPoiManager();
+        BlockPos pos = getBlockPos();
+        if (poiManager.getType(pos).isEmpty()) return; // POI not registered (yet) - nothing to hold
+
+        VillageManager manager = VillageManager.get(level);
+        Optional<UUID> resolved = manager.resolveVillage(level, pos);
+        boolean hasElder = resolved.isPresent() && manager.getElder(resolved.get()).isPresent();
+        boolean available = resolved.isPresent() && !hasElder && villagePopulation(level, resolved.get())
+                >= ModConfig.MIN_NEARBY_VILLAGERS.get();
+
+        if (available) {
+            if (holdsOwnJobSite) {
+                // Guarded: releasing a ticket that is already free logs an error, which is reachable
+                // if the POI data was rebuilt out from under a saved flag.
+                if (!hasFreeTicket(poiManager, pos)) poiManager.release(pos);
+                holdsOwnJobSite = false;
+                setChanged();
+            }
+            return;
+        }
+        if (holdsOwnJobSite) return;
+
+        if (hasElder && !hasFreeTicket(poiManager, pos)) {
+            // The Elder inherited this ticket when it was promoted. Adopt it, so that the Elder
+            // dying - even out of sight, or while this chunk was unloaded - still frees the job.
+            holdsOwnJobSite = true;
+            setChanged();
+        } else if (poiManager.take(
+                holder -> holder.value() == ModPoiTypes.MONOLITH_POI.get(),
+                (holder, candidate) -> candidate.equals(pos),
+                pos, 1).isPresent()) {
+            holdsOwnJobSite = true;
+            setChanged();
+        }
+        // Otherwise the ticket belongs to a Villager already walking over - leave it alone and
+        // retry next pass, rather than yanking a job site out from under them mid-route.
+    }
+
+    private static boolean hasFreeTicket(PoiManager poiManager, BlockPos pos) {
+        return poiManager.getInRange(holder -> holder.value() == ModPoiTypes.MONOLITH_POI.get(),
+                        pos, 1, PoiManager.Occupancy.HAS_SPACE)
+                .anyMatch(record -> record.getPos().equals(pos));
+    }
+
+    private static int villagePopulation(ServerLevel level, UUID villageId) {
+        VillageRegion region = VillageManager.get(level).resolveVillageRegion(level, villageId);
+        AABB box = new AABB(region.anchor()).inflate(region.radius());
+        return level.getEntitiesOfClass(Villager.class, box).size();
+    }
+
+    /**
+     * Vanilla has done the work by this point - an unemployed Villager found the Monolith, walked to
+     * it and took the Elder profession off it. All that's left is to swap it for the real Elder.
+     */
+    private void promoteArrivedVillager(ServerLevel level) {
+        List<Villager> claimants = level.getEntitiesOfClass(Villager.class,
+                new AABB(getBlockPos()).inflate(PROMOTION_SEARCH_RADIUS),
+                v -> v.isAlive() && v.getVillagerData().getProfession() == ModVillagers.ELDER.get());
+        if (claimants.isEmpty()) return;
+
+        // The promoted Elder inherits the claimant's ticket, so the job site stays claimed with no
+        // further work here; updateJobSiteAvailability adopts that ticket on its next pass. Anyone
+        // else who turned up (a second Monolith in the same village) is sent back to unemployment.
+        Optional<UUID> resolved = VillageManager.get(level).resolveVillage(level, getBlockPos());
+        for (Villager claimant : claimants) {
+            if (resolved.isEmpty() || !ElderPromotion.promote(level, claimant, resolved.get())) {
+                ElderPromotion.rejectClaimant(level, claimant);
+            }
+        }
     }
 
     /** Re-scans this Monolith's village and pushes the result to any tracking clients. Also called
@@ -191,6 +320,7 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         if (villageId != null) tag.putUUID("VillageId", villageId);
+        tag.putBoolean("HoldsOwnJobSite", holdsOwnJobSite);
         tag.putInt("IronGolemCount", ironGolemCount);
         tag.putInt("ActiveWarriorCount", activeWarriorCount);
         tag.putInt("TotalPopulation", totalPopulation);
@@ -220,6 +350,7 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
     public void load(CompoundTag tag) {
         super.load(tag);
         villageId = tag.hasUUID("VillageId") ? tag.getUUID("VillageId") : null;
+        holdsOwnJobSite = tag.getBoolean("HoldsOwnJobSite");
         ironGolemCount = tag.getInt("IronGolemCount");
         activeWarriorCount = tag.getInt("ActiveWarriorCount");
         totalPopulation = tag.getInt("TotalPopulation");

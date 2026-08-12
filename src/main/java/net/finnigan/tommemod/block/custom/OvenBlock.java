@@ -4,9 +4,11 @@ import net.finnigan.tommemod.block.entity.ModBlockEntities;
 import net.finnigan.tommemod.block.entity.OvenBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -17,6 +19,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
@@ -36,6 +39,25 @@ public class OvenBlock extends Block implements EntityBlock {
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
+    }
+
+    /**
+     * The Oven's own loot table only drops the block. Its nine slots live in the block entity, which
+     * goes away with it, so whatever was cooking has to be spilled here or it is simply destroyed.
+     */
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.is(newState.getBlock())) {
+            if (level.getBlockEntity(pos) instanceof OvenBlockEntity oven) {
+                ItemStackHandler items = oven.getItemHandler();
+                SimpleContainer spill = new SimpleContainer(items.getSlots());
+                for (int slot = 0; slot < items.getSlots(); slot++) {
+                    spill.setItem(slot, items.getStackInSlot(slot));
+                }
+                Containers.dropContents(level, pos, spill);
+            }
+            super.onRemove(state, level, pos, newState, isMoving);
+        }
     }
 
     @Override

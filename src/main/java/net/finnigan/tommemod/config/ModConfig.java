@@ -35,8 +35,6 @@ public class ModConfig {
 
     // elder
     public static final ForgeConfigSpec.IntValue MIN_NEARBY_VILLAGERS;
-    public static final ForgeConfigSpec.IntValue ELDER_SUCCESSION_DELAY_TICKS;
-    public static final ForgeConfigSpec.IntValue ELDER_SUCCESSION_CHECK_INTERVAL_TICKS;
     public static final ForgeConfigSpec.IntValue ELDER_MAX_WANDER_BLOCKS;
     public static final ForgeConfigSpec.IntValue ELDER_TETHER_CHECK_INTERVAL_TICKS;
 
@@ -135,12 +133,8 @@ public class ModConfig {
         builder.pop();
 
         builder.push("elder");
-        MIN_NEARBY_VILLAGERS = builder.comment("Minimum Villager population required in a village before placing an Enchanting Table will spawn its Elder Villager")
+        MIN_NEARBY_VILLAGERS = builder.comment("Minimum Villager population required in a village before a placed Monolith becomes claimable as the Elder Villager's job site")
                 .defineInRange("minNearbyVillagers", 3, 0, Integer.MAX_VALUE);
-        ELDER_SUCCESSION_DELAY_TICKS = builder.comment("Ticks after an Elder Villager dies before a successor is chosen (default: 48000 = 2 in-game days)")
-                .defineInRange("elderSuccessionDelayTicks", 48000, 0, Integer.MAX_VALUE);
-        ELDER_SUCCESSION_CHECK_INTERVAL_TICKS = builder.comment("How often (ticks) each village is checked for a due succession / an available unemployed Villager to promote")
-                .defineInRange("elderSuccessionCheckIntervalTicks", 100, 1, Integer.MAX_VALUE);
         ELDER_MAX_WANDER_BLOCKS = builder.comment("Max distance (blocks) an Elder Villager may wander from its village's anchor before being teleported back")
                 .defineInRange("elderMaxWanderBlocks", 50, 1, Integer.MAX_VALUE);
         ELDER_TETHER_CHECK_INTERVAL_TICKS = builder.comment("How often (ticks) an Elder Villager's distance from its village is checked")

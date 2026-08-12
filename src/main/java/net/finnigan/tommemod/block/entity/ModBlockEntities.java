@@ -19,6 +19,10 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("monolith", () ->
                     BlockEntityType.Builder.of(MonolithBlockEntity::new, ModBlocks.MONOLITH.get()).build(null));
 
+    public static final RegistryObject<BlockEntityType<ChiefDeskBlockEntity>> CHIEF_DESK =
+            BLOCK_ENTITIES.register("chief_desk", () ->
+                    BlockEntityType.Builder.of(ChiefDeskBlockEntity::new, ModBlocks.CHIEF_DESK.get()).build(null));
+
     public static final RegistryObject<BlockEntityType<BuilderHubBlockEntity>> BUILDER_HUB =
             BLOCK_ENTITIES.register("builder_hub", () ->
                     BlockEntityType.Builder.of(BuilderHubBlockEntity::new, ModBlocks.BUILDER_HUB.get()).build(null));

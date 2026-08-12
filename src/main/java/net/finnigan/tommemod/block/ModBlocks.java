@@ -4,12 +4,14 @@ import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.block.custom.ArmageddonBlock;
 import net.finnigan.tommemod.block.custom.BugLampBlock;
 import net.finnigan.tommemod.block.custom.BuilderHubBlock;
+import net.finnigan.tommemod.block.custom.ChiefDeskBlock;
 import net.finnigan.tommemod.block.custom.ConstructionBannerBlock;
 import net.finnigan.tommemod.block.custom.GlowGooBlock;
 import net.finnigan.tommemod.block.custom.InvisibleLightBlock;
 import net.finnigan.tommemod.block.custom.MonolithBlock;
 import net.finnigan.tommemod.block.custom.OvenBlock;
 import net.finnigan.tommemod.item.ModItems;
+import net.finnigan.tommemod.item.custom.ChiefDeskBlockItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -25,6 +27,7 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ModBlocks {
@@ -52,12 +55,26 @@ public class ModBlocks {
             )
     );
 
+    // The Elder Villager's job site (see villager/ModPoiTypes.MONOLITH_POI). noOcclusion because the
+    // model is a spindly ~1.8-block structure rather than a full cube - without it neighbouring
+    // blocks' faces get culled against a solid box that isn't visually there.
     public static final RegistryObject<Block> MONOLITH = registerBlock("monolith",
             () -> new MonolithBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.COLOR_PURPLE)
                     .strength(10.0F)
                     .sound(SoundType.AMETHYST)
+                    .noOcclusion()
                     .requiresCorrectToolForDrops()));
+
+    // A Monolith in everything but its model and its job-site role - see ChiefDeskBlock.
+    public static final RegistryObject<Block> CHIEF_DESK = registerBlock("chief_desk",
+            () -> new ChiefDeskBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WOOD)
+                    .strength(10.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()
+                    .requiresCorrectToolForDrops()),
+            block -> new ChiefDeskBlockItem(block, new Item.Properties()));
 
     // Job-site block for the Builder profession - deliberately a plain Block (no custom class, no
     // BlockEntity/GUI needed; it only exists to be a claimable POI, see villager/ModPoiTypes.java).
@@ -130,12 +147,14 @@ public class ModBlocks {
     }
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
-        RegistryObject<T> toReturn = BLOCKS.register(name, block);
-        registerBlockItem(name, toReturn);
-        return toReturn;
+        return registerBlock(name, block, b -> new BlockItem(b, new Item.Properties()));
     }
 
-    private static <T extends Block> void registerBlockItem(String name, RegistryObject<T> block) {
-        ModItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
+    /** For blocks whose item needs to be something other than a plain BlockItem. */
+    private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block,
+                                                                    Function<T, BlockItem> item) {
+        RegistryObject<T> toReturn = BLOCKS.register(name, block);
+        ModItems.ITEMS.register(name, () -> item.apply(toReturn.get()));
+        return toReturn;
     }
 }

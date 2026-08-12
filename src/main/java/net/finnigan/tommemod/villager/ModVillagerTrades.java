@@ -52,11 +52,6 @@ public class ModVillagerTrades {
             trades.get(4).add((trader, random) -> new MerchantOffer(
                     new ItemStack(Items.EMERALD, 5), new ItemStack(ModItems.BETTER_BUZZ.get(), 1), 8, 15, 0.05F));
 
-            // Level 5 - trades honey + emeralds up into Premium Honey
-            trades.get(5).add((trader, random) -> new MerchantOffer(
-                    new ItemStack(Items.HONEY_BOTTLE, 1), new ItemStack(Items.EMERALD, 4),
-                    new ItemStack(ModItems.PREMIUM_HONEY.get(), 1), 12, 30, 0.05F));
-
             // Level 5 - the Immunity book. This trade is the enchantment's only source: it's flagged
             // treasure/undiscoverable/untradeable so it can't turn up in tables, loot or librarian offers.
             trades.get(5).add((trader, random) -> new MerchantOffer(

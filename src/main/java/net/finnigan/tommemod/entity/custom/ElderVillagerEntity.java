@@ -51,8 +51,9 @@ import java.util.function.Predicate;
 
 /**
  * A village's sole elder: no trading, gives quests (future work) and, once a player is trusted
- * enough, the option to become that village's permanent Chief. Never spawns naturally - only ever
- * placed by the Enchanting-Table trigger in ElderVillagerSpawnEvents.
+ * enough, the option to become that village's permanent Chief. Never spawns naturally - the only
+ * way one comes into being is an unemployed Villager claiming a Monolith as its job site and being
+ * swapped out for this by village/ElderPromotion.
  */
 public class ElderVillagerEntity extends PathfinderMob {
 
@@ -179,15 +180,9 @@ public class ElderVillagerEntity extends PathfinderMob {
         super.remove(reason);
     }
 
-    @Override
-    public void die(DamageSource damageSource) {
-        super.die(damageSource);
-        UUID villageId = getVillageId();
-        if (villageId == null || !(this.level() instanceof ServerLevel serverLevel)) return;
-
-        long readyAtTick = serverLevel.getGameTime() + ModConfig.ELDER_SUCCESSION_DELAY_TICKS.get();
-        VillageManager.get(serverLevel).schedulePendingSuccession(villageId, readyAtTick);
-    }
+    // Succession needs no hook here: remove() unregisters this Elder from its village, and the
+    // Monolith frees its job site again on the next pass once it sees the village has no Elder.
+    // An unemployed Villager then claims it exactly the way this one did.
 
     private int tetherCheckCooldown;
 
