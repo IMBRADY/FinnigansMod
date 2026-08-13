@@ -12,6 +12,7 @@
     "LivingEntityClimbableMixin",
     "ItemStackDurabilityMixin",
     "PlayerExhaustionMixin",
+    "PlayerEnchantmentMixin",
     "PoiTypesMixin",
     "EntityStepSoundMixin",
     "MeleeAttackGoalAccessor",

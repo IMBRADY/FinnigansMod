@@ -1,0 +1,582 @@
+{
+  "id": "tommemod:marksmanship",
+  "category": "tommemod:combat",
+  "display_name": "Marksmanship",
+  "description": "Crossbows, tridents and the shot that had to count. Earned at range, and rewarded for distance.",
+  "icon": "minecraft:crossbow",
+  "sort_order": 3,
+  "max_level": 100,
+  "points_per_level": 1,
+  "xp_curve": {
+    "type": "tommemod:polynomial",
+    "base": 185,
+    "exponent": 1.45
+  },
+  "xp_sources": [
+    {
+      "action": "tommemod:damage_dealt/crossbow",
+      "xp_per_unit": 4.5
+    },
+    {
+      "action": "tommemod:damage_dealt/thrown",
+      "xp_per_unit": 4.5
+    },
+    {
+      "action": "tommemod:projectile_hit",
+      "xp": 14,
+      "filters": [
+        {
+          "type": "tommemod:min_amount",
+          "amount": 24.0
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "marksmanship",
+      "title": "Marksmanship",
+      "description": "The shot you only get once.",
+      "icon": "minecraft:crossbow",
+      "x": 0,
+      "y": 0,
+      "max_rank": 1,
+      "cost": [
+        1
+      ],
+      "parents": [],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ranged_damage",
+          "amount_per_rank": 0.03,
+          "description": "%s ranged damage",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "reload",
+      "title": "Reload",
+      "description": "Cranked and ready sooner.",
+      "icon": "minecraft:string",
+      "x": -2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "marksmanship"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:draw_speed",
+          "amount_per_rank": 0.08,
+          "description": "%s faster reload",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "range",
+      "title": "Range",
+      "description": "Distance stops costing you damage.",
+      "icon": "minecraft:spyglass",
+      "x": 0,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "marksmanship"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:long_shot_damage",
+          "amount_per_rank": 0.05,
+          "description": "%s per 10 blocks of flight",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "cool_head",
+      "title": "Cool Head",
+      "description": "Nothing rushes you.",
+      "icon": "minecraft:ice",
+      "x": 2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "marksmanship"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.armor",
+          "operation": "addition",
+          "amount_per_rank": 0.5,
+          "description": "%s armour",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "winch",
+      "title": "Winch",
+      "description": "Faster than the mechanism should allow.",
+      "icon": "minecraft:iron_nugget",
+      "x": -3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "reload"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:draw_speed",
+          "amount_per_rank": 0.09,
+          "description": "%s faster reload",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "heavy_bolt",
+      "title": "Heavy Bolt",
+      "description": "A bolt that goes through.",
+      "icon": "minecraft:arrow",
+      "x": -1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "reload"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ranged_damage",
+          "amount_per_rank": 0.07,
+          "description": "%s ranged damage",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "sighting",
+      "title": "Sighting",
+      "description": "Elevation solved by eye.",
+      "icon": "minecraft:target",
+      "x": 0,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "range"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:long_shot_damage",
+          "amount_per_rank": 0.06,
+          "description": "%s per 10 blocks of flight",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "held_breath",
+      "title": "Held Breath",
+      "description": "Perfectly still at the moment it matters.",
+      "icon": "minecraft:pufferfish",
+      "x": 1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "cool_head"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:headshot_damage",
+          "amount_per_rank": 0.1,
+          "description": "%s on a high hit",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "overwatch",
+      "title": "Overwatch",
+      "description": "Seeing the whole field.",
+      "icon": "minecraft:ender_eye",
+      "x": 3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "cool_head"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:entity_reach",
+          "operation": "addition",
+          "amount_per_rank": 0.3,
+          "description": "%s entity reach",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "ballistics",
+      "title": "Ballistics",
+      "description": "The arc is arithmetic now.",
+      "icon": "minecraft:redstone",
+      "x": -3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "winch"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:arrow_steadiness",
+          "amount_per_rank": 0.14,
+          "description": "%s projectile drop",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "punch_through",
+      "title": "Punch Through",
+      "description": "Armour stops helping them.",
+      "icon": "minecraft:netherite_scrap",
+      "x": -1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "heavy_bolt"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ranged_damage",
+          "amount_per_rank": 0.09,
+          "description": "%s ranged damage",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "long_shot",
+      "title": "Long Shot",
+      "description": "The far shot hits hardest.",
+      "icon": "minecraft:spyglass",
+      "x": 0,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "sighting"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:long_shot_damage",
+          "amount_per_rank": 0.08,
+          "description": "%s per 10 blocks of flight",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "dead_still",
+      "title": "Dead Still",
+      "description": "The head, from anywhere.",
+      "icon": "minecraft:skeleton_skull",
+      "x": 1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "held_breath"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:headshot_damage",
+          "amount_per_rank": 0.15,
+          "description": "%s on a high hit",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "counter_sniper",
+      "title": "Counter Sniper",
+      "description": "Their shots find nothing.",
+      "icon": "minecraft:shield",
+      "x": 3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "overwatch"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:projectile_resistance",
+          "amount_per_rank": 0.12,
+          "description": "%s damage from projectiles",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "siege_shot",
+      "title": "Siege Shot",
+      "description": "Range is your whole advantage.",
+      "icon": "minecraft:crossbow",
+      "x": -2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "ballistics",
+        "punch_through"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:long_shot_damage",
+          "amount_per_rank": 0.1,
+          "description": "%s per 10 blocks of flight",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ranged_damage",
+          "amount_per_rank": 0.06,
+          "description": "%s ranged damage",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "trueshot",
+      "title": "Trueshot",
+      "description": "Flat all the way to the target.",
+      "icon": "minecraft:trident",
+      "x": 0,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "long_shot"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:arrow_steadiness",
+          "amount_per_rank": 0.2,
+          "description": "%s projectile drop",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:arrow_velocity",
+          "amount_per_rank": 0.1,
+          "description": "%s projectile speed",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "assassin",
+      "title": "Assassin",
+      "description": "One shot is the whole engagement.",
+      "icon": "minecraft:wither_skeleton_skull",
+      "x": 2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "dead_still",
+        "counter_sniper"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:headshot_damage",
+          "amount_per_rank": 0.25,
+          "description": "%s on a high hit",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "sharpshooter",
+      "title": "Sharpshooter",
+      "description": "Distance is not a difficulty. It is the point.",
+      "icon": "minecraft:crossbow",
+      "x": 0,
+      "y": 5,
+      "max_rank": 1,
+      "cost": [
+        5
+      ],
+      "parents": [
+        "siege_shot",
+        "trueshot",
+        "assassin"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:long_shot_damage",
+          "amount_per_rank": 0.18,
+          "description": "%s per 10 blocks of flight",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:headshot_damage",
+          "amount_per_rank": 0.25,
+          "description": "%s on a high hit",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ranged_damage",
+          "amount_per_rank": 0.15,
+          "description": "%s ranged damage",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:all_nodes",
+          "rank": 1
+        },
+        {
+          "type": "tommemod:skill_level",
+          "level": 50
+        },
+        {
+          "type": "tommemod:skill_level",
+          "level": 15,
+          "skill": "tommemod:archery"
+        }
+      ]
+    }
+  ]
+}

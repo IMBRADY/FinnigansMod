@@ -1,0 +1,567 @@
+{
+  "id": "tommemod:gliding",
+  "category": "tommemod:movement",
+  "display_name": "Gliding",
+  "description": "Elytra flight. Earned in the air, and nowhere else.",
+  "icon": "minecraft:elytra",
+  "sort_order": 3,
+  "max_level": 100,
+  "points_per_level": 1,
+  "xp_curve": {
+    "type": "tommemod:polynomial",
+    "base": 180,
+    "exponent": 1.45
+  },
+  "xp_sources": [
+    {
+      "action": "tommemod:distance/glide",
+      "xp_per_unit": 0.7
+    }
+  ],
+  "nodes": [
+    {
+      "id": "gliding",
+      "title": "Gliding",
+      "description": "Staying up on purpose.",
+      "icon": "minecraft:elytra",
+      "x": 0,
+      "y": 0,
+      "max_rank": 1,
+      "cost": [
+        1
+      ],
+      "parents": [],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:glide_speed",
+          "amount_per_rank": 0.04,
+          "description": "%s gliding speed",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "airframe",
+      "title": "Airframe",
+      "description": "Holding a line instead of falling along one.",
+      "icon": "minecraft:phantom_membrane",
+      "x": -2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "gliding"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:glide_speed",
+          "amount_per_rank": 0.06,
+          "description": "%s gliding speed",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "light_load",
+      "title": "Light Load",
+      "description": "The sky takes less notice of you.",
+      "icon": "minecraft:feather",
+      "x": 0,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "gliding"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:entity_gravity",
+          "operation": "multiply_base",
+          "amount_per_rank": -0.06,
+          "description": "%s gravity"
+        }
+      ]
+    },
+    {
+      "id": "careful_wings",
+      "title": "Careful Wings",
+      "description": "Flying without wearing them out.",
+      "icon": "minecraft:leather",
+      "x": 2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "gliding"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:elytra_durability_save",
+          "amount_per_rank": 0.1,
+          "description": "%s chance to spare your elytra",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "dive",
+      "title": "Dive",
+      "description": "Trading height for speed and meaning it.",
+      "icon": "minecraft:firework_rocket",
+      "x": -3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "airframe"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:glide_speed",
+          "amount_per_rank": 0.07,
+          "description": "%s gliding speed",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "thermals",
+      "title": "Thermals",
+      "description": "Finding the air that lifts.",
+      "icon": "minecraft:campfire",
+      "x": -1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "airframe"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:entity_gravity",
+          "operation": "multiply_base",
+          "amount_per_rank": -0.05,
+          "description": "%s gravity"
+        }
+      ]
+    },
+    {
+      "id": "soft_landing",
+      "title": "Soft Landing",
+      "description": "Arriving is no longer the dangerous part.",
+      "icon": "minecraft:hay_block",
+      "x": 0,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "light_load"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:fall_damage_reduction",
+          "amount_per_rank": 0.2,
+          "description": "%s fall damage",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "mending_hands",
+      "title": "Mending Hands",
+      "description": "Wings that last a journey.",
+      "icon": "minecraft:phantom_membrane",
+      "x": 1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "careful_wings"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:elytra_durability_save",
+          "amount_per_rank": 0.12,
+          "description": "%s chance to spare your elytra",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "far_sight",
+      "title": "Far Sight",
+      "description": "Picking your landing from altitude.",
+      "icon": "minecraft:spyglass",
+      "x": 3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "careful_wings"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:block_reach",
+          "operation": "addition",
+          "amount_per_rank": 0.3,
+          "description": "%s block reach",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "swiftwing",
+      "title": "Swiftwing",
+      "description": "Faster than the fall that started it.",
+      "icon": "minecraft:firework_rocket",
+      "x": -3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "dive"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:glide_speed",
+          "amount_per_rank": 0.09,
+          "description": "%s gliding speed",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "updraft",
+      "title": "Updraft",
+      "description": "Climbing without a rocket.",
+      "icon": "minecraft:white_wool",
+      "x": -1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "thermals"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:entity_gravity",
+          "operation": "multiply_base",
+          "amount_per_rank": -0.07,
+          "description": "%s gravity"
+        }
+      ]
+    },
+    {
+      "id": "tuck_and_roll",
+      "title": "Tuck and Roll",
+      "description": "Any height is a survivable height.",
+      "icon": "minecraft:slime_block",
+      "x": 0,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "soft_landing"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:fall_damage_reduction",
+          "amount_per_rank": 0.25,
+          "description": "%s fall damage",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:safe_fall_bonus",
+          "amount_per_rank": 2.0,
+          "description": "%s blocks of safe falling",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "wing_care",
+      "title": "Wing Care",
+      "description": "Repairs you never have to make.",
+      "icon": "minecraft:anvil",
+      "x": 1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "mending_hands"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:elytra_durability_save",
+          "amount_per_rank": 0.14,
+          "description": "%s chance to spare your elytra",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "high_altitude",
+      "title": "High Altitude",
+      "description": "Thin air stops being a problem.",
+      "icon": "minecraft:ice",
+      "x": 3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "far_sight"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:breath_retention",
+          "amount_per_rank": 0.2,
+          "description": "%s slower air loss",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "stormrider",
+      "title": "Stormrider",
+      "description": "Weather is something you use.",
+      "icon": "minecraft:lightning_rod",
+      "x": -2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "swiftwing",
+        "updraft"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:glide_speed",
+          "amount_per_rank": 0.11,
+          "description": "%s gliding speed",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "featherbones",
+      "title": "Featherbones",
+      "description": "There is almost nothing of you to pull down.",
+      "icon": "minecraft:phantom_membrane",
+      "x": 0,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "tuck_and_roll"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:entity_gravity",
+          "operation": "multiply_base",
+          "amount_per_rank": -0.08,
+          "description": "%s gravity"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:jump_power",
+          "amount_per_rank": 0.05,
+          "description": "%s jump height",
+          "format": "decimal"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "eternal_wings",
+      "title": "Eternal Wings",
+      "description": "Wings that outlast the flight.",
+      "icon": "minecraft:netherite_scrap",
+      "x": 2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "wing_care",
+        "high_altitude"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:elytra_durability_save",
+          "amount_per_rank": 0.2,
+          "description": "%s chance to spare your elytra",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "skylord",
+      "title": "Skylord",
+      "description": "The ground is a place you visit.",
+      "icon": "minecraft:dragon_head",
+      "x": 0,
+      "y": 5,
+      "max_rank": 1,
+      "cost": [
+        5
+      ],
+      "parents": [
+        "stormrider",
+        "featherbones",
+        "eternal_wings"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:glide_speed",
+          "amount_per_rank": 0.18,
+          "description": "%s gliding speed",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:entity_gravity",
+          "operation": "multiply_base",
+          "amount_per_rank": -0.1,
+          "description": "%s gravity"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:fall_damage_reduction",
+          "amount_per_rank": 0.3,
+          "description": "%s fall damage",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:all_nodes",
+          "rank": 1
+        },
+        {
+          "type": "tommemod:skill_level",
+          "level": 50
+        },
+        {
+          "type": "tommemod:skill_level",
+          "level": 15,
+          "skill": "tommemod:agility"
+        }
+      ]
+    }
+  ]
+}

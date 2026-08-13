@@ -3,6 +3,7 @@ package net.finnigan.tommemod.capability;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.capability.accessory.AccessoryHandler;
 import net.finnigan.tommemod.capability.reputation.ReputationHandler;
+import net.finnigan.tommemod.skill.data.SkillsHandler;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -14,5 +15,6 @@ public class CapabilityRegistrar {
     public static void registerCap(RegisterCapabilitiesEvent event) {
         event.register(AccessoryHandler.class);
         event.register(ReputationHandler.class);
+        event.register(SkillsHandler.class);
     }
 }

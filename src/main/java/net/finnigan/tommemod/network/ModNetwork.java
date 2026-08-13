@@ -9,6 +9,9 @@ import net.finnigan.tommemod.network.packet.RotateConstructionBannerPacket;
 import net.finnigan.tommemod.network.packet.SyncAccessoryPacket;
 import net.finnigan.tommemod.network.packet.SyncReputationHudPacket;
 import net.finnigan.tommemod.network.packet.SyncReputationPacket;
+import net.finnigan.tommemod.network.packet.SyncSkillDataPacket;
+import net.finnigan.tommemod.network.packet.SyncSkillDefinitionsPacket;
+import net.finnigan.tommemod.network.packet.UnlockSkillNodePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -49,5 +52,11 @@ public class ModNetwork {
                 RotateConstructionBannerPacket::encode, RotateConstructionBannerPacket::decode, RotateConstructionBannerPacket::handle);
         CHANNEL.registerMessage(id++, BallistaFirePacket.class,
                 BallistaFirePacket::encode, BallistaFirePacket::new, BallistaFirePacket::handle);
+        CHANNEL.registerMessage(id++, SyncSkillDefinitionsPacket.class,
+                SyncSkillDefinitionsPacket::encode, SyncSkillDefinitionsPacket::new, SyncSkillDefinitionsPacket::handle);
+        CHANNEL.registerMessage(id++, SyncSkillDataPacket.class,
+                SyncSkillDataPacket::encode, SyncSkillDataPacket::new, SyncSkillDataPacket::handle);
+        CHANNEL.registerMessage(id++, UnlockSkillNodePacket.class,
+                UnlockSkillNodePacket::encode, UnlockSkillNodePacket::new, UnlockSkillNodePacket::handle);
     }
 }

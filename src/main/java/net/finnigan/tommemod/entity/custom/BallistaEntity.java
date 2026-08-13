@@ -1,7 +1,6 @@
 package net.finnigan.tommemod.entity.custom;
 
 import net.finnigan.tommemod.entity.custom.BallistaHelpers.BallistaBoltEntity;
-import net.finnigan.tommemod.entity.custom.BallistaHelpers.DefendOwnerTargetGoal;
 import net.finnigan.tommemod.item.ModItems;
 import net.finnigan.tommemod.village.VillageManager;
 import net.minecraft.nbt.CompoundTag;
@@ -24,15 +23,11 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.BodyRotationControl;
 import net.minecraft.world.entity.ai.control.LookControl;
-import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
-import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,13 +45,18 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
  * A mounted crossbow that a player sets down and leaves: a building far more than a creature. It never
- * moves under its own power, never wanders, and never turns - only its arm swings, tracking whatever it
- * is shooting at. Falls if the ground goes out from under it, and can be taken back up by the player
- * who put it there.
+ * moves under its own power, never wanders, and never turns - only its arm swings, and only while
+ * somebody is working it. Falls if the ground goes out from under it, and can be taken back up by the
+ * player who put it there.
+ *
+ * It is a crewed weapon, not an automatic one: unmanned it picks no targets and fires nothing, and the
+ * arm holds exactly where the last operator left it, wound and waiting. Two things can crew it - the
+ * owner, who aims it with their own view and fires with the attack key, and a Warrior Villager, which
+ * climbs aboard during a fight and drives it through {@link #operateAt} (see ManBallistaGoal).
  *
  * Built on Mob rather than a BlockEntity because everything wanted of it is entity behaviour: it has
- * health, mobs must be able to target it, it needs vanilla's targeting goals to pick its own marks, and
- * it has to fall. A block would need every one of those rebuilt by hand.
+ * health, mobs must be able to target it, something has to be able to ride it, and it has to fall. A
+ * block would need every one of those rebuilt by hand.
  *
  * Shot timing is a two-beat cycle driven by the animation, not the other way round: it winds ("load"),
  * and only once the wind is finished does it loose ("fire") and put an arrow in the air. Standing idle
@@ -107,13 +107,14 @@ public class BallistaEntity extends PathfinderMob implements GeoEntity {
 
     public BallistaEntity(EntityType<? extends BallistaEntity> type, Level level) {
         super(type, level);
-        // Vanilla's LookControl flattens xRot to zero on any tick nothing is feeding it a look
-        // target, which would drag the arm back level between shots. Nothing here uses look targets -
-        // the aim is set by hand in aimAt - so the control is replaced with one that leaves it alone.
+        // Nothing here uses look targets - the aim is written straight into yHeadRot/xRot by aimAt -
+        // so the whole control is silenced. Left in vanilla's hands it would undo that aim every
+        // single tick, twice over: with no look target set it flattens xRot to zero, and it drags
+        // yHeadRot ten degrees back toward yBodyRot. Mob.serverAiStep runs it AFTER
+        // customServerAiStep, so it always got the last word.
         this.lookControl = new LookControl(this) {
             @Override
-            protected boolean resetXRotOnTick() {
-                return false;
+            public void tick() {
             }
         };
         this.setPersistenceRequired();
@@ -136,21 +137,9 @@ public class BallistaEntity extends PathfinderMob implements GeoEntity {
 
     @Override
     protected void registerGoals() {
-        // No movement goals at all: the emplacement picks targets and nothing else.
-        this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-        this.targetSelector.addGoal(2, new DefendOwnerTargetGoal(this));
-        // LivingEntity + an Enemy test rather than Monster.class, so raid-only hostiles such as
-        // Ravagers and Vindicators - which are not Monsters - are shot at like anything else.
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 0, true, false,
-                candidate -> candidate instanceof Enemy) {
-            @Override
-            protected AABB getTargetSearchArea(double range) {
-                // Vanilla only ever looks four blocks up and down, however far it looks sideways -
-                // fine for something that walks, useless for a weapon meant to cover a valley or
-                // clear the sky. Reach is the same in every direction here.
-                return this.mob.getBoundingBox().inflate(range, range, range);
-            }
-        });
+        // None at all. It doesn't move, and it doesn't hunt: a Ballista is only ever as dangerous as
+        // whoever is sitting in it. What it shoots at is entirely the operator's choice - a player's
+        // crosshair, or the target a Warrior brought aboard with it.
     }
 
     // ---- Ownership and pickup ----
@@ -178,6 +167,11 @@ public class BallistaEntity extends PathfinderMob implements GeoEntity {
 
         // Sneaking takes it back down; a plain right-click climbs into the seat instead.
         if (!player.isShiftKeyDown()) {
+            // A Warrior working it stands down for the owner rather than locking them out of their
+            // own weapon. Its goal sees the seat taken on its next tick and goes back to fighting.
+            if (getControllingPassenger() instanceof WarriorVillagerEntity warrior) {
+                warrior.stopRiding();
+            }
             player.startRiding(this);
             return InteractionResult.CONSUME;
         }
@@ -232,6 +226,13 @@ public class BallistaEntity extends PathfinderMob implements GeoEntity {
     }
 
     @Override
+    public int getMaxHeadYRot() {
+        // Vanilla's 75 is a neck. This is a turntable, and it has to be able to shoot behind itself:
+        // the frame never turns, so every bearing the weapon can cover has to be head rotation.
+        return 180;
+    }
+
+    @Override
     public boolean removeWhenFarAway(double distanceSqr) {
         return false;
     }
@@ -249,35 +250,18 @@ public class BallistaEntity extends PathfinderMob implements GeoEntity {
 
         int firingTicks = this.entityData.get(DATA_FIRING_TICKS);
         if (firingTicks > 0) this.entityData.set(DATA_FIRING_TICKS, firingTicks - 1);
+        if (loadTicksRemaining > 0) loadTicksRemaining--;
 
-        // A rider takes over completely - the weapon aims where they look and shoots when they say.
+        // A player rider takes the weapon over completely: it points wherever they are looking, and
+        // fires when they say so (BallistaFirePacket). A Warrior crew aims through operateAt instead,
+        // driven from its own goal, so there is nothing to do for it here.
+        //
+        // Unmanned there is deliberately no branch at all. The arm is simply left alone, holding the
+        // bearing the last operator left it on, wound and ready for whoever climbs in next.
         if (getControllingPassenger() instanceof Player rider) {
-            this.setTarget(null);
             this.yHeadRot = rider.getYHeadRot();
             this.setXRot(rider.getXRot());
-            if (loadTicksRemaining > 0) loadTicksRemaining--;
-            return;
         }
-
-        LivingEntity target = this.getTarget();
-        if (target == null || !target.isAlive() || this.distanceToSqr(target) > RANGE * RANGE) {
-            // Idle: wind back up and sit there loaded, ready for the next thing to walk into range.
-            loadTicksRemaining = 0;
-            return;
-        }
-
-        boolean onTarget = aimAt(target);
-
-        if (loadTicksRemaining > 0) {
-            loadTicksRemaining--;
-            return;
-        }
-        if (firingTicks > 0) return; // still playing out the last shot
-        // Never loose mid-swing. The bolt flies where the arm points, so shooting before the arm has
-        // caught up sends it somewhere the Ballista is visibly not aiming.
-        if (!onTarget) return;
-
-        fire();
     }
 
     /** Puts a bolt down the barrel's current line and starts the reload. */
@@ -292,15 +276,31 @@ public class BallistaEntity extends PathfinderMob implements GeoEntity {
         return loadTicksRemaining <= 0 && this.entityData.get(DATA_FIRING_TICKS) <= 0;
     }
 
-    /** Fires on a rider's order. Returns whether a bolt actually left the barrel. */
-    public boolean fireForRider(Player rider) {
-        if (!rider.equals(getControllingPassenger())) return false;
+    /** Fires on an operator's order. Returns whether a bolt actually left the barrel. */
+    public boolean fireForRider(LivingEntity operator) {
+        if (!operator.equals(getControllingPassenger())) return false;
         if (!isLoaded()) return false;
 
-        this.yHeadRot = rider.getYHeadRot();
-        this.setXRot(rider.getXRot());
+        // A player's aim is their view, read fresh at the moment they pull rather than trusting the
+        // last tick's copy. A Warrior has already laid the weapon itself, through operateAt.
+        if (operator instanceof Player player) {
+            this.yHeadRot = player.getYHeadRot();
+            this.setXRot(player.getXRot());
+        }
         fire();
         return true;
+    }
+
+    /**
+     * Lays the weapon on a mark for a non-player crew, and reports whether it is lined up well enough
+     * to shoot. Called every tick by ManBallistaGoal while a Warrior is aboard.
+     *
+     * Refuses anyone who is not actually the one sitting in it, so a Warrior whose seat was taken by
+     * the owner mid-swing cannot keep steering the thing from the ground.
+     */
+    public boolean operateAt(LivingEntity operator, LivingEntity target) {
+        if (!operator.equals(getControllingPassenger())) return false;
+        return aimAt(target);
     }
 
     /**
@@ -320,11 +320,14 @@ public class BallistaEntity extends PathfinderMob implements GeoEntity {
         float wantYaw = (float) (Mth.atan2(dz, dx) * (180.0 / Math.PI)) - 90.0F;
         float wantPitch = (float) (-(Mth.atan2(dy, horizontal) * (180.0 / Math.PI)));
 
-        float yawError = Mth.wrapDegrees(wantYaw - this.yHeadRot);
-        float pitchError = Mth.wrapDegrees(wantPitch - this.getXRot());
-
         this.yHeadRot = approachAngle(this.yHeadRot, wantYaw);
         this.setXRot(approachAngle(this.getXRot(), wantPitch));
+
+        // Measured after the swing, not before it. Judged on the old bearing, a weapon that turns at
+        // 45 degrees a tick against a 4 degree tolerance reports "off target" on the very tick it
+        // arrives, and the shot is held for no reason.
+        float yawError = Mth.wrapDegrees(wantYaw - this.yHeadRot);
+        float pitchError = Mth.wrapDegrees(wantPitch - this.getXRot());
 
         return Math.abs(yawError) <= AIM_TOLERANCE_DEGREES && Math.abs(pitchError) <= AIM_TOLERANCE_DEGREES;
     }
@@ -429,12 +432,22 @@ public class BallistaEntity extends PathfinderMob implements GeoEntity {
     @Nullable
     @Override
     public LivingEntity getControllingPassenger() {
-        return getFirstPassenger() instanceof Player rider ? rider : null;
+        return getFirstPassenger() instanceof LivingEntity occupant && canOperate(occupant) ? occupant : null;
+    }
+
+    /** Who is capable of crewing one: its owner, and the Warriors of the village it defends. */
+    public static boolean canOperate(Entity candidate) {
+        return candidate instanceof Player || candidate instanceof WarriorVillagerEntity;
     }
 
     @Override
     protected boolean canAddPassenger(Entity passenger) {
-        return this.getPassengers().isEmpty();
+        return this.getPassengers().isEmpty() && canOperate(passenger);
+    }
+
+    /** Whether somebody is working it right now - the one thing that decides if the arm may move. */
+    public boolean isManned() {
+        return getControllingPassenger() != null;
     }
 
     @Override

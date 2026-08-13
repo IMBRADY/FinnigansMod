@@ -4,6 +4,7 @@ import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.AidAllyTargetG
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.AnswerDistressCallGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.DefendVillagersTargetGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.HoldRaidLineGoal;
+import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.ManBallistaGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.GenericRangedBowAttackGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.GenericRangedCrossbowAttackGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.MeleeUnlessRangedAttackGoal;
@@ -289,6 +290,10 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
+        // Above every attack goal: a Ballista outreaches and outhits anything a Warrior can carry, so
+        // when one is available for a target too far to charge, crewing it is the right answer. It
+        // stands itself down as soon as the fight closes, handing the flags back to the melee goal.
+        this.goalSelector.addGoal(0, new ManBallistaGoal(this));
         this.goalSelector.addGoal(1, new GenericRangedCrossbowAttackGoal<>(this, 1.0D, 8.0F));
         this.goalSelector.addGoal(1, new GenericRangedBowAttackGoal<>(this, 1.0D, 20, 15.0F));
         this.goalSelector.addGoal(1, new MusketAttackGoal(this, 20.0D, 40));

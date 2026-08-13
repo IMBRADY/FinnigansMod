@@ -90,6 +90,9 @@ public class ModConfig {
     public static final ForgeConfigSpec.DoubleValue TITAN_ARMOR_SCAN_RADIUS_BLOCKS;
     public static final ForgeConfigSpec.DoubleValue TITAN_SWIM_SPEED_BONUS;
 
+    // ---- Skills ----
+    public static final ForgeConfigSpec.DoubleValue SKILL_XP_MULTIPLIER;
+
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
@@ -251,6 +254,13 @@ public class ModConfig {
                 .defineInRange("armorScanRadiusBlocks", 12.0, 0.5, 64.0);
         TITAN_SWIM_SPEED_BONUS = builder.comment("Permanent swim speed bonus while held, as a fraction of the base swim speed (0.5 = +50%)")
                 .defineInRange("swimSpeedBonus", 0.5, 0.0, 10.0);
+        builder.pop();
+
+        builder.push("skills");
+        builder.comment("Per-skill rates, curves and trees live in the datapack files under",
+                "data/tommemod/skill_trees/ - this is only the global dial over all of them.");
+        SKILL_XP_MULTIPLIER = builder.comment("Multiplier applied to every skill experience award (2.0 halves the grind)")
+                .defineInRange("xpMultiplier", 1.0, 0.0, 100.0);
         builder.pop();
 
         COMMON_SPEC = builder.build();

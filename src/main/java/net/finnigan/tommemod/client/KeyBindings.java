@@ -18,8 +18,20 @@ public class KeyBindings {
             "key.categories.tommemod"
     );
 
+    /**
+     * Opens the skill trees. Bound to the grave/backtick key, which vanilla leaves free and which sits
+     * where a character sheet key usually does. Rebindable like anything else from Options > Controls.
+     */
+    public static final KeyMapping SKILL_TREE = new KeyMapping(
+            "key.tommemod.skill_tree",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_GRAVE_ACCENT,
+            "key.categories.tommemod"
+    );
+
     @net.minecraftforge.eventbus.api.SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(RELEASE_SOULS_CONFIRM);
+        event.register(SKILL_TREE);
     }
 }

@@ -1,0 +1,563 @@
+{
+  "id": "tommemod:archery",
+  "category": "tommemod:combat",
+  "display_name": "Archery",
+  "description": "Bows, and the patience they take. Earned by putting arrows into things.",
+  "icon": "minecraft:bow",
+  "sort_order": 1,
+  "max_level": 100,
+  "points_per_level": 1,
+  "xp_curve": {
+    "type": "tommemod:polynomial",
+    "base": 175,
+    "exponent": 1.45
+  },
+  "xp_sources": [
+    {
+      "action": "tommemod:damage_dealt/bow",
+      "xp_per_unit": 4.0
+    },
+    {
+      "action": "tommemod:projectile_hit",
+      "xp": 8
+    },
+    {
+      "action": "tommemod:kill",
+      "xp": 15
+    }
+  ],
+  "nodes": [
+    {
+      "id": "archery",
+      "title": "Archery",
+      "description": "Drawing properly.",
+      "icon": "minecraft:bow",
+      "x": 0,
+      "y": 0,
+      "max_rank": 1,
+      "cost": [
+        1
+      ],
+      "parents": [],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ranged_damage",
+          "amount_per_rank": 0.03,
+          "description": "%s ranged damage",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "draw",
+      "title": "Draw",
+      "description": "Full draw, sooner.",
+      "icon": "minecraft:string",
+      "x": -2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "archery"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:draw_speed",
+          "amount_per_rank": 0.07,
+          "description": "%s faster draw",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "power_shot",
+      "title": "Power Shot",
+      "description": "More behind every arrow.",
+      "icon": "minecraft:arrow",
+      "x": 0,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "archery"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ranged_damage",
+          "amount_per_rank": 0.06,
+          "description": "%s ranged damage",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "steady_aim",
+      "title": "Steady Aim",
+      "description": "The arrow goes where you looked.",
+      "icon": "minecraft:spyglass",
+      "x": 2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "archery"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:arrow_steadiness",
+          "amount_per_rank": 0.1,
+          "description": "%s arrow drop",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "quick_nock",
+      "title": "Quick Nock",
+      "description": "Arrow to string without thinking.",
+      "icon": "minecraft:feather",
+      "x": -3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "draw"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:draw_speed",
+          "amount_per_rank": 0.08,
+          "description": "%s faster draw",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "strong_arm",
+      "title": "Strong Arm",
+      "description": "A heavier pull than the bow was built for.",
+      "icon": "minecraft:golden_apple",
+      "x": -1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "draw"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:arrow_velocity",
+          "amount_per_rank": 0.07,
+          "description": "%s arrow speed",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "marks",
+      "title": "Marks",
+      "description": "Reading the target before you loose.",
+      "icon": "minecraft:target",
+      "x": 0,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "power_shot"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:headshot_damage",
+          "amount_per_rank": 0.1,
+          "description": "%s on a high hit",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "hunter",
+      "title": "Hunter",
+      "description": "Knowing what you are shooting at.",
+      "icon": "minecraft:cooked_rabbit",
+      "x": 1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "steady_aim"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.luck",
+          "operation": "addition",
+          "amount_per_rank": 0.3,
+          "description": "%s luck",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "light_step",
+      "title": "Light Step",
+      "description": "Shooting from where nothing hears you.",
+      "icon": "minecraft:leather_boots",
+      "x": 3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "steady_aim"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.movement_speed",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.03,
+          "description": "%s movement speed"
+        }
+      ]
+    },
+    {
+      "id": "heavy_draw",
+      "title": "Heavy Draw",
+      "description": "Arrows that carry weight.",
+      "icon": "minecraft:crossbow",
+      "x": -3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "quick_nock"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ranged_damage",
+          "amount_per_rank": 0.08,
+          "description": "%s ranged damage",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "flight",
+      "title": "Flight",
+      "description": "Arrows that arrive before they should.",
+      "icon": "minecraft:firework_rocket",
+      "x": -1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "strong_arm"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:arrow_velocity",
+          "amount_per_rank": 0.09,
+          "description": "%s arrow speed",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "true_flight",
+      "title": "True Flight",
+      "description": "Barely an arc left at all.",
+      "icon": "minecraft:arrow",
+      "x": 0,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "marks"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:arrow_steadiness",
+          "amount_per_rank": 0.15,
+          "description": "%s arrow drop",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "bane",
+      "title": "Bane",
+      "description": "The dead fall to it easily.",
+      "icon": "minecraft:bone",
+      "x": 1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "hunter"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:undead_damage",
+          "amount_per_rank": 0.12,
+          "description": "%s damage to undead",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "skirmisher",
+      "title": "Skirmisher",
+      "description": "Never where the return fire goes.",
+      "icon": "minecraft:shield",
+      "x": 3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "light_step"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:projectile_resistance",
+          "amount_per_rank": 0.08,
+          "description": "%s damage from projectiles",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "longbow",
+      "title": "Longbow",
+      "description": "Range that decides the fight.",
+      "icon": "minecraft:bow",
+      "x": -2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "heavy_draw",
+        "flight"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ranged_damage",
+          "amount_per_rank": 0.1,
+          "description": "%s ranged damage",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:arrow_velocity",
+          "amount_per_rank": 0.08,
+          "description": "%s arrow speed",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "rapid_fire",
+      "title": "Rapid Fire",
+      "description": "Loosing as fast as you can pick them up.",
+      "icon": "minecraft:sugar",
+      "x": 0,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "true_flight"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:draw_speed",
+          "amount_per_rank": 0.15,
+          "description": "%s faster draw",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "deadeye",
+      "title": "Deadeye",
+      "description": "You do not miss the head.",
+      "icon": "minecraft:ender_eye",
+      "x": 2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "bane",
+        "skirmisher"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:headshot_damage",
+          "amount_per_rank": 0.2,
+          "description": "%s on a high hit",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "master_archer",
+      "title": "Master Archer",
+      "description": "The bow does exactly what you intend, every time.",
+      "icon": "minecraft:bow",
+      "x": 0,
+      "y": 5,
+      "max_rank": 1,
+      "cost": [
+        5
+      ],
+      "parents": [
+        "longbow",
+        "rapid_fire",
+        "deadeye"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ranged_damage",
+          "amount_per_rank": 0.2,
+          "description": "%s ranged damage",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:draw_speed",
+          "amount_per_rank": 0.2,
+          "description": "%s faster draw",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:arrow_steadiness",
+          "amount_per_rank": 0.25,
+          "description": "%s arrow drop",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:all_nodes",
+          "rank": 1
+        },
+        {
+          "type": "tommemod:skill_level",
+          "level": 50
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,572 @@
+{
+  "id": "tommemod:smithing",
+  "category": "tommemod:gathering",
+  "display_name": "Smithing",
+  "description": "Repairing, upgrading and enchanting equipment. Earned at the anvil.",
+  "icon": "minecraft:smithing_table",
+  "sort_order": 4,
+  "max_level": 100,
+  "points_per_level": 1,
+  "xp_curve": {
+    "type": "tommemod:polynomial",
+    "base": 190,
+    "exponent": 1.45
+  },
+  "xp_sources": [
+    {
+      "action": "tommemod:item_repaired",
+      "xp_per_unit": 0.6
+    },
+    {
+      "action": "tommemod:item_enchanted",
+      "xp": 140
+    },
+    {
+      "action": "tommemod:item_crafted",
+      "xp": 4
+    }
+  ],
+  "nodes": [
+    {
+      "id": "smithing",
+      "title": "Smithing",
+      "description": "Knowing what a tool is worth mending.",
+      "icon": "minecraft:smithing_table",
+      "x": 0,
+      "y": 0,
+      "max_rank": 1,
+      "cost": [
+        1
+      ],
+      "parents": [],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:anvil_cost_reduction",
+          "amount_per_rank": 0.05,
+          "description": "%s anvil cost",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "hammerwork",
+      "title": "Hammerwork",
+      "description": "Fewer levels for the same repair.",
+      "icon": "minecraft:anvil",
+      "x": -2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "smithing"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:anvil_cost_reduction",
+          "amount_per_rank": 0.08,
+          "description": "%s anvil cost",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "annealing",
+      "title": "Annealing",
+      "description": "Repairs that go further.",
+      "icon": "minecraft:blast_furnace",
+      "x": 0,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "smithing"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:repair_efficiency",
+          "amount_per_rank": 0.1,
+          "description": "%s durability restored",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "temper",
+      "title": "Temper",
+      "description": "Gear that holds its edge.",
+      "icon": "minecraft:iron_ingot",
+      "x": 2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "smithing"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:tool_durability_save",
+          "amount_per_rank": 0.05,
+          "description": "%s chance to spare durability",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "bellows",
+      "title": "Bellows",
+      "description": "Hotter, quicker, cheaper.",
+      "icon": "minecraft:campfire",
+      "x": -3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "hammerwork"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:anvil_cost_reduction",
+          "amount_per_rank": 0.08,
+          "description": "%s anvil cost",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "forge_sense",
+      "title": "Forge Sense",
+      "description": "Reading metal by eye.",
+      "icon": "minecraft:furnace",
+      "x": -1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "hammerwork"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:repair_efficiency",
+          "amount_per_rank": 0.09,
+          "description": "%s durability restored",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "whetstone",
+      "title": "Whetstone",
+      "description": "An edge that bites harder.",
+      "icon": "minecraft:grindstone",
+      "x": 0,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "annealing"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.attack_damage",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.03,
+          "description": "%s attack damage"
+        }
+      ]
+    },
+    {
+      "id": "plating",
+      "title": "Plating",
+      "description": "Armour that does more with the same steel.",
+      "icon": "minecraft:iron_chestplate",
+      "x": 1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "temper"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.armor",
+          "operation": "addition",
+          "amount_per_rank": 0.6,
+          "description": "%s armour",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "counterweight",
+      "title": "Counterweight",
+      "description": "A weapon that comes back faster.",
+      "icon": "minecraft:iron_sword",
+      "x": 3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "temper"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.attack_speed",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.04,
+          "description": "%s attack speed"
+        }
+      ]
+    },
+    {
+      "id": "master_repair",
+      "title": "Master Repair",
+      "description": "Almost free, and almost complete.",
+      "icon": "minecraft:netherite_ingot",
+      "x": -3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "bellows"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:anvil_cost_reduction",
+          "amount_per_rank": 0.12,
+          "description": "%s anvil cost",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "reforging",
+      "title": "Reforging",
+      "description": "A ruined tool comes back whole.",
+      "icon": "minecraft:anvil",
+      "x": -1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "forge_sense"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:repair_efficiency",
+          "amount_per_rank": 0.14,
+          "description": "%s durability restored",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "hardening",
+      "title": "Hardening",
+      "description": "Everything you carry lasts.",
+      "icon": "minecraft:diamond",
+      "x": 0,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "whetstone"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:tool_durability_save",
+          "amount_per_rank": 0.08,
+          "description": "%s chance to spare durability",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "edgecraft",
+      "title": "Edgecraft",
+      "description": "Your weapons cut deeper than their make.",
+      "icon": "minecraft:diamond_sword",
+      "x": 1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "plating"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.attack_damage",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.05,
+          "description": "%s attack damage"
+        }
+      ]
+    },
+    {
+      "id": "armourer",
+      "title": "Armourer",
+      "description": "Your armour is better than its material.",
+      "icon": "minecraft:diamond_chestplate",
+      "x": 3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "counterweight"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.armor_toughness",
+          "operation": "addition",
+          "amount_per_rank": 0.8,
+          "description": "%s armour toughness",
+          "format": "decimal"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "guildsmith",
+      "title": "Guildsmith",
+      "description": "The anvil barely charges you.",
+      "icon": "minecraft:enchanting_table",
+      "x": -2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "master_repair",
+        "reforging"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:anvil_cost_reduction",
+          "amount_per_rank": 0.18,
+          "description": "%s anvil cost",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:repair_efficiency",
+          "amount_per_rank": 0.1,
+          "description": "%s durability restored",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "everlasting",
+      "title": "Everlasting",
+      "description": "Gear that outlives the campaign.",
+      "icon": "minecraft:netherite_scrap",
+      "x": 0,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "hardening"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:tool_durability_save",
+          "amount_per_rank": 0.12,
+          "description": "%s chance to spare durability",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "masterwork",
+      "title": "Masterwork",
+      "description": "Everything you touch is a grade better.",
+      "icon": "minecraft:netherite_ingot",
+      "x": 2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "edgecraft",
+        "armourer"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.attack_damage",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.06,
+          "description": "%s attack damage"
+        },
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.armor",
+          "operation": "addition",
+          "amount_per_rank": 1.0,
+          "description": "%s armour",
+          "format": "decimal"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "grandmaster_smith",
+      "title": "Grandmaster Smith",
+      "description": "Nothing you own ever wears out again.",
+      "icon": "minecraft:netherite_block",
+      "x": 0,
+      "y": 5,
+      "max_rank": 1,
+      "cost": [
+        5
+      ],
+      "parents": [
+        "guildsmith",
+        "everlasting",
+        "masterwork"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:anvil_cost_reduction",
+          "amount_per_rank": 0.3,
+          "description": "%s anvil cost",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:repair_efficiency",
+          "amount_per_rank": 0.25,
+          "description": "%s durability restored",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:tool_durability_save",
+          "amount_per_rank": 0.15,
+          "description": "%s chance to spare durability",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:all_nodes",
+          "rank": 1
+        },
+        {
+          "type": "tommemod:skill_level",
+          "level": 50
+        }
+      ]
+    }
+  ]
+}

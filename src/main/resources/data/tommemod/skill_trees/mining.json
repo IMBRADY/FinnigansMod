@@ -1,0 +1,602 @@
+{
+  "id": "tommemod:mining",
+  "category": "tommemod:gathering",
+  "display_name": "Mining",
+  "description": "Stone, ore and the dark under the world. Earned with a pick in hand.",
+  "icon": "minecraft:iron_pickaxe",
+  "sort_order": 0,
+  "max_level": 100,
+  "points_per_level": 1,
+  "xp_curve": {
+    "type": "tommemod:polynomial",
+    "base": 160,
+    "exponent": 1.45
+  },
+  "xp_sources": [
+    {
+      "action": "tommemod:block_broken",
+      "xp": 2,
+      "filters": [
+        {
+          "type": "tommemod:tool_tag",
+          "tag": "minecraft:pickaxes"
+        }
+      ]
+    },
+    {
+      "action": "tommemod:block_broken",
+      "xp": 25,
+      "filters": [
+        {
+          "type": "tommemod:block_tag",
+          "tag": "forge:ores"
+        }
+      ]
+    },
+    {
+      "action": "tommemod:block_broken",
+      "xp": 60,
+      "filters": [
+        {
+          "type": "tommemod:block_tag",
+          "tag": "forge:ores/diamond"
+        }
+      ]
+    },
+    {
+      "action": "tommemod:block_broken",
+      "xp": 60,
+      "filters": [
+        {
+          "type": "tommemod:block_tag",
+          "tag": "forge:ores/netherite_scrap"
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "mining",
+      "title": "Mining",
+      "description": "Hitting rock in the right place.",
+      "icon": "minecraft:iron_pickaxe",
+      "x": 0,
+      "y": 0,
+      "max_rank": 1,
+      "cost": [
+        1
+      ],
+      "parents": [],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:mining_speed",
+          "amount_per_rank": 0.04,
+          "description": "%s mining speed",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "swing",
+      "title": "Swing",
+      "description": "Less effort per block.",
+      "icon": "minecraft:stone_pickaxe",
+      "x": -2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "mining"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:mining_speed",
+          "amount_per_rank": 0.07,
+          "description": "%s mining speed",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "prospecting",
+      "title": "Prospecting",
+      "description": "Ore comes out generously.",
+      "icon": "minecraft:raw_iron",
+      "x": 0,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "mining"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ore_double_drop",
+          "amount_per_rank": 0.05,
+          "description": "%s chance of a second ore drop",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "pit_sense",
+      "title": "Pit Sense",
+      "description": "Surviving what you dig into.",
+      "icon": "minecraft:torch",
+      "x": 2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "mining"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.armor",
+          "operation": "addition",
+          "amount_per_rank": 0.5,
+          "description": "%s armour",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "hard_rock",
+      "title": "Hard Rock",
+      "description": "The stubborn stone stops being stubborn.",
+      "icon": "minecraft:obsidian",
+      "x": -3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "swing"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:mining_speed",
+          "amount_per_rank": 0.08,
+          "description": "%s mining speed",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "tool_care",
+      "title": "Tool Care",
+      "description": "A pick that lasts the seam.",
+      "icon": "minecraft:anvil",
+      "x": -1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "swing"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:tool_durability_save",
+          "amount_per_rank": 0.05,
+          "description": "%s chance to spare durability",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "deep_veins",
+      "title": "Deep Veins",
+      "description": "Where there was one, there are two.",
+      "icon": "minecraft:raw_gold",
+      "x": 0,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "prospecting"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ore_double_drop",
+          "amount_per_rank": 0.06,
+          "description": "%s chance of a second ore drop",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "long_reach",
+      "title": "Long Reach",
+      "description": "Working the face without standing in it.",
+      "icon": "minecraft:stick",
+      "x": 1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "pit_sense"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:block_reach",
+          "operation": "addition",
+          "amount_per_rank": 0.35,
+          "description": "%s block reach",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "miners_lamp",
+      "title": "Miner's Lamp",
+      "description": "The dark holds less against you.",
+      "icon": "minecraft:lantern",
+      "x": 3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "pit_sense"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.max_health",
+          "operation": "addition",
+          "amount_per_rank": 1.0,
+          "description": "%s max health",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "power_stroke",
+      "title": "Power Stroke",
+      "description": "Straight through, first time.",
+      "icon": "minecraft:diamond_pickaxe",
+      "x": -3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "hard_rock"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:mining_speed",
+          "amount_per_rank": 0.1,
+          "description": "%s mining speed",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "unbreaking_grip",
+      "title": "Unbreaking Grip",
+      "description": "Tools you rarely have to replace.",
+      "icon": "minecraft:iron_ingot",
+      "x": -1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "tool_care"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:tool_durability_save",
+          "amount_per_rank": 0.07,
+          "description": "%s chance to spare durability",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "mother_lode",
+      "title": "Mother Lode",
+      "description": "The good seams give twice.",
+      "icon": "minecraft:diamond",
+      "x": 0,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "deep_veins"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ore_double_drop",
+          "amount_per_rank": 0.08,
+          "description": "%s chance of a second ore drop",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "cave_legs",
+      "title": "Cave Legs",
+      "description": "Days below ground cost you nothing.",
+      "icon": "minecraft:cooked_beef",
+      "x": 1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "long_reach"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:exhaustion_reduction",
+          "amount_per_rank": 0.12,
+          "description": "%s hunger drain",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "assay",
+      "title": "Assay",
+      "description": "Learning more from every break.",
+      "icon": "minecraft:experience_bottle",
+      "x": 3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "miners_lamp"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:block_xp_bonus",
+          "amount_per_rank": 0.2,
+          "description": "%s experience from blocks",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "hewer",
+      "title": "Hewer",
+      "description": "Stone yields as fast as you can swing.",
+      "icon": "minecraft:netherite_pickaxe",
+      "x": -2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "power_stroke",
+        "unbreaking_grip"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:mining_speed",
+          "amount_per_rank": 0.14,
+          "description": "%s mining speed",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "rich_seam",
+      "title": "Rich Seam",
+      "description": "Ore practically falls out.",
+      "icon": "minecraft:gold_block",
+      "x": 0,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "mother_lode"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ore_double_drop",
+          "amount_per_rank": 0.1,
+          "description": "%s chance of a second ore drop",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:block_xp_bonus",
+          "amount_per_rank": 0.15,
+          "description": "%s experience from blocks",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "pit_strength",
+      "title": "Pit Strength",
+      "description": "Built by the work itself.",
+      "icon": "minecraft:netherite_scrap",
+      "x": 2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "cave_legs",
+        "assay"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.max_health",
+          "operation": "addition",
+          "amount_per_rank": 2.0,
+          "description": "%s max health",
+          "format": "decimal"
+        },
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.armor",
+          "operation": "addition",
+          "amount_per_rank": 1.0,
+          "description": "%s armour",
+          "format": "decimal"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "deepdelver",
+      "title": "Deepdelver",
+      "description": "There is no rock left that argues with you.",
+      "icon": "minecraft:beacon",
+      "x": 0,
+      "y": 5,
+      "max_rank": 1,
+      "cost": [
+        5
+      ],
+      "parents": [
+        "hewer",
+        "rich_seam",
+        "pit_strength"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:mining_speed",
+          "amount_per_rank": 0.25,
+          "description": "%s mining speed",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ore_double_drop",
+          "amount_per_rank": 0.15,
+          "description": "%s chance of a second ore drop",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:tool_durability_save",
+          "amount_per_rank": 0.1,
+          "description": "%s chance to spare durability",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:all_nodes",
+          "rank": 1
+        },
+        {
+          "type": "tommemod:skill_level",
+          "level": 50
+        }
+      ]
+    }
+  ]
+}

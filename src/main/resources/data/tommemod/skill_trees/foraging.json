@@ -1,0 +1,601 @@
+{
+  "id": "tommemod:foraging",
+  "category": "tommemod:gathering",
+  "display_name": "Foraging",
+  "description": "Trees, leaves and what grows. Earned with an axe and a full basket.",
+  "icon": "minecraft:iron_axe",
+  "sort_order": 2,
+  "max_level": 100,
+  "points_per_level": 1,
+  "xp_curve": {
+    "type": "tommemod:polynomial",
+    "base": 140,
+    "exponent": 1.45
+  },
+  "xp_sources": [
+    {
+      "action": "tommemod:block_broken",
+      "xp": 6,
+      "filters": [
+        {
+          "type": "tommemod:block_tag",
+          "tag": "minecraft:logs"
+        }
+      ]
+    },
+    {
+      "action": "tommemod:block_broken",
+      "xp": 1,
+      "filters": [
+        {
+          "type": "tommemod:block_tag",
+          "tag": "minecraft:leaves"
+        }
+      ]
+    },
+    {
+      "action": "tommemod:block_broken",
+      "xp": 8,
+      "filters": [
+        {
+          "type": "tommemod:block_tag",
+          "tag": "minecraft:crops"
+        }
+      ]
+    },
+    {
+      "action": "tommemod:block_broken",
+      "xp": 3,
+      "filters": [
+        {
+          "type": "tommemod:tool_tag",
+          "tag": "minecraft:axes"
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "foraging",
+      "title": "Foraging",
+      "description": "Knowing what is worth taking.",
+      "icon": "minecraft:iron_axe",
+      "x": 0,
+      "y": 0,
+      "max_rank": 1,
+      "cost": [
+        1
+      ],
+      "parents": [],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:mining_speed",
+          "amount_per_rank": 0.04,
+          "description": "%s chopping speed",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "felling",
+      "title": "Felling",
+      "description": "Cuts that land where you meant them.",
+      "icon": "minecraft:stone_axe",
+      "x": -2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "foraging"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:mining_speed",
+          "amount_per_rank": 0.08,
+          "description": "%s chopping speed",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "harvest",
+      "title": "Harvest",
+      "description": "Nothing left in the field.",
+      "icon": "minecraft:wheat",
+      "x": 0,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "foraging"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:foraging_double_drop",
+          "amount_per_rank": 0.06,
+          "description": "%s chance of a second drop",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "woodcraft",
+      "title": "Woodcraft",
+      "description": "The forest keeps you fed.",
+      "icon": "minecraft:apple",
+      "x": 2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "foraging"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:exhaustion_reduction",
+          "amount_per_rank": 0.08,
+          "description": "%s hunger drain",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "timber",
+      "title": "Timber",
+      "description": "Trunks come apart quickly.",
+      "icon": "minecraft:oak_log",
+      "x": -3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "felling"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:mining_speed",
+          "amount_per_rank": 0.09,
+          "description": "%s chopping speed",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "limbing",
+      "title": "Limbing",
+      "description": "Leaves stop slowing you down.",
+      "icon": "minecraft:shears",
+      "x": -1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "felling"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:mining_speed",
+          "amount_per_rank": 0.08,
+          "description": "%s chopping speed",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "seed_eye",
+      "title": "Seed Eye",
+      "description": "Saplings and seed by the handful.",
+      "icon": "minecraft:oak_sapling",
+      "x": 0,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "harvest"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:foraging_double_drop",
+          "amount_per_rank": 0.07,
+          "description": "%s chance of a second drop",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "canopy",
+      "title": "Canopy",
+      "description": "Working the whole tree from one place.",
+      "icon": "minecraft:vine",
+      "x": 1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "woodcraft"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:block_reach",
+          "operation": "addition",
+          "amount_per_rank": 0.35,
+          "description": "%s block reach",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "forager",
+      "title": "Forager",
+      "description": "The woods are a larder.",
+      "icon": "minecraft:sweet_berries",
+      "x": 3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "woodcraft"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.luck",
+          "operation": "addition",
+          "amount_per_rank": 0.3,
+          "description": "%s luck",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "clearcut",
+      "title": "Clearcut",
+      "description": "A stand of trees is an afternoon.",
+      "icon": "minecraft:diamond_axe",
+      "x": -3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "timber"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:mining_speed",
+          "amount_per_rank": 0.12,
+          "description": "%s chopping speed",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "green_thumb",
+      "title": "Green Thumb",
+      "description": "Crops come up heavy.",
+      "icon": "minecraft:bone_meal",
+      "x": -1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "limbing"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:foraging_double_drop",
+          "amount_per_rank": 0.09,
+          "description": "%s chance of a second drop",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "axe_care",
+      "title": "Axe Care",
+      "description": "An edge that keeps.",
+      "icon": "minecraft:grindstone",
+      "x": 0,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "seed_eye"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:tool_durability_save",
+          "amount_per_rank": 0.07,
+          "description": "%s chance to spare durability",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "orchard",
+      "title": "Orchard",
+      "description": "What you plant, you get back twice.",
+      "icon": "minecraft:melon",
+      "x": 1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "canopy"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:foraging_double_drop",
+          "amount_per_rank": 0.08,
+          "description": "%s chance of a second drop",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "deep_woods",
+      "title": "Deep Woods",
+      "description": "The forest stops being dangerous.",
+      "icon": "minecraft:mossy_cobblestone",
+      "x": 3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "forager"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.max_health",
+          "operation": "addition",
+          "amount_per_rank": 1.0,
+          "description": "%s max health",
+          "format": "decimal"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "lumberjack",
+      "title": "Lumberjack",
+      "description": "Wood is no longer a bottleneck.",
+      "icon": "minecraft:netherite_axe",
+      "x": -2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "clearcut",
+        "green_thumb"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:mining_speed",
+          "amount_per_rank": 0.18,
+          "description": "%s chopping speed",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "bountiful",
+      "title": "Bountiful",
+      "description": "Every harvest overflows.",
+      "icon": "minecraft:hay_block",
+      "x": 0,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "axe_care"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:foraging_double_drop",
+          "amount_per_rank": 0.14,
+          "description": "%s chance of a second drop",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:block_xp_bonus",
+          "amount_per_rank": 0.15,
+          "description": "%s experience from blocks",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "woodsman",
+      "title": "Woodsman",
+      "description": "You live out here now.",
+      "icon": "minecraft:cooked_rabbit",
+      "x": 2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "orchard",
+        "deep_woods"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:exhaustion_reduction",
+          "amount_per_rank": 0.15,
+          "description": "%s hunger drain",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.luck",
+          "operation": "addition",
+          "amount_per_rank": 0.4,
+          "description": "%s luck",
+          "format": "decimal"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "forestlord",
+      "title": "Forestlord",
+      "description": "The wood gives you whatever you ask of it.",
+      "icon": "minecraft:warped_fungus",
+      "x": 0,
+      "y": 5,
+      "max_rank": 1,
+      "cost": [
+        5
+      ],
+      "parents": [
+        "lumberjack",
+        "bountiful",
+        "woodsman"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:mining_speed",
+          "amount_per_rank": 0.25,
+          "description": "%s chopping speed",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:foraging_double_drop",
+          "amount_per_rank": 0.2,
+          "description": "%s chance of a second drop",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:tool_durability_save",
+          "amount_per_rank": 0.1,
+          "description": "%s chance to spare durability",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:all_nodes",
+          "rank": 1
+        },
+        {
+          "type": "tommemod:skill_level",
+          "level": 50
+        }
+      ]
+    }
+  ]
+}

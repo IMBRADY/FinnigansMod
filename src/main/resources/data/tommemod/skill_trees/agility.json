@@ -1,0 +1,592 @@
+{
+  "id": "tommemod:agility",
+  "category": "tommemod:movement",
+  "display_name": "Agility",
+  "description": "Running, jumping, climbing and swimming. Earned by covering ground under your own power.",
+  "icon": "minecraft:feather",
+  "sort_order": 0,
+  "max_level": 100,
+  "points_per_level": 1,
+  "xp_curve": {
+    "type": "tommemod:polynomial",
+    "base": 120,
+    "exponent": 1.45
+  },
+  "xp_sources": [
+    {
+      "action": "tommemod:distance/sprint",
+      "xp_per_unit": 0.55
+    },
+    {
+      "action": "tommemod:distance/walk",
+      "xp_per_unit": 0.12
+    },
+    {
+      "action": "tommemod:distance/swim",
+      "xp_per_unit": 0.6
+    },
+    {
+      "action": "tommemod:distance/climb",
+      "xp_per_unit": 0.2
+    },
+    {
+      "action": "tommemod:distance/fall",
+      "xp_per_unit": 0.5
+    },
+    {
+      "action": "tommemod:jump",
+      "xp": 1.2
+    }
+  ],
+  "nodes": [
+    {
+      "id": "agility",
+      "title": "Agility",
+      "description": "The habit of moving well.",
+      "icon": "minecraft:feather",
+      "x": 0,
+      "y": 0,
+      "max_rank": 1,
+      "cost": [
+        1
+      ],
+      "parents": [],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.movement_speed",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.02,
+          "description": "%s movement speed"
+        }
+      ]
+    },
+    {
+      "id": "sprint_training",
+      "title": "Sprint Training",
+      "description": "Longer strides at a dead run.",
+      "icon": "minecraft:sugar",
+      "x": -2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "agility"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:sprint_speed",
+          "amount_per_rank": 0.05,
+          "description": "%s speed while sprinting",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "footwork",
+      "title": "Footwork",
+      "description": "Wasting less of every step.",
+      "icon": "minecraft:leather_boots",
+      "x": 0,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "agility"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.movement_speed",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.04,
+          "description": "%s movement speed"
+        }
+      ]
+    },
+    {
+      "id": "acrobatics",
+      "title": "Acrobatics",
+      "description": "Getting off the ground and back onto it.",
+      "icon": "minecraft:rabbit_foot",
+      "x": 2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "agility"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:jump_power",
+          "amount_per_rank": 0.03,
+          "description": "%s jump height",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "second_wind",
+      "title": "Second Wind",
+      "description": "Running costs you less of your supper.",
+      "icon": "minecraft:bread",
+      "x": -3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "sprint_training"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:exhaustion_reduction",
+          "amount_per_rank": 0.08,
+          "description": "%s hunger drain",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "endurance",
+      "title": "Endurance",
+      "description": "Holding a sprint without falling off it.",
+      "icon": "minecraft:cooked_beef",
+      "x": -1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "sprint_training"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:sprint_speed",
+          "amount_per_rank": 0.06,
+          "description": "%s speed while sprinting",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "swimmer",
+      "title": "Swimmer",
+      "description": "Real strokes instead of flailing.",
+      "icon": "minecraft:water_bucket",
+      "x": 0,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "footwork"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:swim_speed",
+          "operation": "addition",
+          "amount_per_rank": 0.15,
+          "description": "%s swim speed",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "sure_footed",
+      "title": "Sure Footed",
+      "description": "Stepping up without breaking stride.",
+      "icon": "minecraft:stone_bricks",
+      "x": 1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "acrobatics"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:step_height_addition",
+          "operation": "addition",
+          "amount_per_rank": 0.25,
+          "description": "%s step height",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "tumbler",
+      "title": "Tumbler",
+      "description": "Knowing how to meet the ground.",
+      "icon": "minecraft:hay_block",
+      "x": 3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "acrobatics"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:safe_fall_bonus",
+          "amount_per_rank": 1.5,
+          "description": "%s blocks of safe falling",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "marathon",
+      "title": "Marathon",
+      "description": "The long road stops costing what it did.",
+      "icon": "minecraft:golden_carrot",
+      "x": -3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "second_wind"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:exhaustion_reduction",
+          "amount_per_rank": 0.1,
+          "description": "%s hunger drain",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "advanced_sprint",
+      "title": "Advanced Sprint",
+      "description": "Flat out, and staying there.",
+      "icon": "minecraft:sugar",
+      "x": -1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "endurance"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:sprint_speed",
+          "amount_per_rank": 0.08,
+          "description": "%s speed while sprinting",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "lungs",
+      "title": "Lungs",
+      "description": "One breath goes a great deal further.",
+      "icon": "minecraft:pufferfish",
+      "x": 0,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "swimmer"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:breath_retention",
+          "amount_per_rank": 0.2,
+          "description": "%s slower air loss",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "long_jump",
+      "title": "Long Jump",
+      "description": "Clearing gaps that used to need a bridge.",
+      "icon": "minecraft:slime_block",
+      "x": 1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "sure_footed"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:jump_power",
+          "amount_per_rank": 0.04,
+          "description": "%s jump height",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "roll",
+      "title": "Roll",
+      "description": "Turning a landing into a movement.",
+      "icon": "minecraft:white_wool",
+      "x": 3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "tumbler"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:fall_damage_reduction",
+          "amount_per_rank": 0.2,
+          "description": "%s fall damage",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "pathfinder",
+      "title": "Pathfinder",
+      "description": "Every surface treated as ground.",
+      "icon": "minecraft:compass",
+      "x": -2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "marathon",
+        "advanced_sprint"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.movement_speed",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.04,
+          "description": "%s movement speed"
+        },
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:step_height_addition",
+          "operation": "addition",
+          "amount_per_rank": 0.25,
+          "description": "%s step height",
+          "format": "decimal"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "aquatic",
+      "title": "Aquatic",
+      "description": "As quick in the water as out of it.",
+      "icon": "minecraft:heart_of_the_sea",
+      "x": 0,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "lungs"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:swim_speed",
+          "operation": "addition",
+          "amount_per_rank": 0.25,
+          "description": "%s swim speed",
+          "format": "decimal"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:breath_retention",
+          "amount_per_rank": 0.15,
+          "description": "%s slower air loss",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "featherfall",
+      "title": "Featherfall",
+      "description": "The world pulls at you a little less.",
+      "icon": "minecraft:phantom_membrane",
+      "x": 2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "long_jump",
+        "roll"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "forge:entity_gravity",
+          "operation": "multiply_base",
+          "amount_per_rank": -0.08,
+          "description": "%s gravity"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:fall_damage_reduction",
+          "amount_per_rank": 0.15,
+          "description": "%s fall damage",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "windrunner",
+      "title": "Windrunner",
+      "description": "Ground, water and air all give way the same.",
+      "icon": "minecraft:elytra",
+      "x": 0,
+      "y": 5,
+      "max_rank": 1,
+      "cost": [
+        5
+      ],
+      "parents": [
+        "pathfinder",
+        "aquatic",
+        "featherfall"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.movement_speed",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.08,
+          "description": "%s movement speed"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:jump_power",
+          "amount_per_rank": 0.08,
+          "description": "%s jump height",
+          "format": "decimal"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:exhaustion_reduction",
+          "amount_per_rank": 0.25,
+          "description": "%s hunger drain",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:all_nodes",
+          "rank": 1
+        },
+        {
+          "type": "tommemod:skill_level",
+          "level": 50
+        }
+      ]
+    }
+  ]
+}

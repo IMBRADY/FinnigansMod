@@ -1,0 +1,587 @@
+{
+  "id": "tommemod:defense",
+  "category": "tommemod:combat",
+  "display_name": "Defense",
+  "description": "Shields, armour and staying upright. Earned by taking hits and surviving them.",
+  "icon": "minecraft:shield",
+  "sort_order": 2,
+  "max_level": 100,
+  "points_per_level": 1,
+  "xp_curve": {
+    "type": "tommemod:polynomial",
+    "base": 165,
+    "exponent": 1.45
+  },
+  "xp_sources": [
+    {
+      "action": "tommemod:damage_blocked",
+      "xp_per_unit": 6.0
+    },
+    {
+      "action": "tommemod:damage_taken",
+      "xp_per_unit": 2.0
+    }
+  ],
+  "nodes": [
+    {
+      "id": "defense",
+      "title": "Defense",
+      "description": "Standing the right way round.",
+      "icon": "minecraft:shield",
+      "x": 0,
+      "y": 0,
+      "max_rank": 1,
+      "cost": [
+        1
+      ],
+      "parents": [],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:damage_reduction",
+          "amount_per_rank": 0.02,
+          "description": "%s damage taken",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "shieldwork",
+      "title": "Shieldwork",
+      "description": "A shield that survives the fight.",
+      "icon": "minecraft:shield",
+      "x": -2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "defense"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:shield_durability_save",
+          "amount_per_rank": 0.08,
+          "description": "%s chance to spare your shield",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "armour_training",
+      "title": "Armour Training",
+      "description": "Wearing it properly.",
+      "icon": "minecraft:iron_chestplate",
+      "x": 0,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "defense"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.armor",
+          "operation": "addition",
+          "amount_per_rank": 0.8,
+          "description": "%s armour",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "toughness",
+      "title": "Toughness",
+      "description": "Taking it and carrying on.",
+      "icon": "minecraft:golden_apple",
+      "x": 2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "defense"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.max_health",
+          "operation": "addition",
+          "amount_per_rank": 1.0,
+          "description": "%s max health",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "brace",
+      "title": "Brace",
+      "description": "Immovable behind the boards.",
+      "icon": "minecraft:netherite_ingot",
+      "x": -3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "shieldwork"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.knockback_resistance",
+          "operation": "addition",
+          "amount_per_rank": 0.1,
+          "description": "%s knockback resistance",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "riposte",
+      "title": "Riposte",
+      "description": "The block is the attack.",
+      "icon": "minecraft:iron_sword",
+      "x": -1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "shieldwork"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:riposte",
+          "amount_per_rank": 0.1,
+          "description": "%s of blocked damage returned",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "plate",
+      "title": "Plate",
+      "description": "Better steel, better worn.",
+      "icon": "minecraft:diamond_chestplate",
+      "x": 0,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "armour_training"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.armor_toughness",
+          "operation": "addition",
+          "amount_per_rank": 0.6,
+          "description": "%s armour toughness",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "fireproofing",
+      "title": "Fireproofing",
+      "description": "Heat stops mattering.",
+      "icon": "minecraft:magma_cream",
+      "x": 1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "toughness"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:fire_resistance",
+          "amount_per_rank": 0.1,
+          "description": "%s fire damage",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "blastproofing",
+      "title": "Blastproofing",
+      "description": "Explosions become survivable.",
+      "icon": "minecraft:tnt",
+      "x": 3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "toughness"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:blast_resistance",
+          "amount_per_rank": 0.1,
+          "description": "%s explosion damage",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "shield_master",
+      "title": "Shield Master",
+      "description": "A shield that never breaks.",
+      "icon": "minecraft:netherite_scrap",
+      "x": -3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "brace"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:shield_durability_save",
+          "amount_per_rank": 0.12,
+          "description": "%s chance to spare your shield",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "resilience",
+      "title": "Resilience",
+      "description": "Everything hurts you less.",
+      "icon": "minecraft:diamond",
+      "x": -1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "riposte"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:damage_reduction",
+          "amount_per_rank": 0.05,
+          "description": "%s damage taken",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "deflection",
+      "title": "Deflection",
+      "description": "Arrows glance away.",
+      "icon": "minecraft:arrow",
+      "x": 0,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "plate"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:projectile_resistance",
+          "amount_per_rank": 0.12,
+          "description": "%s damage from projectiles",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "stalwart",
+      "title": "Stalwart",
+      "description": "More of you to hurt.",
+      "icon": "minecraft:enchanted_golden_apple",
+      "x": 1,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "fireproofing"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.max_health",
+          "operation": "addition",
+          "amount_per_rank": 2.0,
+          "description": "%s max health",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "thorns",
+      "title": "Thorns",
+      "description": "They pay for every blow.",
+      "icon": "minecraft:cactus",
+      "x": 3,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        2,
+        3
+      ],
+      "parents": [
+        "blastproofing"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:riposte",
+          "amount_per_rank": 0.15,
+          "description": "%s of blocked damage returned",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": "aegis",
+      "title": "Aegis",
+      "description": "The shield is never the thing that fails.",
+      "icon": "minecraft:netherite_ingot",
+      "x": -2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "shield_master",
+        "resilience"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:shield_durability_save",
+          "amount_per_rank": 0.18,
+          "description": "%s chance to spare your shield",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:riposte",
+          "amount_per_rank": 0.1,
+          "description": "%s of blocked damage returned",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "bulwark",
+      "title": "Bulwark",
+      "description": "Simply harder to kill.",
+      "icon": "minecraft:netherite_chestplate",
+      "x": 0,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "deflection"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:damage_reduction",
+          "amount_per_rank": 0.07,
+          "description": "%s damage taken",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.armor",
+          "operation": "addition",
+          "amount_per_rank": 1.5,
+          "description": "%s armour",
+          "format": "decimal"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "warded",
+      "title": "Warded",
+      "description": "Fire, blast and arrow all lose their edge.",
+      "icon": "minecraft:totem_of_undying",
+      "x": 2,
+      "y": 4,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "stalwart",
+        "thorns"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:fire_resistance",
+          "amount_per_rank": 0.15,
+          "description": "%s fire damage",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:blast_resistance",
+          "amount_per_rank": 0.15,
+          "description": "%s explosion damage",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:projectile_resistance",
+          "amount_per_rank": 0.1,
+          "description": "%s damage from projectiles",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 12
+        }
+      ]
+    },
+    {
+      "id": "unbreakable",
+      "title": "Unbreakable",
+      "description": "They will have to try something else.",
+      "icon": "minecraft:netherite_helmet",
+      "x": 0,
+      "y": 5,
+      "max_rank": 1,
+      "cost": [
+        5
+      ],
+      "parents": [
+        "aegis",
+        "bulwark",
+        "warded"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:damage_reduction",
+          "amount_per_rank": 0.15,
+          "description": "%s damage taken",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.max_health",
+          "operation": "addition",
+          "amount_per_rank": 4.0,
+          "description": "%s max health",
+          "format": "decimal"
+        },
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.armor_toughness",
+          "operation": "addition",
+          "amount_per_rank": 2.0,
+          "description": "%s armour toughness",
+          "format": "decimal"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:all_nodes",
+          "rank": 1
+        },
+        {
+          "type": "tommemod:skill_level",
+          "level": 50
+        }
+      ]
+    }
+  ]
+}
