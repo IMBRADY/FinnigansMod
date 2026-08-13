@@ -7,6 +7,7 @@ import net.finnigan.tommemod.config.ModConfig;
 import net.finnigan.tommemod.menu.MonolithMenu;
 import net.finnigan.tommemod.network.ModNetwork;
 import net.finnigan.tommemod.network.packet.MonolithUpgradePacket;
+import net.finnigan.tommemod.village.VillageUpgrade;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -21,7 +22,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.MapColor;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Fully custom Monolith GUI: two tabs (Tactical Minimap - with Defensive Metrics folded into its
@@ -59,8 +62,14 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
     private static final float MAX_ZOOM = 3.0F;
     private static final float ZOOM_STEP = 0.2F;
 
+    /** Vertical room each upgrade's three lines of text and its button occupy. */
+    private static final int UPGRADE_ROW_HEIGHT = 58;
+    /** Button sits under its upgrade's text rather than beside it - an effect line like
+     * "Warriors have 75% more health" is long enough to run underneath a button placed alongside. */
+    private static final int UPGRADE_BUTTON_OFFSET_Y = 38;
+
     private Tab activeTab = Tab.MINIMAP;
-    private Button upgradeButton;
+    private final Map<VillageUpgrade, Button> upgradeButtons = new EnumMap<>(VillageUpgrade.class);
     private float zoom = 1.0F;
 
     private DynamicTexture terrainTexture;
@@ -89,8 +98,14 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
         this.addRenderableWidget(Button.builder(Component.literal("Upgrades"), b -> activeTab = Tab.UPGRADES)
                 .bounds(x + 68, y + 6, 64, 16).build());
 
-        this.upgradeButton = this.addRenderableWidget(Button.builder(Component.literal("Upgrade"), b -> onUpgradeClicked())
-                .bounds(x + 130, y + 60, 64, 16).build());
+        upgradeButtons.clear();
+        int rowY = y + 30;
+        for (VillageUpgrade upgrade : VillageUpgrade.values()) {
+            upgradeButtons.put(upgrade, this.addRenderableWidget(
+                    Button.builder(Component.literal("Upgrade"), b -> onUpgradeClicked(upgrade))
+                            .bounds(x + 10, rowY + UPGRADE_BUTTON_OFFSET_Y, 64, 16).build()));
+            rowY += UPGRADE_ROW_HEIGHT;
+        }
     }
 
     @Override
@@ -111,11 +126,11 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
         return super.mouseScrolled(mouseX, mouseY, delta);
     }
 
-    private void onUpgradeClicked() {
+    private void onUpgradeClicked(VillageUpgrade upgrade) {
         MonolithBlockEntity be = menu.getBlockEntity();
         if (!be.hasVillage()) return;
-        if (be.getFarmEfficiencyLevel() >= ModConfig.FARM_EFFICIENCY_MAX_LEVEL.get()) return;
-        ModNetwork.CHANNEL.sendToServer(new MonolithUpgradePacket(be.getBlockPos()));
+        if (be.getUpgradeLevel(upgrade) >= upgrade.maxLevel()) return;
+        ModNetwork.CHANNEL.sendToServer(new MonolithUpgradePacket(be.getBlockPos(), upgrade));
     }
 
     @Override
@@ -129,10 +144,15 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        upgradeButton.visible = activeTab == Tab.UPGRADES;
+        MonolithBlockEntity be = menu.getBlockEntity();
+        upgradeButtons.forEach((upgrade, button) -> {
+            // Nothing left to buy reads better as no button at all than as one that does nothing.
+            button.visible = activeTab == Tab.UPGRADES
+                    && be.hasVillage()
+                    && be.getUpgradeLevel(upgrade) < upgrade.maxLevel();
+        });
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
-        MonolithBlockEntity be = menu.getBlockEntity();
         int x = leftPos;
         int y = topPos + 30;
 
@@ -348,25 +368,28 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
     // ---- Village Upgrades ----
 
     private void renderUpgradesTab(GuiGraphics guiGraphics, MonolithBlockEntity be, int x, int y) {
-        int level = be.getFarmEfficiencyLevel();
-        int maxLevel = ModConfig.FARM_EFFICIENCY_MAX_LEVEL.get();
-        double percent = level * ModConfig.FARM_EFFICIENCY_PERCENT_PER_LEVEL.get() * 100.0;
+        int rowY = y;
+        for (VillageUpgrade upgrade : VillageUpgrade.values()) {
+            int level = be.getUpgradeLevel(upgrade);
+            int maxLevel = upgrade.maxLevel();
 
-        guiGraphics.drawString(font, "Farm Efficiency: Lv. " + level + "/" + maxLevel, x + 10, y + 10, 0xFFFFFFFF);
-        guiGraphics.drawString(font, "Crops grow " + (int) percent + "% faster", x + 10, y + 22, 0xFFAAAAAA);
+            guiGraphics.drawString(font, upgrade.displayName() + ": Lv. " + level + "/" + maxLevel,
+                    x + 10, rowY + 2, 0xFFFFFFFF);
+            guiGraphics.drawString(font, upgrade.effectDescription(level), x + 10, rowY + 14, 0xFFAAAAAA);
 
-        if (level < maxLevel) {
-            List<? extends Integer> costs = ModConfig.FARM_EFFICIENCY_UPGRADE_COST_EMERALDS.get();
-            int cost = costs.isEmpty() ? 0 : costs.get(Math.min(level, costs.size() - 1));
-            guiGraphics.drawString(font, "Next level: " + cost + " emeralds", x + 10, y + 34, 0xFF55FF55);
-        } else {
-            guiGraphics.drawString(font, "Max level reached", x + 10, y + 34, 0xFFFFAA00);
+            if (level < maxLevel) {
+                guiGraphics.drawString(font,
+                        "Next level: " + upgrade.costOfNextLevel(level) + " " + upgrade.costItemPlural(),
+                        x + 10, rowY + 26, 0xFF55FF55);
+            } else {
+                guiGraphics.drawString(font, "Max level reached", x + 10, rowY + 26, 0xFFFFAA00);
+            }
+
+            rowY += UPGRADE_ROW_HEIGHT;
         }
 
-        guiGraphics.fill(x + 10, y + 66, x + 190, y + 90, 0x60404040);
-        guiGraphics.drawString(font, "Coming Soon", x + 16, y + 74, 0xFF808080);
-
-        guiGraphics.fill(x + 10, y + 96, x + 190, y + 120, 0x60404040);
-        guiGraphics.drawString(font, "Coming Soon", x + 16, y + 104, 0xFF808080);
+        // Still room for one more before the panel runs out - see VillageUpgrade to fill it.
+        guiGraphics.fill(x + 10, rowY + 6, x + 190, rowY + 30, 0x60404040);
+        guiGraphics.drawString(font, "Coming Soon", x + 16, rowY + 14, 0xFF808080);
     }
 }

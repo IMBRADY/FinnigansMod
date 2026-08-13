@@ -43,6 +43,7 @@ public class VillageManager extends SavedData {
     private final Map<UUID, UUID> elderByVillage = new HashMap<>();
     private final Map<UUID, UUID> chiefByVillage = new HashMap<>();
     private final Map<UUID, Integer> farmEfficiencyLevelByVillage = new HashMap<>();
+    private final Map<UUID, Integer> healthyWarriorsLevelByVillage = new HashMap<>();
     private final Map<BlockPos, CacheEntry> resolveCache = new HashMap<>();
 
     private record CacheEntry(Optional<UUID> villageId, long expiresAtTick) {
@@ -220,6 +221,15 @@ public class VillageManager extends SavedData {
         setDirty();
     }
 
+    public int getHealthyWarriorsLevel(UUID villageId) {
+        return healthyWarriorsLevelByVillage.getOrDefault(villageId, 0);
+    }
+
+    public void setHealthyWarriorsLevel(UUID villageId, int level) {
+        healthyWarriorsLevelByVillage.put(villageId, level);
+        setDirty();
+    }
+
     private UUID mergeVillages(Set<UUID> ids) {
         UUID keep = ids.stream().min(UUID::compareTo).orElseThrow();
         for (UUID discard : ids) {
@@ -239,6 +249,11 @@ public class VillageManager extends SavedData {
             Integer discardFarmEfficiency = farmEfficiencyLevelByVillage.remove(discard);
             if (discardFarmEfficiency != null) {
                 farmEfficiencyLevelByVillage.merge(keep, discardFarmEfficiency, Math::max);
+            }
+
+            Integer discardHealthyWarriors = healthyWarriorsLevelByVillage.remove(discard);
+            if (discardHealthyWarriors != null) {
+                healthyWarriorsLevelByVillage.merge(keep, discardHealthyWarriors, Math::max);
             }
         }
         setDirty();
@@ -295,6 +310,15 @@ public class VillageManager extends SavedData {
         });
         tag.put("FarmEfficiency", farmEfficiencyList);
 
+        ListTag healthyWarriorsList = new ListTag();
+        healthyWarriorsLevelByVillage.forEach((village, level) -> {
+            CompoundTag e = new CompoundTag();
+            e.putUUID("Village", village);
+            e.putInt("Level", level);
+            healthyWarriorsList.add(e);
+        });
+        tag.put("HealthyWarriors", healthyWarriorsList);
+
         return tag;
     }
 
@@ -329,6 +353,14 @@ public class VillageManager extends SavedData {
         for (int i = 0; i < farmEfficiencyList.size(); i++) {
             CompoundTag e = farmEfficiencyList.getCompound(i);
             mgr.farmEfficiencyLevelByVillage.put(e.getUUID("Village"), e.getInt("Level"));
+        }
+
+        // Absent from saves made before Healthy Warriors existed - reads as an empty list, so every
+        // village simply starts at level 0.
+        ListTag healthyWarriorsList = tag.getList("HealthyWarriors", Tag.TAG_COMPOUND);
+        for (int i = 0; i < healthyWarriorsList.size(); i++) {
+            CompoundTag e = healthyWarriorsList.getCompound(i);
+            mgr.healthyWarriorsLevelByVillage.put(e.getUUID("Village"), e.getInt("Level"));
         }
 
         return mgr;

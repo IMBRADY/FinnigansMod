@@ -113,6 +113,7 @@ public class ModEvents {
             event.put(ModEntityTypes.HERMIT_CRAB.get(), HermitCrabEntity.createAttributes().build());
             event.put(ModEntityTypes.ELDER_VILLAGER.get(), ElderVillagerEntity.createAttributes().build());
             event.put(ModEntityTypes.WARRIOR_VILLAGER.get(), WarriorVillagerEntity.createAttributes().build());
+            event.put(ModEntityTypes.BALLISTA.get(), BallistaEntity.createAttributes().build());
             event.put(ModEntityTypes.SCARECROW.get(), ScarecrowEntity.createAttributes().build());
             event.put(ModEntityTypes.CYCLOPS.get(), CyclopsEntity.createAttributes().build());
             event.put(ModEntityTypes.HAMMERHEAD_SHARK.get(), HammerheadSharkEntity.createAttributes().build());

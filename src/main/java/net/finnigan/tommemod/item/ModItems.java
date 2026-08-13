@@ -100,6 +100,13 @@ public class ModItems {
                     25,
                     -2.4F,
                     new Item.Properties()));
+    // 20 + Netherite's own 4 lands the swing on exactly 25 damage once the player's base 1 is added.
+    public static final RegistryObject<Item> SHADOW_SWORD = ITEMS.register("shadow_sword",
+            () -> new ShadowSwordItem(
+                    Tiers.NETHERITE,
+                    20,
+                    -2.4F,
+                    new Item.Properties()));
     public static final RegistryObject<Item> ARACKOPESH = ITEMS.register("arackopesh",
             () -> new ArackopeshItem(Tiers.NETHERITE,
                     20,
@@ -209,6 +216,9 @@ public class ModItems {
                     new Item.Properties()
             )
     );
+    public static final RegistryObject<Item> BALLISTA = ITEMS.register("ballista",
+            () -> new net.finnigan.tommemod.item.custom.BallistaItem(new Item.Properties().stacksTo(1)));
+
     public static final RegistryObject<net.finnigan.tommemod.item.custom.HalberdItem> HALBERD = ITEMS.register("halberd", () ->
             new net.finnigan.tommemod.item.custom.HalberdItem(
                     Tiers.IRON,
@@ -262,6 +272,14 @@ public class ModItems {
             () -> new TotemOfKinshipItem(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> TOTEM_OF_THE_BEARDED_MAN = ITEMS.register("totem_of_the_bearded_man",
             () -> new TotemOfTheBeardedManItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_THE_HERO = ITEMS.register("totem_of_the_hero",
+            () -> new TotemOfTheHeroItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_INVISIBILITY = ITEMS.register("totem_of_invisibility",
+            () -> new TotemOfInvisibilityItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_FIRE_MAGIC = ITEMS.register("totem_of_fire_magic",
+            () -> new TotemOfFireMagicItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TOTEM_OF_STICKINESS = ITEMS.register("totem_of_stickiness",
+            () -> new TotemOfStickinessItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> MUSKET = ITEMS.register("musket",
             () -> new MusketItem(new Item.Properties().stacksTo(1)));

@@ -1,11 +1,15 @@
 package net.finnigan.tommemod.entity.custom;
 
+import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.AidAllyTargetGoal;
+import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.AnswerDistressCallGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.DefendVillagersTargetGoal;
+import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.HoldRaidLineGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.GenericRangedBowAttackGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.GenericRangedCrossbowAttackGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.MeleeUnlessRangedAttackGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.MusketAttackGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.SeekArmorGoal;
+import net.finnigan.tommemod.config.ModConfig;
 import net.finnigan.tommemod.item.ModItems;
 import net.finnigan.tommemod.menu.WarriorVillagerMenu;
 import net.finnigan.tommemod.village.VillageManager;
@@ -31,6 +35,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -40,6 +46,7 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.RangedAttackMob;
@@ -81,6 +88,14 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
 
     public static final String DEFAULT_VILLAGER_TYPE = "plains";
 
+    /** Identifies the Healthy Warriors bonus so it can be replaced wholesale as the level changes. */
+    private static final UUID HEALTHY_WARRIORS_MODIFIER =
+            UUID.fromString("2b7f4c91-6d3a-4e58-9c02-1f8a5d3b7e64");
+    /** How often a Warrior re-reads its village's Healthy Warriors level, in ticks. */
+    private static final int HEALTHY_WARRIORS_REFRESH_INTERVAL_TICKS = 40;
+
+    private int healthyWarriorsCooldown = 0;
+
     public WarriorVillagerEntity(EntityType<? extends WarriorVillagerEntity> type, Level level) {
         super(type, level);
         this.setCanPickUpLoot(true);
@@ -100,9 +115,9 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 24.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.3D)
+                .add(Attributes.MOVEMENT_SPEED, 0.4D)
                 .add(Attributes.ATTACK_DAMAGE, 1.0D)
-                .add(Attributes.FOLLOW_RANGE, 24.0D);
+                .add(Attributes.FOLLOW_RANGE, 36.0D);
     }
 
     @Override
@@ -162,6 +177,71 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
         return resolved != null ? resolved : cached;
     }
 
+    /**
+     * Creepers are left alone. A Warrior that picks one up as a target charges it down and sets it off
+     * inside the village - whatever it was defending eats the blast either way, so the fight is never
+     * worth having. Refusing the target here rather than filtering each goal separately catches every
+     * route to one that runs through TargetingConditions: hurting-back, nearest-hostile, and answering
+     * a distress call all ask this first.
+     */
+    @Override
+    public boolean canAttack(LivingEntity target) {
+        if (target instanceof Creeper) return false;
+        // A Ballista is village defence, not a mob - one reads as a hostile entity standing in the
+        // village only because it happens to be built as one.
+        if (target instanceof BallistaEntity) return false;
+        return super.canAttack(target);
+    }
+
+    @Override
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+
+        if (--healthyWarriorsCooldown > 0) return;
+        healthyWarriorsCooldown = HEALTHY_WARRIORS_REFRESH_INTERVAL_TICKS;
+        refreshHealthyWarriorsBonus();
+    }
+
+    /**
+     * Applies this village's Healthy Warriors level as a max-health bonus.
+     *
+     * Polled from the village rather than handed out at the moment of purchase, which is what makes a
+     * Warrior conscripted (or summoned) after the upgrade arrive already strong, and what lets the
+     * bonus follow a Warrior whose village merges into a better-upgraded neighbour. Village membership
+     * comes from where the Warrior is standing when it has no conscription record of its own, so a
+     * /summon'd Warrior inside the village counts as one of its defenders.
+     */
+    private void refreshHealthyWarriorsBonus() {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
+
+        AttributeInstance maxHealth = this.getAttribute(Attributes.MAX_HEALTH);
+        if (maxHealth == null) return;
+
+        VillageManager manager = VillageManager.get(serverLevel);
+        UUID villageId = reconcileVillageId(serverLevel, manager);
+        double bonus = villageId == null ? 0.0
+                : manager.getHealthyWarriorsLevel(villageId) * ModConfig.HEALTHY_WARRIORS_PERCENT_PER_LEVEL.get();
+
+        AttributeModifier existing = maxHealth.getModifier(HEALTHY_WARRIORS_MODIFIER);
+        if (existing != null && existing.getAmount() == bonus) return;
+        if (existing == null && bonus <= 0.0) return;
+
+        float previousMax = this.getMaxHealth();
+        if (existing != null) maxHealth.removeModifier(HEALTHY_WARRIORS_MODIFIER);
+        if (bonus > 0.0) {
+            // Transient, so it is never written into this Warrior's NBT: a saved modifier would be
+            // re-applied on top of itself every load, and a village losing the upgrade could never
+            // take it back off again.
+            maxHealth.addTransientModifier(new AttributeModifier(HEALTHY_WARRIORS_MODIFIER,
+                    "Healthy Warriors", bonus, AttributeModifier.Operation.MULTIPLY_BASE));
+        }
+
+        // Hand over the new headroom as real health rather than leaving a gap for the Chief to heal by
+        // hand - buying the upgrade should visibly do something to the Warriors standing around them.
+        float gained = this.getMaxHealth() - previousMax;
+        if (gained > 0.0F) this.setHealth(this.getHealth() + gained);
+    }
+
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
@@ -212,16 +292,26 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
         this.goalSelector.addGoal(1, new GenericRangedCrossbowAttackGoal<>(this, 1.0D, 8.0F));
         this.goalSelector.addGoal(1, new GenericRangedBowAttackGoal<>(this, 1.0D, 20, 15.0F));
         this.goalSelector.addGoal(1, new MusketAttackGoal(this, 20.0D, 40));
-        this.goalSelector.addGoal(2, new MeleeUnlessRangedAttackGoal(this, 1.0D, false)); // edit this num to change speed for which it sprints when attackGoal
-        this.goalSelector.addGoal(3, new SeekArmorGoal(this));
-        this.goalSelector.addGoal(4, new RandomStrollGoal(this, 0.6D));
-        this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 8.0F));
-        this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+        // followingTargetEvenIfNotSeen: without it the goal ends the moment the path does - which
+        // happens every time a Warrior catches up to what it is hitting - and vanilla then makes it
+        // wait a second before it may start again. A defender should stay on its target until the
+        // target is dead.
+        this.goalSelector.addGoal(2, new MeleeUnlessRangedAttackGoal(this, 1.0D, true)); // edit this num to change speed for which it sprints when attackGoal
+        this.goalSelector.addGoal(3, new AnswerDistressCallGoal(this, 1.0D));
+        this.goalSelector.addGoal(4, new HoldRaidLineGoal(this, 1.0D));
+        this.goalSelector.addGoal(5, new SeekArmorGoal(this));
+        this.goalSelector.addGoal(6, new RandomStrollGoal(this, 0.6D));
+        this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this,
                 Villager.class, ElderVillagerEntity.class, WarriorVillagerEntity.class, IronGolem.class));
-        this.targetSelector.addGoal(2, new DefendVillagersTargetGoal(this));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Monster.class, 10, true, false, null));
+        this.targetSelector.addGoal(2, new AidAllyTargetGoal(this));
+        this.targetSelector.addGoal(3, new DefendVillagersTargetGoal(this));
+        // randomInterval 0 rather than vanilla's 10: at 10 a Warrior that has just killed something
+        // only re-scans on about one goal tick in five, which on its own is most of a second of
+        // standing about between fights. There are few enough Warriors to afford scanning every tick.
+        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Monster.class, 0, true, false, null));
     }
     @Override
     public ItemStack getProjectile(ItemStack weapon) {

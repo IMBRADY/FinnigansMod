@@ -3,12 +3,14 @@ package net.finnigan.tommemod.entity;
 import net.finnigan.tommemod.entity.custom.*;
 import net.finnigan.tommemod.entity.custom.AmethystCutlassHelpers.AmethystBeamEntity;
 import net.finnigan.tommemod.entity.custom.ArackopeshHelpers.GrappleHookEntity;
+import net.finnigan.tommemod.entity.custom.BallistaHelpers.BallistaBoltEntity;
 import net.finnigan.tommemod.entity.custom.ColletisHelpers.ColletisVineEntity;
 import net.finnigan.tommemod.entity.custom.Bosses.BossCrab.BossCrabEntity;
 import net.finnigan.tommemod.entity.custom.IxeHelpers.IxeBoxEntity;
 import net.finnigan.tommemod.entity.custom.IxeHelpers.IxeProjectileEntity;
 import net.finnigan.tommemod.entity.custom.EndScytheHelpers.EndScytheProjectileEntity;
 import net.finnigan.tommemod.entity.custom.LumapierHelpers.LightBoltProjectileEntity;
+import net.finnigan.tommemod.entity.custom.ShadowSwordHelpers.ShadowSoulEntity;
 import net.finnigan.tommemod.entity.custom.UnhoistedTitanHelpers.AnchorEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -54,6 +56,15 @@ public class ModEntityTypes {
                     .noSave()
                     .build("end_scythe_projectile"));
 
+    // Drawn entirely by its own particle trail (see ShadowSoulEntity#tick), so it gets a NoopRenderer.
+    public static final RegistryObject<EntityType<ShadowSoulEntity>> SHADOW_SOUL =
+            ENTITY_TYPES.register("shadow_soul", () -> EntityType.Builder.<ShadowSoulEntity>of(ShadowSoulEntity::new, MobCategory.MISC)
+                    .sized(0.4F, 0.4F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .noSave()
+                    .build("shadow_soul"));
+
     public static final RegistryObject<EntityType<AmethystBeamEntity>> AMETHYST_BEAM =
             ENTITY_TYPES.register("amethyst_beam", () -> EntityType.Builder.<AmethystBeamEntity>of(AmethystBeamEntity::new, MobCategory.MISC)
                     .sized(0.1F, 0.1F)
@@ -70,6 +81,31 @@ public class ModEntityTypes {
                             .clientTrackingRange(4) //how close (in blocks) entity sends packets to player (if player outside range, entity could pop out of existence (not necessarily despawn) if range too big, takes up too much bandwidth)
                             .updateInterval(10) //how frequently (in ticks) entity updates (high num = less cpu usage, more choppy)
                             .build("dynamite"));
+    public static final RegistryObject<EntityType<BallistaEntity>> BALLISTA =
+            ENTITY_TYPES.register("ballista",
+                    () -> EntityType.Builder.<BallistaEntity>of(BallistaEntity::new, MobCategory.MISC)
+                            .sized(0.98F, 2.0F) // one block's footprint, two tall to match the frame
+                            .clientTrackingRange(10) // it shoots 64 blocks; it has to be tracked that far
+                            .updateInterval(1)
+                            .fireImmune()
+                            .build("ballista"));
+
+    public static final RegistryObject<EntityType<BallistaBoltEntity>> BALLISTA_BOLT =
+            ENTITY_TYPES.register("ballista_bolt",
+                    () -> EntityType.Builder.<BallistaBoltEntity>of(BallistaBoltEntity::new, MobCategory.MISC)
+                            .sized(0.5F, 0.5F)
+                            .clientTrackingRange(10)
+                            .updateInterval(1)
+                            .build("ballista_bolt"));
+
+    public static final RegistryObject<EntityType<MagicFireballEntity>> MAGIC_FIREBALL =
+            ENTITY_TYPES.register("magic_fireball",
+                    () -> EntityType.Builder.<MagicFireballEntity>of(MagicFireballEntity::new, MobCategory.MISC)
+                            .sized(0.3125F, 0.3125F) // matches a vanilla small fireball
+                            .clientTrackingRange(64) // it outruns a short range, so track it far out
+                            .updateInterval(1)
+                            .noSave()
+                            .build("magic_fireball"));
     public static final RegistryObject<EntityType<MusicNoteEntity>> MUSIC_NOTE =
             ENTITY_TYPES.register("music_note1",
                     () -> EntityType.Builder.<MusicNoteEntity>of(MusicNoteEntity::new, MobCategory.MISC)

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BI ",
+    "PRP"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:bow"
+    },
+    "I": {
+      "item": "minecraft:piston"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "R": {
+      "item": "minecraft:iron_block"
+    }
+  },
+  "result": {
+    "item": "tommemod:ballista",
+    "count": 1
+  }
+}

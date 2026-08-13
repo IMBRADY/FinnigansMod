@@ -2,6 +2,7 @@ package net.finnigan.tommemod.network;
 
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.network.packet.AdjustRideDistancePacket;
+import net.finnigan.tommemod.network.packet.BallistaFirePacket;
 import net.finnigan.tommemod.network.packet.MonolithUpgradePacket;
 import net.finnigan.tommemod.network.packet.RequestBuildingBannerPacket;
 import net.finnigan.tommemod.network.packet.RotateConstructionBannerPacket;
@@ -46,5 +47,7 @@ public class ModNetwork {
                 RequestBuildingBannerPacket::encode, RequestBuildingBannerPacket::new, RequestBuildingBannerPacket::handle);
         CHANNEL.registerMessage(id++, RotateConstructionBannerPacket.class,
                 RotateConstructionBannerPacket::encode, RotateConstructionBannerPacket::decode, RotateConstructionBannerPacket::handle);
+        CHANNEL.registerMessage(id++, BallistaFirePacket.class,
+                BallistaFirePacket::encode, BallistaFirePacket::new, BallistaFirePacket::handle);
     }
 }

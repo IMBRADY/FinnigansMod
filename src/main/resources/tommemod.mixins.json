@@ -9,10 +9,13 @@
     "AbstractContainerMenuAccessor",
     "LivingEntityTotemMixin",
     "LivingEntityImmunityMixin",
+    "LivingEntityClimbableMixin",
     "ItemStackDurabilityMixin",
     "PlayerExhaustionMixin",
     "PoiTypesMixin",
-    "EntityStepSoundMixin"
+    "EntityStepSoundMixin",
+    "MeleeAttackGoalAccessor",
+    "RaidAccessor"
   ],
   "client": [
     "InventoryScreenMixin",

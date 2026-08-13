@@ -283,6 +283,9 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.MUSHLING.get(), MushlingRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.END_LANTERN.get(), EndLanternRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.DYNAMITE.get(), ThrownItemRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.MAGIC_FIREBALL.get(), ThrownItemRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.BALLISTA.get(), BallistaRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.BALLISTA_BOLT.get(), BallistaBoltRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.MUSIC_NOTE.get(), MusicNoteRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.GIANT_SWORD.get(), GiantSwordRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.GRAPPLE_HOOK.get(), GrappleHookRenderer::new);
@@ -310,6 +313,8 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.HAMMERHEAD_SHARK.get(), HammerheadSharkRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.DAGGER.get(), ThrownItemRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.LIGHT_BOLT_PROJECTILE.get(), LightBoltProjectileRenderer::new);
+            // Nothing to draw - a Shadow Sword soul is only ever its particle trail.
+            event.registerEntityRenderer(ModEntityTypes.SHADOW_SOUL.get(), net.minecraft.client.renderer.entity.NoopRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.ANCHOR.get(), AnchorRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.MINIFLY.get(), MiniflyRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.LANTERNFLY.get(), LanternflyRenderer::new);

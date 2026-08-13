@@ -51,6 +51,9 @@ public class DefendVillagersTargetGoal extends TargetGoal {
                     || attacker instanceof WarriorVillagerEntity || attacker instanceof IronGolem) {
                 continue;
             }
+            // Defers to whatever the defender itself refuses to fight - a Warrior, for one, wants
+            // nothing to do with creepers.
+            if (!mob.canAttack(attacker)) continue;
 
             int timestamp = victim.getLastHurtByMobTimestamp();
             Integer handled = handledTimestamps.get(victim.getUUID());

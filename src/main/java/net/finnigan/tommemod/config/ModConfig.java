@@ -63,7 +63,10 @@ public class ModConfig {
     public static final ForgeConfigSpec.DoubleValue FARM_EFFICIENCY_PERCENT_PER_LEVEL;
     public static final ForgeConfigSpec.IntValue FARM_EFFICIENCY_MAX_LEVEL;
     public static final ForgeConfigSpec.IntValue FARM_EFFICIENCY_TICK_INTERVAL_TICKS;
-    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> FARM_EFFICIENCY_UPGRADE_COST_EMERALDS;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> FARM_EFFICIENCY_UPGRADE_COST_HAY_BALES;
+    public static final ForgeConfigSpec.DoubleValue HEALTHY_WARRIORS_PERCENT_PER_LEVEL;
+    public static final ForgeConfigSpec.IntValue HEALTHY_WARRIORS_MAX_LEVEL;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> HEALTHY_WARRIORS_UPGRADE_COST_COOKED_BEEF;
 
     // builder hub
     // The four BUILDER_HUB_* lists below are indexed by BuildingType's enum ordinal
@@ -192,8 +195,15 @@ public class ModConfig {
                 .defineInRange("farmEfficiencyMaxLevel", 3, 0, Integer.MAX_VALUE);
         FARM_EFFICIENCY_TICK_INTERVAL_TICKS = builder.comment("How often (ticks) Farm Efficiency's crop-growth boost is rolled per nearby village")
                 .defineInRange("farmEfficiencyTickIntervalTicks", 20, 1, Integer.MAX_VALUE);
-        FARM_EFFICIENCY_UPGRADE_COST_EMERALDS = builder.comment("Emerald cost to reach each Farm Efficiency level (index 0 = cost of level 1, etc.)")
-                .defineList("farmEfficiencyUpgradeCostEmeralds", List.of(32, 64, 128), obj -> obj instanceof Integer i && i >= 0);
+        FARM_EFFICIENCY_UPGRADE_COST_HAY_BALES = builder.comment("Hay bale cost to reach each Farm Efficiency level (index 0 = cost of level 1, etc.)")
+                .defineList("farmEfficiencyUpgradeCostHayBales", List.of(32, 64, 128), obj -> obj instanceof Integer i && i >= 0);
+        HEALTHY_WARRIORS_PERCENT_PER_LEVEL = builder.comment("Extra Warrior Villager max health granted per Healthy Warriors level")
+                .defineInRange("healthyWarriorsPercentPerLevel", 0.15, 0.0, 10.0);
+        HEALTHY_WARRIORS_MAX_LEVEL = builder.comment("Maximum Healthy Warriors level a village can be upgraded to")
+                .defineInRange("healthyWarriorsMaxLevel", 5, 0, Integer.MAX_VALUE);
+        HEALTHY_WARRIORS_UPGRADE_COST_COOKED_BEEF = builder.comment("Cooked beef cost to reach each Healthy Warriors level (index 0 = cost of level 1, etc.)")
+                .defineList("healthyWarriorsUpgradeCostCookedBeef", List.of(20, 40, 60, 80, 100),
+                        obj -> obj instanceof Integer i && i >= 0);
         builder.pop();
 
         builder.push("builderHub");

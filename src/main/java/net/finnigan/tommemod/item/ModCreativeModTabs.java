@@ -39,6 +39,10 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.TOTEM_OF_KINSHIP.get());
                         pOutput.accept(ModItems.TOTEM_OF_FIRST_AID.get());
                         pOutput.accept(ModItems.TOTEM_OF_THE_BEARDED_MAN.get());
+                        pOutput.accept(ModItems.TOTEM_OF_THE_HERO.get());
+                        pOutput.accept(ModItems.TOTEM_OF_INVISIBILITY.get());
+                        pOutput.accept(ModItems.TOTEM_OF_FIRE_MAGIC.get());
+                        pOutput.accept(ModItems.TOTEM_OF_STICKINESS.get());
 
                         // WEAPONS
                         pOutput.accept(ModItems.LONGBOW.get());
@@ -55,6 +59,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.DIAMOND_PIKE.get());
                         pOutput.accept(ModItems.NETHERITE_PIKE.get());
                         pOutput.accept(ModItems.HALBERD.get());
+                        pOutput.accept(ModItems.BALLISTA.get());
 
                         pOutput.accept(ModItems.WOODEN_DAGGER.get());
                         pOutput.accept(ModItems.STONE_DAGGER.get());
@@ -88,6 +93,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.FIRE_KATANA.get());
                         pOutput.accept(ModItems.BLOSSOM_KATANA.get());
                         pOutput.accept(ModItems.SANGUIS_GLADIO.get());
+                        pOutput.accept(ModItems.SHADOW_SWORD.get());
                         pOutput.accept(ModItems.ARACKOPESH.get());
                         pOutput.accept(ModItems.AMETHYST_CUTLASS.get());
                         pOutput.accept(ModItems.IXE.get());

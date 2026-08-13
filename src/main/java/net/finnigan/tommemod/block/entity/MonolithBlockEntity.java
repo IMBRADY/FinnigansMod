@@ -7,6 +7,7 @@ import net.finnigan.tommemod.menu.MonolithMenu;
 import net.finnigan.tommemod.village.ElderPromotion;
 import net.finnigan.tommemod.village.VillageManager;
 import net.finnigan.tommemod.village.VillageRegion;
+import net.finnigan.tommemod.village.VillageUpgrade;
 import net.finnigan.tommemod.villager.ModPoiTypes;
 import net.finnigan.tommemod.villager.ModVillagers;
 import net.minecraft.core.BlockPos;
@@ -33,7 +34,9 @@ import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -78,7 +81,8 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
     private int ironGolemCount = 0;
     private int activeWarriorCount = 0;
     private int totalPopulation = 0;
-    private int farmEfficiencyLevel = 0;
+    /** Every Chief Desk upgrade's current level, mirrored from VillageManager for the screen. */
+    private final Map<VillageUpgrade, Integer> upgradeLevels = new EnumMap<>(VillageUpgrade.class);
     private List<Marker> markers = new ArrayList<>();
     private List<PoiPoint> poiPoints = new ArrayList<>();
 
@@ -223,7 +227,7 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
             ironGolemCount = 0;
             activeWarriorCount = 0;
             totalPopulation = 0;
-            farmEfficiencyLevel = 0;
+            upgradeLevels.clear();
             markers.clear();
             poiPoints.clear();
             setChanged();
@@ -233,7 +237,9 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
         villageId = resolved.get();
         VillageRegion region = manager.resolveVillageRegion(level, villageId);
         BlockPos self = this.getBlockPos();
-        farmEfficiencyLevel = manager.getFarmEfficiencyLevel(villageId);
+        for (VillageUpgrade upgrade : VillageUpgrade.values()) {
+            upgradeLevels.put(upgrade, upgrade.levelIn(manager, villageId));
+        }
 
         List<BlockPos> poiPositions = manager.getPoiPositions(villageId);
         poiPoints = new ArrayList<>(poiPositions.size());
@@ -291,8 +297,8 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
         return totalPopulation;
     }
 
-    public int getFarmEfficiencyLevel() {
-        return farmEfficiencyLevel;
+    public int getUpgradeLevel(VillageUpgrade upgrade) {
+        return upgradeLevels.getOrDefault(upgrade, 0);
     }
 
     public List<Marker> getMarkers() {
@@ -324,7 +330,10 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
         tag.putInt("IronGolemCount", ironGolemCount);
         tag.putInt("ActiveWarriorCount", activeWarriorCount);
         tag.putInt("TotalPopulation", totalPopulation);
-        tag.putInt("FarmEfficiencyLevel", farmEfficiencyLevel);
+        // Keyed by name rather than ordinal so reordering the enum can't silently shuffle levels.
+        CompoundTag upgradeTag = new CompoundTag();
+        upgradeLevels.forEach((upgrade, level) -> upgradeTag.putInt(upgrade.name(), level));
+        tag.put("UpgradeLevels", upgradeTag);
 
         ListTag markerList = new ListTag();
         for (Marker marker : markers) {
@@ -354,7 +363,12 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
         ironGolemCount = tag.getInt("IronGolemCount");
         activeWarriorCount = tag.getInt("ActiveWarriorCount");
         totalPopulation = tag.getInt("TotalPopulation");
-        farmEfficiencyLevel = tag.getInt("FarmEfficiencyLevel");
+
+        upgradeLevels.clear();
+        CompoundTag upgradeTag = tag.getCompound("UpgradeLevels");
+        for (VillageUpgrade upgrade : VillageUpgrade.values()) {
+            upgradeLevels.put(upgrade, upgradeTag.getInt(upgrade.name()));
+        }
 
         markers = new ArrayList<>();
         ListTag markerList = tag.getList("Markers", Tag.TAG_COMPOUND);
