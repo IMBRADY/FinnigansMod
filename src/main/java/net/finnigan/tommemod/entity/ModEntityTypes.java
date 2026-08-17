@@ -26,6 +26,14 @@ public class ModEntityTypes {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
             DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MOD_ID);
 
+    // Summon-only companion. Its behavior is implemented by HarringtonEntity's follow goal.
+    public static final RegistryObject<EntityType<HarringtonEntity>> HARRINGTON =
+            ENTITY_TYPES.register("harrington", () -> EntityType.Builder.of(HarringtonEntity::new, MobCategory.CREATURE)
+                    .sized(0.6F, 1.95F)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("harrington"));
+
     public static final RegistryObject<EntityType<BossCrabEntity>> BOSS_CRAB =
             ENTITY_TYPES.register("boss_crab", () -> EntityType.Builder.of(BossCrabEntity::new, MobCategory.MONSTER)
                     .sized(3.6f, 2.0f) // hitbox

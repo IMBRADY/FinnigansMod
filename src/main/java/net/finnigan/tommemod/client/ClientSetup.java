@@ -278,6 +278,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
 
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerEntityRenderer(ModEntityTypes.HARRINGTON.get(), HarringtonRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.JELLYFISH.get(), JellyfishRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.BUTTERFLY.get(), ButterflyRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.MUSHLING.get(), MushlingRenderer::new);
