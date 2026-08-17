@@ -21,7 +21,7 @@ import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
- * An iron golem forged out of an ancient armour fragment (see AncientArmorFragmentEvents). Extends
+ * An iron golem forged out of an ancient armor fragment (see AncientArmorFragmentEvents). Extends
  * IronGolem outright so it inherits the whole golem package - village defence, target selection,
  * knockback resistance, iron-ingot repair - and only changes what the brief asks for: double health,
  * a permanent slow self-heal, and GeckoLib animations in place of the vanilla model.

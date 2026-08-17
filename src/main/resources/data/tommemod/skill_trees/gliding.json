@@ -44,7 +44,7 @@
     {
       "id": "airframe",
       "title": "Airframe",
-      "description": "Holding a line instead of falling along one.",
+      "description": "A hard turn stops costing what it used to.",
       "icon": "minecraft:phantom_membrane",
       "x": -2,
       "y": 1,
@@ -60,9 +60,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:glide_speed",
-          "amount_per_rank": 0.06,
-          "description": "%s gliding speed",
+          "key": "tommemod:turn_retention",
+          "amount_per_rank": 0.12,
+          "description": "%s of the speed a turn scrubs off is kept",
           "format": "percent"
         }
       ]
@@ -70,7 +70,7 @@
     {
       "id": "light_load",
       "title": "Light Load",
-      "description": "The sky takes less notice of you.",
+      "description": "The wings hold you up better than they used to.",
       "icon": "minecraft:feather",
       "x": 0,
       "y": 1,
@@ -85,11 +85,11 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "forge:entity_gravity",
-          "operation": "multiply_base",
-          "amount_per_rank": -0.06,
-          "description": "%s gravity"
+          "type": "tommemod:bonus",
+          "key": "tommemod:elytra_lift",
+          "amount_per_rank": 0.05,
+          "description": "%s gravity while gliding",
+          "format": "percent_reduction"
         }
       ]
     },
@@ -114,7 +114,7 @@
           "type": "tommemod:bonus",
           "key": "tommemod:elytra_durability_save",
           "amount_per_rank": 0.1,
-          "description": "%s chance to spare your elytra",
+          "description": "%s chance a tick of flight costs the wings nothing",
           "format": "percent"
         }
       ]
@@ -122,7 +122,7 @@
     {
       "id": "dive",
       "title": "Dive",
-      "description": "Trading height for speed and meaning it.",
+      "description": "Trading height for speed, and getting a better rate.",
       "icon": "minecraft:firework_rocket",
       "x": -3,
       "y": 2,
@@ -138,18 +138,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:glide_speed",
-          "amount_per_rank": 0.07,
-          "description": "%s gliding speed",
+          "key": "tommemod:dive_speed",
+          "amount_per_rank": 0.1,
+          "description": "%s speed gained in a dive",
           "format": "percent"
         }
       ]
     },
     {
       "id": "thermals",
-      "title": "Thermals",
-      "description": "Finding the air that lifts.",
-      "icon": "minecraft:campfire",
+      "title": "Slipstream",
+      "description": "Thin air is faster air.",
+      "icon": "minecraft:ice",
       "x": -1,
       "y": 2,
       "max_rank": 3,
@@ -163,18 +163,18 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "forge:entity_gravity",
-          "operation": "multiply_base",
-          "amount_per_rank": -0.05,
-          "description": "%s gravity"
+          "type": "tommemod:bonus",
+          "key": "tommemod:altitude_speed",
+          "amount_per_rank": 0.06,
+          "description": "%s gliding speed, at cloud height",
+          "format": "percent"
         }
       ]
     },
     {
       "id": "soft_landing",
       "title": "Soft Landing",
-      "description": "Arriving is no longer the dangerous part.",
+      "description": "Clipping something at speed stops ending the flight.",
       "icon": "minecraft:hay_block",
       "x": 0,
       "y": 2,
@@ -190,17 +190,17 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:fall_damage_reduction",
+          "key": "tommemod:flight_collision_reduction",
           "amount_per_rank": 0.2,
-          "description": "%s fall damage",
-          "format": "percent"
+          "description": "%s damage from flying into things",
+          "format": "percent_reduction"
         }
       ]
     },
     {
       "id": "mending_hands",
       "title": "Mending Hands",
-      "description": "Wings that last a journey.",
+      "description": "Wings left off for a while come back together on their own.",
       "icon": "minecraft:phantom_membrane",
       "x": 1,
       "y": 2,
@@ -216,18 +216,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:elytra_durability_save",
-          "amount_per_rank": 0.12,
-          "description": "%s chance to spare your elytra",
-          "format": "percent"
+          "key": "tommemod:elytra_repair",
+          "amount_per_rank": 1.0,
+          "description": "%s elytra durability mended per second on the ground",
+          "format": "decimal"
         }
       ]
     },
     {
       "id": "far_sight",
-      "title": "Far Sight",
-      "description": "Picking your landing from altitude.",
-      "icon": "minecraft:spyglass",
+      "title": "Rocketry",
+      "description": "You get more out of a firework than the person who made it did.",
+      "icon": "minecraft:firework_rocket",
       "x": 3,
       "y": 2,
       "max_rank": 3,
@@ -241,20 +241,19 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "forge:block_reach",
-          "operation": "addition",
-          "amount_per_rank": 0.3,
-          "description": "%s block reach",
-          "format": "decimal"
+          "type": "tommemod:bonus",
+          "key": "tommemod:rocket_acceleration",
+          "amount_per_rank": 0.15,
+          "description": "%s firework thrust",
+          "format": "percent"
         }
       ]
     },
     {
       "id": "swiftwing",
       "title": "Swiftwing",
-      "description": "Faster than the fall that started it.",
-      "icon": "minecraft:firework_rocket",
+      "description": "Weather a flier uses rather than waits out.",
+      "icon": "minecraft:lightning_rod",
       "x": -3,
       "y": 3,
       "max_rank": 2,
@@ -268,9 +267,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:glide_speed",
-          "amount_per_rank": 0.09,
-          "description": "%s gliding speed",
+          "key": "tommemod:storm_speed",
+          "amount_per_rank": 0.15,
+          "description": "%s gliding speed in rain or thunder",
           "format": "percent"
         }
       ],
@@ -284,7 +283,7 @@
     {
       "id": "updraft",
       "title": "Updraft",
-      "description": "Climbing without a rocket.",
+      "description": "The downbeat throws the air out from under you.",
       "icon": "minecraft:white_wool",
       "x": -1,
       "y": 3,
@@ -298,18 +297,18 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "forge:entity_gravity",
-          "operation": "multiply_base",
-          "amount_per_rank": -0.07,
-          "description": "%s gravity"
+          "type": "tommemod:bonus",
+          "key": "tommemod:takeoff_burst",
+          "amount_per_rank": 0.6,
+          "description": "%s blocks of shove thrown out on takeoff",
+          "format": "decimal"
         }
       ]
     },
     {
       "id": "tuck_and_roll",
       "title": "Tuck and Roll",
-      "description": "Any height is a survivable height.",
+      "description": "Any height is survivable, so long as the wings are on.",
       "icon": "minecraft:slime_block",
       "x": 0,
       "y": 3,
@@ -324,25 +323,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:fall_damage_reduction",
+          "key": "tommemod:elytra_fall_damage_reduction",
           "amount_per_rank": 0.25,
-          "description": "%s fall damage",
-          "format": "percent"
-        },
-        {
-          "type": "tommemod:bonus",
-          "key": "tommemod:safe_fall_bonus",
-          "amount_per_rank": 2.0,
-          "description": "%s blocks of safe falling",
-          "format": "decimal"
+          "description": "%s fall damage while wearing an elytra",
+          "format": "percent_reduction"
         }
       ]
     },
     {
       "id": "wing_care",
-      "title": "Wing Care",
-      "description": "Repairs you never have to make.",
-      "icon": "minecraft:anvil",
+      "title": "Long Burn",
+      "description": "A rocket that keeps pushing past where it should have stopped.",
+      "icon": "minecraft:gunpowder",
       "x": 1,
       "y": 3,
       "max_rank": 2,
@@ -356,9 +348,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:elytra_durability_save",
-          "amount_per_rank": 0.14,
-          "description": "%s chance to spare your elytra",
+          "key": "tommemod:rocket_duration",
+          "amount_per_rank": 0.15,
+          "description": "%s firework burn time",
           "format": "percent"
         }
       ]
@@ -367,7 +359,7 @@
       "id": "high_altitude",
       "title": "High Altitude",
       "description": "Thin air stops being a problem.",
-      "icon": "minecraft:ice",
+      "icon": "minecraft:blue_ice",
       "x": 3,
       "y": 3,
       "max_rank": 2,
@@ -383,8 +375,8 @@
           "type": "tommemod:bonus",
           "key": "tommemod:breath_retention",
           "amount_per_rank": 0.2,
-          "description": "%s slower air loss",
-          "format": "percent"
+          "description": "%s air loss",
+          "format": "percent_reduction"
         }
       ],
       "requirements": [
@@ -397,8 +389,8 @@
     {
       "id": "stormrider",
       "title": "Stormrider",
-      "description": "Weather is something you use.",
-      "icon": "minecraft:lightning_rod",
+      "description": "A blow struck coming out of the sky.",
+      "icon": "minecraft:trident",
       "x": -2,
       "y": 4,
       "max_rank": 2,
@@ -413,9 +405,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:glide_speed",
-          "amount_per_rank": 0.11,
-          "description": "%s gliding speed",
+          "key": "tommemod:dive_damage",
+          "amount_per_rank": 0.25,
+          "description": "%s melee damage while diving",
           "format": "percent"
         }
       ],
@@ -433,8 +425,8 @@
     {
       "id": "featherbones",
       "title": "Featherbones",
-      "description": "There is almost nothing of you to pull down.",
-      "icon": "minecraft:phantom_membrane",
+      "description": "A flight that ends in a run rather than in a wall.",
+      "icon": "minecraft:rabbit_foot",
       "x": 0,
       "y": 4,
       "max_rank": 2,
@@ -447,18 +439,11 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "forge:entity_gravity",
-          "operation": "multiply_base",
-          "amount_per_rank": -0.08,
-          "description": "%s gravity"
-        },
-        {
           "type": "tommemod:bonus",
-          "key": "tommemod:jump_power",
-          "amount_per_rank": 0.05,
-          "description": "%s jump height",
-          "format": "decimal"
+          "key": "tommemod:landing_momentum",
+          "amount_per_rank": 0.4,
+          "description": "%s of your flight speed carried into the landing",
+          "format": "percent"
         }
       ],
       "requirements": [
@@ -475,7 +460,7 @@
     {
       "id": "eternal_wings",
       "title": "Eternal Wings",
-      "description": "Wings that outlast the flight.",
+      "description": "Time in the air is time healing.",
       "icon": "minecraft:netherite_scrap",
       "x": 2,
       "y": 4,
@@ -491,10 +476,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:elytra_durability_save",
-          "amount_per_rank": 0.2,
-          "description": "%s chance to spare your elytra",
-          "format": "percent"
+          "key": "tommemod:flight_regen",
+          "amount_per_rank": 0.5,
+          "description": "%s health a second while gliding",
+          "format": "decimal"
         }
       ],
       "requirements": [
@@ -524,27 +509,21 @@
         "featherbones",
         "eternal_wings"
       ],
+      "parent_mode": "all",
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:glide_speed",
-          "amount_per_rank": 0.18,
-          "description": "%s gliding speed",
+          "key": "tommemod:rocket_conservation",
+          "amount_per_rank": 0.3,
+          "description": "%s chance a firework is not used up",
           "format": "percent"
-        },
-        {
-          "type": "tommemod:attribute",
-          "attribute": "forge:entity_gravity",
-          "operation": "multiply_base",
-          "amount_per_rank": -0.1,
-          "description": "%s gravity"
         },
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:fall_damage_reduction",
-          "amount_per_rank": 0.3,
-          "description": "%s fall damage",
-          "format": "percent"
+          "key": "tommemod:dive_impact",
+          "amount_per_rank": 2.0,
+          "description": "%s blocks of shove when you pull out of a dive",
+          "format": "decimal"
         }
       ],
       "requirements": [

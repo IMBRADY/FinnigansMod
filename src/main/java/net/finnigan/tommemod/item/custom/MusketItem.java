@@ -46,11 +46,13 @@ public class MusketItem extends Item {
         });
     }
 
-    private static boolean isLoaded(ItemStack stack) {
+    /** Public so Marksmanship's Opening Shot can load a holstered musket. */
+    public static boolean isLoaded(ItemStack stack) {
         return !stack.hasTag() || !stack.getTag().contains("Loaded") || stack.getTag().getBoolean("Loaded");
     }
 
-    private static void setLoaded(ItemStack stack, boolean loaded) {
+    /** Public for the same reason: the skill tree reloads this from outside, without a click. */
+    public static void setLoaded(ItemStack stack, boolean loaded) {
         stack.getOrCreateTag().putBoolean("Loaded", loaded);
     }
 

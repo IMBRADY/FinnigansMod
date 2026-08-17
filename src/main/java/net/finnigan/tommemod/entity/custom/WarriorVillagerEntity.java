@@ -166,9 +166,13 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
      * established. Self-heals by re-resolving from this Warrior's current position (best-effort - if
      * it's also wandered away from the village, this can't recover, but that's strictly no worse than
      * staying stuck on an id that no longer exists at all).
+     *
+     * Public because it is the only answer worth asking for: anything outside this class that wants to
+     * know which village a Warrior belongs to wants the reconciled id, not the raw cached
+     * {@link #getVillageId()}.
      */
     @Nullable
-    private UUID reconcileVillageId(ServerLevel serverLevel, VillageManager manager) {
+    public UUID reconcileVillageId(ServerLevel serverLevel, VillageManager manager) {
         UUID cached = resolveOrGetVillageId();
         if (cached == null) return null;
         if (manager.isEstablished(cached)) return cached;

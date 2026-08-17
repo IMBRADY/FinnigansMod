@@ -1,17 +1,21 @@
 package net.finnigan.tommemod.skill.event;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.item.custom.MusketItem;
 import net.finnigan.tommemod.skill.bonus.ModSkillBonuses;
 import net.finnigan.tommemod.skill.bonus.SkillBonuses;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
 import net.minecraftforge.event.entity.player.CriticalHitEvent;
@@ -51,18 +55,38 @@ public class SkillCombatBonuses {
         if (player.equals(event.getEntity())) return;
 
         Entity direct = event.getSource().getDirectEntity();
-        boolean ranged = direct instanceof Projectile;
-        boolean unarmed = !ranged && player.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty();
+        ItemStack weapon = player.getItemBySlot(EquipmentSlot.MAINHAND);
+
+        boolean projectile = direct instanceof Projectile;
+        // A musket is hitscan: it hurts its target with playerAttack and never spawns anything, so the
+        // damage source names the player and it looked, to everything downstream, exactly like a swing.
+        // Only the held weapon tells the two apart, which is why it is asked here.
+        boolean musket = !projectile && weapon.getItem() instanceof MusketItem;
+        boolean ranged = projectile || musket;
+        boolean unarmed = !ranged && weapon.isEmpty();
 
         double bonus = 0.0;
         if (ranged) {
             bonus += SkillBonuses.get(player, ModSkillBonuses.RANGED_DAMAGE);
-            bonus += longShotBonus(player, direct);
-            bonus += headshotBonus(player, event.getEntity(), direct);
+            if (musket) {
+                bonus += SkillBonuses.get(player, ModSkillBonuses.MUSKET_DAMAGE);
+                // Long shot and headshot both measure a projectile that does not exist here - one wants
+                // the distance it flew, the other where on the target it struck. A hitscan shot has
+                // neither, so muskets get their own damage key instead of a share of those.
+            } else {
+                bonus += longShotBonus(player, direct);
+                bonus += headshotBonus(player, event.getEntity(), direct);
+            }
         } else if (unarmed) {
             bonus += SkillBonuses.get(player, ModSkillBonuses.UNARMED_DAMAGE);
         } else {
             bonus += SkillBonuses.get(player, ModSkillBonuses.MELEE_DAMAGE);
+            // Riding's Charge, on its own key rather than sharing melee_damage: the tooltip has always
+            // said "while mounted", and sharing the key made it a flat melee bonus on foot that also
+            // stacked straight onto whatever the Melee tree had already paid for.
+            if (player.isPassenger()) {
+                bonus += SkillBonuses.get(player, ModSkillBonuses.MOUNTED_MELEE_DAMAGE);
+            }
         }
 
         if (isUndead(event.getEntity())) {
@@ -71,8 +95,37 @@ public class SkillCombatBonuses {
 
         if (bonus > 0.0) event.setAmount(event.getAmount() * (float) (1.0 + bonus));
 
+        applyArmorPierce(player, event);
+
         if (unarmed) applyUnarmedKnockback(player, event.getEntity());
         applyLifesteal(player, event.getAmount(), ranged);
+    }
+
+    /**
+     * Smithing's Hardening: a blade that goes through armor rather than into it.
+     *
+     * LivingHurtEvent fires before armor is subtracted, so there is no armor value here to reduce -
+     * what there is instead is the chance to work out what the armor is about to cost and hand back
+     * the share of it being pierced. Both sides of the sum go through vanilla's own CombatRules, so
+     * this tracks the real curve - including the toughness term - rather than an approximation of it
+     * that would drift apart from the game at high armor values.
+     */
+    private static void applyArmorPierce(Player player, LivingHurtEvent event) {
+        double pierce = SkillSmithingBonuses.armorPierceFor(player, player.getMainHandItem());
+        if (pierce <= 0.0) return;
+
+        LivingEntity target = event.getEntity();
+        float armor = (float) target.getArmorValue();
+        if (armor <= 0.0F) return;
+
+        float toughness = (float) target.getAttributeValue(Attributes.ARMOR_TOUGHNESS);
+        float amount = event.getAmount();
+
+        float normal = CombatRules.getDamageAfterAbsorb(amount, armor, toughness);
+        float pierced = CombatRules.getDamageAfterAbsorb(amount, armor * (float) (1.0 - pierce), toughness);
+        if (normal <= 0.0F) return;
+
+        event.setAmount(amount * (pierced / normal));
     }
 
     /**

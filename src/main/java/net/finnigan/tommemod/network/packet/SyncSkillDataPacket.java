@@ -1,5 +1,6 @@
 package net.finnigan.tommemod.network.packet;
 
+import net.finnigan.tommemod.client.SkillXpFeed;
 import net.finnigan.tommemod.skill.data.ModSkillCapabilities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
@@ -49,6 +50,15 @@ public class SyncSkillDataPacket {
         // deserializeNBT recomputes the derived totals, so the client's own bonus lookups - the ones
         // driving greyed-out nodes and the effect lines in tooltips - agree with the server's without
         // any of it being sent.
-        player.getCapability(ModSkillCapabilities.SKILLS).ifPresent(handler -> handler.deserializeNBT(data));
+        player.getCapability(ModSkillCapabilities.SKILLS).ifPresent(handler -> {
+            handler.deserializeNBT(data);
+
+            // The corner readout works out what was earned by comparing this against the last one, so
+            // it runs here, after the capability has been written and before anything else moves it.
+            // Handed the handler rather than the player deliberately: passing LocalPlayer to anything
+            // typed Player makes the verifier prove the two are related, which on a dedicated server
+            // means loading a client-only class and losing mod construction to a RuntimeDistCleaner.
+            SkillXpFeed.onProgressSynced(handler);
+        });
     }
 }

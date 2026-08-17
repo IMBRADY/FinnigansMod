@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -47,16 +48,27 @@ public class ManBallistaGoal extends Goal {
 
     /** Give up the run-up after this long: the path is blocked, or something got there first. */
     private static final int APPROACH_TIMEOUT_TICKS = 100;
-    /** Kept off ballistas this long after standing down, so a target hovering around the engagement
-     * range doesn't make a Warrior climb in and out every other tick. */
-    private static final int STAND_DOWN_COOLDOWN_TICKS = 40;
+    /**
+     * Kept off ballistas this long after standing down, so a target hovering around the engagement
+     * range doesn't make a Warrior climb in and out every other tick.
+     *
+     * Not below 60: vanilla stamps a dismounting passenger with a 60 tick boardingCooldown, and
+     * {@code Entity.canRide} silently refuses every remount until it expires. A shorter wait here
+     * only buys a Warrior the chance to walk back and be turned away.
+     */
+    private static final int STAND_DOWN_COOLDOWN_TICKS = 60;
 
     private final WarriorVillagerEntity warrior;
 
     @Nullable
     private BallistaEntity ballista;
     private int approachTicks;
-    private int cooldownTicks;
+    /**
+     * Game time the stand-down expires at, rather than a counter ticked down in {@link #canUse()}.
+     * Mob.serverAiStep only runs the full goal selector on every other tick, so a counter decremented
+     * from canUse runs at half speed and the real wait comes out at twice what it reads as.
+     */
+    private long standDownUntilTick;
 
     public ManBallistaGoal(WarriorVillagerEntity warrior) {
         this.warrior = warrior;
@@ -72,10 +84,7 @@ public class ManBallistaGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        if (cooldownTicks > 0) {
-            cooldownTicks--;
-            return false;
-        }
+        if (warrior.level().getGameTime() < standDownUntilTick) return false;
         if (warrior.isPassenger()) return false;
 
         LivingEntity target = warrior.getTarget();
@@ -110,7 +119,7 @@ public class ManBallistaGoal extends Goal {
         warrior.getNavigation().stop();
         this.ballista = null;
         this.approachTicks = 0;
-        this.cooldownTicks = STAND_DOWN_COOLDOWN_TICKS;
+        this.standDownUntilTick = warrior.level().getGameTime() + STAND_DOWN_COOLDOWN_TICKS;
     }
 
     @Override
@@ -142,8 +151,11 @@ public class ManBallistaGoal extends Goal {
         warrior.getLookControl().setLookAt(ballista, 30.0F, 30.0F);
 
         if (warrior.distanceToSqr(ballista) <= MOUNT_REACH_SQR) {
-            warrior.getNavigation().stop();
-            warrior.startRiding(ballista);
+            // Only give up the walk if the seat was actually taken. startRiding refuses silently -
+            // a boardingCooldown still running, or another Warrior aboard as of this tick - and
+            // stopping the navigation on a refusal leaves this one standing against the frame doing
+            // nothing until the approach times out.
+            if (warrior.startRiding(ballista)) warrior.getNavigation().stop();
         } else if (warrior.getNavigation().isDone()) {
             warrior.getNavigation().moveTo(ballista, SPEED_MODIFIER);
         }
@@ -191,11 +203,35 @@ public class ManBallistaGoal extends Goal {
         if (!(warrior.level() instanceof ServerLevel serverLevel)) return false;
 
         VillageManager manager = VillageManager.get(serverLevel);
-        UUID villageId = warrior.getVillageId() != null
-                ? warrior.getVillageId()
-                : manager.resolveVillage(serverLevel, warrior.blockPosition()).orElse(null);
-        if (villageId == null) return false;
 
-        return owner.equals(manager.getChief(villageId).orElse(null));
+        // A weapon standing in this Warrior's own village is this Warrior's to work, whoever put it
+        // there. Ownership is what stops a Warrior wandering off to crew a stranger's emplacement in
+        // a field somewhere; it was never meant to stop one using the weapon planted in the square it
+        // is currently defending. Checked first because it is the case that actually comes up: a
+        // player who has not taken the Chief seat still expects the ballista they built at home to be
+        // manned when a raid arrives.
+        UUID warriorVillage = warrior.reconcileVillageId(serverLevel, manager);
+        if (warriorVillage != null
+                && manager.resolveVillage(serverLevel, emplacement.blockPosition())
+                        .filter(warriorVillage::equals).isPresent()) {
+            return true;
+        }
+
+        Set<UUID> chiefed = manager.getVillagesChiefedBy(owner);
+        if (chiefed.isEmpty()) return false;
+
+        // Otherwise the owner has to be Chief somewhere this Warrior answers to. Reconciled rather
+        // than read raw - a cached id left dangling by a village merge names a village nobody is
+        // Chief of, and would refuse a weapon the Warrior is plainly entitled to.
+        if (warriorVillage != null && chiefed.contains(warriorVillage)) return true;
+
+        // Failing that, the ground the weapon itself stands on. A Warrior is only ever asked this
+        // question mid-fight, which is exactly when it is most likely to have been drawn out past the
+        // edge of the village and to resolve to nothing at all. The emplacement is bolted down inside
+        // the village it was built to cover and never moves, so its own position is the steadier of
+        // the two answers, and the one that matches what a player means by "my ballista".
+        return manager.resolveVillage(serverLevel, emplacement.blockPosition())
+                .filter(chiefed::contains)
+                .isPresent();
     }
 }

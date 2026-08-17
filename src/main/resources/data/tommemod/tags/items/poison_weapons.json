@@ -2,14 +2,13 @@
   "replace": false,
   "values": [
     "#minecraft:swords",
-    "#minecraft:bow",
-    "tommemod:long_bow",
+    "minecraft:bow",
+    "tommemod:longbow",
     "tommemod:blossom_katana",
     "tommemod:sanguis_gladio",
     "tommemod:arackopesh",
-    "tommemod:ransuer_of_undead",
+    "tommemod:ranseur_of_undead",
     "tommemod:seer_sword",
-    "tommemod:wave_dash_sword",
     "tommemod:fire_katana"
   ]
 }

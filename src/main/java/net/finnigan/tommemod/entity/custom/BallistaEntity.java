@@ -353,7 +353,7 @@ public class BallistaEntity extends PathfinderMob implements GeoEntity {
      *
      * The bolt does its own work from here: vanilla ray-traces a projectile along its whole movement
      * vector, so even at eight blocks a tick it strikes what it passes through rather than tunnelling,
-     * and shields, armour and cover behave as they would against any other arrow. Gravity is off so it
+     * and shields, armor and cover behave as they would against any other arrow. Gravity is off so it
      * flies exactly where the barrel points.
      */
     private void loose() {

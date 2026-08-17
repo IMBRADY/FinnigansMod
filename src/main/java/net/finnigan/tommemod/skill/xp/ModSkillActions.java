@@ -40,6 +40,18 @@ public final class ModSkillActions {
     public static final ResourceLocation DAMAGE_DEALT_BOW = id("damage_dealt/bow");
     public static final ResourceLocation DAMAGE_DEALT_CROSSBOW = id("damage_dealt/crossbow");
     public static final ResourceLocation DAMAGE_DEALT_THROWN = id("damage_dealt/thrown");
+    /**
+     * A musket shot. Its own action because a musket is hitscan - it deals its damage with
+     * {@code playerAttack} and no projectile at all - so without this it read as a melee swing, and
+     * muskets earned Melee experience and took Melee's damage bonuses.
+     */
+    public static final ResourceLocation DAMAGE_DEALT_MUSKET = id("damage_dealt/musket");
+    /**
+     * A thrown trident. Its own action because {@code ThrownTrident extends AbstractArrow}, so it fell
+     * through the arrow branch below and, having gravity, was credited as a bow shot - thrown tridents
+     * earned Archery experience while {@code damage_dealt/thrown} never fired for them at all.
+     */
+    public static final ResourceLocation DAMAGE_DEALT_TRIDENT = id("damage_dealt/trident");
     public static final ResourceLocation DAMAGE_BLOCKED = id("damage_blocked");
     public static final ResourceLocation DAMAGE_TAKEN = id("damage_taken");
     /** One per kill; the victim rides along so a tree can pay more for tougher marks. */

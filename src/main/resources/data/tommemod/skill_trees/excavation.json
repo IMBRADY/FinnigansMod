@@ -122,35 +122,32 @@
     {
       "id": "earthworks",
       "title": "Earthworks",
-      "description": "Standing where you have dug.",
-      "icon": "minecraft:dirt",
+      "description": "Loose ground stops holding you back.",
+      "icon": "minecraft:soul_sand",
       "x": 2,
       "y": 1,
-      "max_rank": 3,
+      "max_rank": 1,
       "cost": [
-        1,
-        2,
-        3
+        1
       ],
       "parents": [
         "excavation"
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "forge:step_height_addition",
-          "operation": "addition",
-          "amount_per_rank": 0.25,
-          "description": "%s step height",
-          "format": "decimal"
+          "type": "tommemod:bonus",
+          "key": "tommemod:loose_ground_stride",
+          "amount_per_rank": 1.0,
+          "description": "Soul sand and honey no longer slow you",
+          "format": "flat"
         }
       ]
     },
     {
       "id": "loose_ground",
-      "title": "Loose Ground",
-      "description": "Sand and gravel barely resist.",
-      "icon": "minecraft:sand",
+      "title": "Dig Momentum",
+      "description": "The tenth block comes out faster than the first.",
+      "icon": "minecraft:iron_shovel",
       "x": -3,
       "y": 2,
       "max_rank": 3,
@@ -165,9 +162,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mining_speed",
-          "amount_per_rank": 0.09,
-          "description": "%s digging speed",
+          "key": "tommemod:dig_momentum",
+          "amount_per_rank": 0.04,
+          "description": "%s digging speed per block broken in a row, up to ten",
           "format": "percent"
         }
       ]
@@ -175,15 +172,15 @@
     {
       "id": "shaft_sinking",
       "title": "Shaft Sinking",
-      "description": "Straight down, quickly.",
-      "icon": "minecraft:ladder",
+      "description": "A shovel that takes the whole face at once.",
+      "icon": "minecraft:diamond_shovel",
       "x": -1,
       "y": 2,
       "max_rank": 3,
       "cost": [
-        1,
         2,
-        3
+        3,
+        4
       ],
       "parents": [
         "shovelwork"
@@ -191,18 +188,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mining_speed",
-          "amount_per_rank": 0.08,
-          "description": "%s digging speed",
-          "format": "percent"
+          "key": "tommemod:excavation_area",
+          "amount_per_rank": 1.0,
+          "description": "%s block of reach either side: 3x3, then 5x5, then 7x7",
+          "format": "flat"
         }
       ]
     },
     {
       "id": "gleaner",
       "title": "Gleaner",
-      "description": "Flint and clay where others found none.",
-      "icon": "minecraft:flint",
+      "description": "There is more in the spoil than spoil.",
+      "icon": "minecraft:bone",
       "x": 0,
       "y": 2,
       "max_rank": 3,
@@ -217,9 +214,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:excavation_double_drop",
-          "amount_per_rank": 0.07,
-          "description": "%s chance of a second drop",
+          "key": "tommemod:buried_find",
+          "amount_per_rank": 0.06,
+          "description": "%s chance to turn up something buried",
           "format": "percent"
         }
       ]
@@ -227,35 +224,32 @@
     {
       "id": "spoil_heap",
       "title": "Spoil Heap",
-      "description": "Reaching across the trench.",
-      "icon": "minecraft:stick",
+      "description": "The earth goes in the pack, not all over the floor.",
+      "icon": "minecraft:chest",
       "x": 1,
       "y": 2,
-      "max_rank": 3,
+      "max_rank": 1,
       "cost": [
-        1,
-        2,
-        3
+        2
       ],
       "parents": [
         "earthworks"
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "forge:block_reach",
-          "operation": "addition",
-          "amount_per_rank": 0.3,
-          "description": "%s block reach",
-          "format": "decimal"
+          "type": "tommemod:bonus",
+          "key": "tommemod:excavation_direct_harvest",
+          "amount_per_rank": 1.0,
+          "description": "Dug blocks go straight to your inventory",
+          "format": "flat"
         }
       ]
     },
     {
       "id": "trencher",
-      "title": "Trencher",
-      "description": "A day of digging costs less.",
-      "icon": "minecraft:bread",
+      "title": "Site Sense",
+      "description": "You can tell where the ground has been disturbed before.",
+      "icon": "minecraft:brush",
       "x": 3,
       "y": 2,
       "max_rank": 3,
@@ -270,24 +264,23 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:exhaustion_reduction",
-          "amount_per_rank": 0.1,
-          "description": "%s hunger drain",
-          "format": "percent"
+          "key": "tommemod:dig_site_sense",
+          "amount_per_rank": 6.0,
+          "description": "%s blocks at which suspicious sand and gravel are marked for you",
+          "format": "decimal"
         }
       ]
     },
     {
       "id": "landslide",
-      "title": "Landslide",
-      "description": "Whole faces come away at once.",
-      "icon": "minecraft:gravel",
+      "title": "Terracing",
+      "description": "A cut that leaves a step you can walk up, not a hole you fall in.",
+      "icon": "minecraft:stone_brick_stairs",
       "x": -3,
       "y": 3,
-      "max_rank": 2,
+      "max_rank": 1,
       "cost": [
-        2,
-        3
+        2
       ],
       "parents": [
         "loose_ground"
@@ -295,10 +288,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mining_speed",
-          "amount_per_rank": 0.12,
-          "description": "%s digging speed",
-          "format": "percent"
+          "key": "tommemod:terracing",
+          "amount_per_rank": 1.0,
+          "description": "A wide swing never digs above the block you aimed at",
+          "format": "flat"
         }
       ],
       "requirements": [
@@ -310,15 +303,14 @@
     },
     {
       "id": "burrower",
-      "title": "Burrower",
-      "description": "Underground before anything notices.",
-      "icon": "minecraft:brown_mushroom",
+      "title": "Backfill",
+      "description": "Knowing when not to move the earth.",
+      "icon": "minecraft:dirt",
       "x": -1,
       "y": 3,
-      "max_rank": 2,
+      "max_rank": 1,
       "cost": [
-        2,
-        3
+        2
       ],
       "parents": [
         "shaft_sinking"
@@ -326,18 +318,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mining_speed",
-          "amount_per_rank": 0.1,
-          "description": "%s digging speed",
-          "format": "percent"
+          "key": "tommemod:backfill",
+          "amount_per_rank": 1.0,
+          "description": "Sneak to narrow a wide swing back to one block",
+          "format": "flat"
         }
       ]
     },
     {
       "id": "treasure_hunter",
       "title": "Treasure Hunter",
-      "description": "The ground keeps giving.",
-      "icon": "minecraft:clay",
+      "description": "What you turn up is worth turning up.",
+      "icon": "minecraft:emerald",
       "x": 0,
       "y": 3,
       "max_rank": 2,
@@ -351,26 +343,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:excavation_double_drop",
-          "amount_per_rank": 0.09,
-          "description": "%s chance of a second drop",
+          "key": "tommemod:treasure_quality",
+          "amount_per_rank": 0.2,
+          "description": "%s chance a buried find is something good",
           "format": "percent"
-        },
-        {
-          "type": "tommemod:attribute",
-          "attribute": "minecraft:generic.luck",
-          "operation": "addition",
-          "amount_per_rank": 0.3,
-          "description": "%s luck",
-          "format": "decimal"
         }
       ]
     },
     {
       "id": "well_shored",
       "title": "Well Shored",
-      "description": "Nothing you dig falls on you.",
-      "icon": "minecraft:oak_planks",
+      "description": "Neither the ceiling nor the squeeze is what gets you.",
+      "icon": "minecraft:oak_fence",
       "x": 1,
       "y": 3,
       "max_rank": 2,
@@ -383,25 +367,23 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "minecraft:generic.armor",
-          "operation": "addition",
-          "amount_per_rank": 0.5,
-          "description": "%s armour",
-          "format": "decimal"
+          "type": "tommemod:bonus",
+          "key": "tommemod:cave_in_immunity",
+          "amount_per_rank": 0.45,
+          "description": "%s damage from falling blocks and suffocation",
+          "format": "percent_reduction"
         }
       ]
     },
     {
       "id": "spade_care",
       "title": "Spade Care",
-      "description": "A shovel that sees the job out.",
-      "icon": "minecraft:iron_ingot",
+      "description": "Only the block you aimed at costs the shovel anything.",
+      "icon": "minecraft:grindstone",
       "x": 3,
       "y": 3,
-      "max_rank": 2,
+      "max_rank": 1,
       "cost": [
-        2,
         3
       ],
       "parents": [
@@ -410,10 +392,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:tool_durability_save",
-          "amount_per_rank": 0.07,
-          "description": "%s chance to spare durability",
-          "format": "percent"
+          "key": "tommemod:wide_swing_free",
+          "amount_per_rank": 1.0,
+          "description": "The extra blocks of a wide swing cost no durability",
+          "format": "flat"
         }
       ],
       "requirements": [
@@ -425,15 +407,14 @@
     },
     {
       "id": "earthmover",
-      "title": "Earthmover",
-      "description": "Terrain is a thing you edit.",
-      "icon": "minecraft:netherite_shovel",
+      "title": "Hardpan",
+      "description": "Clay and mud stop being the slow part of the job.",
+      "icon": "minecraft:clay",
       "x": -2,
       "y": 4,
-      "max_rank": 2,
+      "max_rank": 1,
       "cost": [
-        3,
-        4
+        3
       ],
       "parents": [
         "landslide",
@@ -442,10 +423,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mining_speed",
-          "amount_per_rank": 0.16,
-          "description": "%s digging speed",
-          "format": "percent"
+          "key": "tommemod:hardpan",
+          "amount_per_rank": 1.0,
+          "description": "Clay, mud, packed mud and rooted dirt dig at full speed",
+          "format": "flat"
         }
       ],
       "requirements": [
@@ -462,8 +443,8 @@
     {
       "id": "prospector",
       "title": "Prospector",
-      "description": "Everything worth having, twice.",
-      "icon": "minecraft:emerald",
+      "description": "A practised eye for what a spadeful is worth.",
+      "icon": "minecraft:gold_nugget",
       "x": 0,
       "y": 4,
       "max_rank": 2,
@@ -480,13 +461,6 @@
           "key": "tommemod:excavation_double_drop",
           "amount_per_rank": 0.12,
           "description": "%s chance of a second drop",
-          "format": "percent"
-        },
-        {
-          "type": "tommemod:bonus",
-          "key": "tommemod:block_xp_bonus",
-          "amount_per_rank": 0.15,
-          "description": "%s experience from blocks",
           "format": "percent"
         }
       ],
@@ -523,7 +497,7 @@
           "key": "tommemod:exhaustion_reduction",
           "amount_per_rank": 0.15,
           "description": "%s hunger drain",
-          "format": "percent"
+          "format": "percent_reduction"
         },
         {
           "type": "tommemod:attribute",
@@ -548,8 +522,8 @@
     {
       "id": "groundshaper",
       "title": "Groundshaper",
-      "description": "You do not dig the land. You rearrange it.",
-      "icon": "minecraft:sculk_catalyst",
+      "description": "The ground is yours to move.",
+      "icon": "minecraft:netherite_shovel",
       "x": 0,
       "y": 5,
       "max_rank": 1,
@@ -561,6 +535,7 @@
         "prospector",
         "tireless"
       ],
+      "parent_mode": "all",
       "effects": [
         {
           "type": "tommemod:bonus",
@@ -578,9 +553,9 @@
         },
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:tool_durability_save",
-          "amount_per_rank": 0.1,
-          "description": "%s chance to spare durability",
+          "key": "tommemod:treasure_quality",
+          "amount_per_rank": 0.3,
+          "description": "%s chance a buried find is something good",
           "format": "percent"
         }
       ],

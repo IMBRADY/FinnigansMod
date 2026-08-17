@@ -30,6 +30,14 @@
           "amount": 24.0
         }
       ]
+    },
+    {
+      "action": "tommemod:damage_dealt/musket",
+      "xp_per_unit": 4.0
+    },
+    {
+      "action": "tommemod:damage_dealt/trident",
+      "xp_per_unit": 3.0
     }
   ],
   "nodes": [
@@ -57,9 +65,9 @@
     },
     {
       "id": "reload",
-      "title": "Reload",
-      "description": "Cranked and ready sooner.",
-      "icon": "minecraft:string",
+      "title": "Winding",
+      "description": "The crank comes round faster than it used to.",
+      "icon": "minecraft:crossbow",
       "x": -2,
       "y": 1,
       "max_rank": 3,
@@ -76,7 +84,7 @@
           "type": "tommemod:bonus",
           "key": "tommemod:draw_speed",
           "amount_per_rank": 0.08,
-          "description": "%s faster reload",
+          "description": "%s reload speed",
           "format": "percent"
         }
       ]
@@ -109,9 +117,9 @@
     },
     {
       "id": "cool_head",
-      "title": "Cool Head",
-      "description": "Nothing rushes you.",
-      "icon": "minecraft:ice",
+      "title": "Suppressing Fire",
+      "description": "Keep it at the distance you chose.",
+      "icon": "minecraft:gunpowder",
       "x": 2,
       "y": 1,
       "max_rank": 3,
@@ -125,20 +133,19 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "minecraft:generic.armor",
-          "operation": "addition",
-          "amount_per_rank": 0.5,
-          "description": "%s armour",
-          "format": "decimal"
+          "type": "tommemod:bonus",
+          "key": "tommemod:suppress_slow",
+          "amount_per_rank": 0.2,
+          "description": "%s chance a hit slows the target",
+          "format": "percent"
         }
       ]
     },
     {
       "id": "winch",
-      "title": "Winch",
-      "description": "Faster than the mechanism should allow.",
-      "icon": "minecraft:iron_nugget",
+      "title": "Ramrod",
+      "description": "Powder, ball, wad - without looking down.",
+      "icon": "minecraft:stick",
       "x": -3,
       "y": 2,
       "max_rank": 3,
@@ -153,18 +160,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:draw_speed",
-          "amount_per_rank": 0.09,
-          "description": "%s faster reload",
-          "format": "percent"
+          "key": "tommemod:musket_reload",
+          "amount_per_rank": 0.12,
+          "description": "%s musket reload time",
+          "format": "percent_reduction"
         }
       ]
     },
     {
       "id": "heavy_bolt",
-      "title": "Heavy Bolt",
-      "description": "A bolt that goes through.",
-      "icon": "minecraft:arrow",
+      "title": "Powder & Ball",
+      "description": "A heavier charge behind the same ball.",
+      "icon": "minecraft:fire_charge",
       "x": -1,
       "y": 2,
       "max_rank": 3,
@@ -179,23 +186,22 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:ranged_damage",
-          "amount_per_rank": 0.07,
-          "description": "%s ranged damage",
+          "key": "tommemod:musket_damage",
+          "amount_per_rank": 0.1,
+          "description": "%s musket damage",
           "format": "percent"
         }
       ]
     },
     {
       "id": "sighting",
-      "title": "Sighting",
-      "description": "Elevation solved by eye.",
-      "icon": "minecraft:target",
+      "title": "Piercing",
+      "description": "It does not stop at the first one.",
+      "icon": "minecraft:arrow",
       "x": 0,
       "y": 2,
-      "max_rank": 3,
+      "max_rank": 2,
       "cost": [
-        1,
         2,
         3
       ],
@@ -205,10 +211,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:long_shot_damage",
-          "amount_per_rank": 0.06,
-          "description": "%s per 10 blocks of flight",
-          "format": "percent"
+          "key": "tommemod:bolt_pierce",
+          "amount_per_rank": 1.0,
+          "description": "%s extra target pierced by bolts",
+          "format": "flat"
         }
       ]
     },
@@ -241,8 +247,8 @@
     {
       "id": "overwatch",
       "title": "Overwatch",
-      "description": "Seeing the whole field.",
-      "icon": "minecraft:ender_eye",
+      "description": "Something already limping is an easier shot.",
+      "icon": "minecraft:spyglass",
       "x": 3,
       "y": 2,
       "max_rank": 3,
@@ -256,12 +262,11 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "forge:entity_reach",
-          "operation": "addition",
-          "amount_per_rank": 0.3,
-          "description": "%s entity reach",
-          "format": "decimal"
+          "type": "tommemod:bonus",
+          "key": "tommemod:suppressed_damage",
+          "amount_per_rank": 0.15,
+          "description": "%s damage to a target you have slowed",
+          "format": "percent"
         }
       ]
     },
@@ -298,9 +303,9 @@
     },
     {
       "id": "punch_through",
-      "title": "Punch Through",
-      "description": "Armour stops helping them.",
-      "icon": "minecraft:netherite_scrap",
+      "title": "Bayonet",
+      "description": "For whatever closed the distance while you were reloading.",
+      "icon": "minecraft:iron_sword",
       "x": -1,
       "y": 3,
       "max_rank": 2,
@@ -314,18 +319,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:ranged_damage",
-          "amount_per_rank": 0.09,
-          "description": "%s ranged damage",
+          "key": "tommemod:bayonet_damage",
+          "amount_per_rank": 0.25,
+          "description": "%s melee damage with a crossbow or musket in hand",
           "format": "percent"
         }
       ]
     },
     {
       "id": "long_shot",
-      "title": "Long Shot",
-      "description": "The far shot hits hardest.",
-      "icon": "minecraft:spyglass",
+      "title": "Volley Fire",
+      "description": "Two bolts where the frame only holds one.",
+      "icon": "minecraft:tipped_arrow",
       "x": 0,
       "y": 3,
       "max_rank": 2,
@@ -339,23 +344,22 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:long_shot_damage",
-          "amount_per_rank": 0.08,
-          "description": "%s per 10 blocks of flight",
+          "key": "tommemod:crossbow_multishot",
+          "amount_per_rank": 0.1,
+          "description": "%s chance of a second bolt",
           "format": "percent"
         }
       ]
     },
     {
       "id": "dead_still",
-      "title": "Dead Still",
-      "description": "The head, from anywhere.",
-      "icon": "minecraft:skeleton_skull",
+      "title": "Opening Shot",
+      "description": "A weapon put away loads itself, given time.",
+      "icon": "minecraft:barrel",
       "x": 1,
       "y": 3,
-      "max_rank": 2,
+      "max_rank": 1,
       "cost": [
-        2,
         3
       ],
       "parents": [
@@ -364,18 +368,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:headshot_damage",
-          "amount_per_rank": 0.15,
-          "description": "%s on a high hit",
-          "format": "percent"
+          "key": "tommemod:holster_reload",
+          "amount_per_rank": 1.0,
+          "description": "A holstered musket reloads itself at a third of the speed",
+          "format": "flat"
         }
       ]
     },
     {
       "id": "counter_sniper",
-      "title": "Counter Sniper",
-      "description": "Their shots find nothing.",
-      "icon": "minecraft:shield",
+      "title": "Harpooner",
+      "description": "The trident goes out harder and comes back sooner.",
+      "icon": "minecraft:trident",
       "x": 3,
       "y": 3,
       "max_rank": 2,
@@ -389,9 +393,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:projectile_resistance",
-          "amount_per_rank": 0.12,
-          "description": "%s damage from projectiles",
+          "key": "tommemod:trident_mastery",
+          "amount_per_rank": 0.15,
+          "description": "%s thrown trident damage",
           "format": "percent"
         }
       ],
@@ -405,8 +409,8 @@
     {
       "id": "siege_shot",
       "title": "Siege Shot",
-      "description": "Range is your whole advantage.",
-      "icon": "minecraft:crossbow",
+      "description": "What it lands on is not the only thing that feels it.",
+      "icon": "minecraft:tnt",
       "x": -2,
       "y": 4,
       "max_rank": 2,
@@ -421,17 +425,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:long_shot_damage",
-          "amount_per_rank": 0.1,
-          "description": "%s per 10 blocks of flight",
-          "format": "percent"
-        },
-        {
-          "type": "tommemod:bonus",
-          "key": "tommemod:ranged_damage",
-          "amount_per_rank": 0.06,
-          "description": "%s ranged damage",
-          "format": "percent"
+          "key": "tommemod:impact_area",
+          "amount_per_rank": 1.5,
+          "description": "%s blocks of splash on impact",
+          "format": "decimal"
         }
       ],
       "requirements": [
@@ -448,7 +445,7 @@
     {
       "id": "trueshot",
       "title": "Trueshot",
-      "description": "Flat all the way to the target.",
+      "description": "Everything you loose gets there sooner.",
       "icon": "minecraft:trident",
       "x": 0,
       "y": 4,
@@ -463,15 +460,8 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:arrow_steadiness",
-          "amount_per_rank": 0.2,
-          "description": "%s projectile drop",
-          "format": "percent"
-        },
-        {
-          "type": "tommemod:bonus",
           "key": "tommemod:arrow_velocity",
-          "amount_per_rank": 0.1,
+          "amount_per_rank": 0.12,
           "description": "%s projectile speed",
           "format": "percent"
         }
@@ -490,13 +480,12 @@
     {
       "id": "assassin",
       "title": "Assassin",
-      "description": "One shot is the whole engagement.",
+      "description": "It never knew you were there.",
       "icon": "minecraft:wither_skeleton_skull",
       "x": 2,
       "y": 4,
-      "max_rank": 2,
+      "max_rank": 1,
       "cost": [
-        3,
         4
       ],
       "parents": [
@@ -506,10 +495,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:headshot_damage",
-          "amount_per_rank": 0.25,
-          "description": "%s on a high hit",
-          "format": "percent"
+          "key": "tommemod:assassinate",
+          "amount_per_rank": 1.0,
+          "description": "A shot at an unaware non-boss kills it outright",
+          "format": "flat"
         }
       ],
       "requirements": [
@@ -526,8 +515,8 @@
     {
       "id": "sharpshooter",
       "title": "Sharpshooter",
-      "description": "Distance is not a difficulty. It is the point.",
-      "icon": "minecraft:crossbow",
+      "description": "Distance stopped being a difficulty.",
+      "icon": "minecraft:end_crystal",
       "x": 0,
       "y": 5,
       "max_rank": 1,
@@ -539,27 +528,14 @@
         "trueshot",
         "assassin"
       ],
+      "parent_mode": "all",
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:long_shot_damage",
-          "amount_per_rank": 0.18,
-          "description": "%s per 10 blocks of flight",
-          "format": "percent"
-        },
-        {
-          "type": "tommemod:bonus",
-          "key": "tommemod:headshot_damage",
-          "amount_per_rank": 0.25,
-          "description": "%s on a high hit",
-          "format": "percent"
-        },
-        {
-          "type": "tommemod:bonus",
-          "key": "tommemod:ranged_damage",
-          "amount_per_rank": 0.15,
-          "description": "%s ranged damage",
-          "format": "percent"
+          "key": "tommemod:distance_crit",
+          "amount_per_rank": 1.0,
+          "description": "Any hit beyond forty blocks is critical",
+          "format": "flat"
         }
       ],
       "requirements": [

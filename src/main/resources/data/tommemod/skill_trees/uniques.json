@@ -1,0 +1,121 @@
+{
+  "id": "tommemod:uniques",
+  "category": "tommemod:combat",
+  "display_name": "Uniques",
+  "description": "The one weapon you carry that nobody else has. Earned by fighting with it.",
+  "icon": "minecraft:nether_star",
+  "sort_order": 4,
+  "max_level": 100,
+  "points_per_level": 1,
+  "xp_curve": {
+    "type": "tommemod:polynomial",
+    "base": 200,
+    "exponent": 1.45
+  },
+  "xp_sources": [
+    {
+      "action": "tommemod:damage_dealt/melee",
+      "xp_per_unit": 6.0,
+      "filters": [
+        {
+          "type": "tommemod:tool_tag",
+          "tag": "tommemod:unique"
+        }
+      ]
+    },
+    {
+      "action": "tommemod:kill",
+      "xp": 50,
+      "filters": [
+        {
+          "type": "tommemod:tool_tag",
+          "tag": "tommemod:unique"
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "uniques",
+      "title": "Uniques",
+      "description": "You have learned the weight of the thing you are carrying.",
+      "icon": "minecraft:nether_star",
+      "x": 0,
+      "y": 0,
+      "max_rank": 5,
+      "cost": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "parents": [],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:unique_damage",
+          "amount_per_rank": 0.04,
+          "description": "%s damage with a unique weapon",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "infinity_paradox",
+      "title": "Infinity Paradox",
+      "description": "The cost of using it stops keeping pace with the using.",
+      "icon": "minecraft:end_crystal",
+      "x": 0,
+      "y": 1,
+      "max_rank": 1,
+      "cost": [
+        5
+      ],
+      "parents": [
+        "uniques"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ability_cooldown",
+          "amount_per_rank": 0.1,
+          "description": "%s ability cooldown",
+          "format": "percent_reduction"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 25
+        }
+      ]
+    },
+    {
+      "id": "apotheosis",
+      "title": "Apotheosis",
+      "description": "To be continued...",
+      "icon": "minecraft:dragon_egg",
+      "x": 0,
+      "y": 2,
+      "max_rank": 1,
+      "cost": [
+        10
+      ],
+      "parents": [
+        "infinity_paradox"
+      ],
+      "parent_mode": "all",
+      "requirements": [
+        {
+          "type": "tommemod:all_nodes",
+          "rank": 1
+        },
+        {
+          "type": "tommemod:skill_level",
+          "level": 50
+        }
+      ]
+    }
+  ]
+}

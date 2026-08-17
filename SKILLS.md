@@ -13,17 +13,26 @@ src/main/resources/data/tommemod/
 │   ├── gathering.json
 │   └── combat.json
 └── skill_trees/               one file per skill
-    ├── agility.json  riding.json  sailing.json  gliding.json
+    ├── agility.json  riding.json  gliding.json
     ├── mining.json   excavation.json  foraging.json  husbandry.json  smithing.json
     └── melee.json    archery.json  defense.json  marksmanship.json  unarmed.json
 ```
+
+Adding a skill is adding a file. Deleting one is deleting a file - Sailing used to sit alongside
+Riding and Gliding and its removal was exactly that, with the `distance/sail` action and the
+`boat_speed` key left in place so a boat tree can be reinstated without touching Java.
 
 **Applying a change.** Edit the file, then run `/reload` in game. The trees reload, every online
 player's client is resent the definitions, and their bonuses are recomputed against the new values on
 the spot. No restart, no relog.
 
 If a file has a mistake in it, that one tree is skipped and the reason is written to the log
-(`Skipping skill tree tommemod:agility: ...`). The other thirteen keep working.
+(`Skipping skill tree tommemod:agility: ...`). The other twelve keep working.
+
+**Worth knowing, because it is quiet:** a tree that has been skipped is not missing from the screen
+in any obvious way, it simply is not there. A parent naming a node that does not exist is enough to
+do it (see §4), and that is easy to cause by renaming or deleting a node without checking what
+pointed at it. If a tree you have just edited has vanished, read the log before anything else.
 
 ---
 
@@ -183,9 +192,51 @@ what unit it is in, is in
 `src/main/java/net/finnigan/tommemod/skill/bonus/ModSkillBonuses.java`. In short:
 
 - **Agility** — `jump_power` `fall_damage_reduction` `safe_fall_bonus` `exhaustion_reduction`
-  `breath_retention` `sprint_speed`
-- **Riding / Sailing / Gliding** — `mount_speed` `mount_damage_reduction` `rider_damage_reduction`
-  `boat_speed` `glide_speed` `elytra_durability_save`
+  `breath_retention` `sprint_speed` `sprint_acceleration` `underwater_vision` `jump_forward`
+  `sustained_sprint_speed` `unhindered_stride` `fall_speed_cap`
+- **Riding** — `mount_speed` `mount_damage_reduction` `rider_damage_reduction` `boat_speed`
+  `mount_sustained_speed` `mount_step_height` `mount_jump_power` `mount_acceleration` `mount_health`
+  `mounted_fall_damage_reduction` `mount_trample` `mount_regen` `mounted_melee_damage`
+- **Gliding** — `glide_speed` `elytra_durability_save` `elytra_lift` `dive_speed` `turn_retention`
+  `rocket_acceleration` `rocket_duration` `takeoff_burst` `elytra_fall_damage_reduction`
+  `flight_collision_reduction` `elytra_repair` `altitude_speed` `storm_speed` `dive_damage`
+  `landing_momentum` `flight_regen` `rocket_conservation` `dive_impact`
+- **Gathering, shared** — `mining_speed` `ore_double_drop` `excavation_double_drop`
+  `foraging_double_drop` `tool_durability_save` `block_xp_bonus`
+- **Excavation** — `loose_ground_stride` `dig_momentum` `excavation_area` `terracing` `backfill`
+  `wide_swing_free` `hardpan` `buried_find` `treasure_quality` `excavation_direct_harvest`
+  `dig_site_sense` `cave_in_immunity`
+- **Mining** — `mining_penalty_ignore` `vein_chance` `auto_smelt` `depth_bonus` `motherlode_chance`
+  `item_magnet` `spelunker_guard` `darkness_speed` `tool_last_stand`
+- **Foraging** — `tree_feller` `auto_replant` `direct_harvest` `leaf_bounty` `forage_nutrition`
+  `crop_regrow` `growth_aura` `axe_selfrepair` `food_conservation` `hoe_replant`
+- **Smithing** — `anvil_cost_reduction` `repair_efficiency` `heat_mending` `prior_work_reduction`
+  `armor_durability_save` `anvil_preserve` `reforge_chance` `armor_pierce` `craft_enchant_chance`
+  `craft_double_chance` `smelt_bonus`
+
+`boat_speed` is still read by its handler with no tree pointing at it, Sailing having been removed.
+Point a node at it and boats are quick again.
+
+### Switches, not dials
+
+Some keys only ask whether the player has *any* of them, so ranking one up does nothing. Give them
+`max_rank: 1` and a description with no `%s` in it:
+
+`sprint_acceleration` `underwater_vision` `unhindered_stride` `mount_acceleration` `direct_harvest`
+`hoe_replant` `tool_last_stand` `loose_ground_stride` `terracing` `backfill` `wide_swing_free`
+`hardpan` `excavation_direct_harvest`
+
+### One rule worth keeping
+
+Two of these were written the wrong way round first, and both times the bug was the same shape:
+**a bonus that compounds every tick will always find a total that breaks the game.** Gliding once had
+four nodes reducing gravity, which summed to 59% and left a fully-invested player floating with no way
+down; Agility's Featherfall did the same thing through `forge:entity_gravity`, and did it while walking
+about town as well as while falling. Both are now single effects with a ceiling — one lift node capped
+at 15%, and a cap on falling speed rather than a cut to the force causing it.
+
+If a new key would be read every tick and applied to velocity or to gravity, **give it exactly one node
+and check what full investment comes to** before shipping it.
 - **Gathering** — `mining_speed` `ore_double_drop` `excavation_double_drop` `foraging_double_drop`
   `tool_durability_save` `block_xp_bonus`
 - **Husbandry / Smithing** — `breeding_cooldown_reduction` `twin_birth_chance` `animal_drop_bonus`
@@ -196,9 +247,27 @@ what unit it is in, is in
 - **Defence** — `shield_durability_save` `riposte` `damage_reduction` `blast_resistance`
   `fire_resistance` `projectile_resistance`
 
-`description` is the tooltip line; `%s` is replaced by the formatted number. `format` is `percent`
-(the default), `flat` or `decimal` — use `decimal` for anything that is not a percentage, or 2.0 max
-health will read as "+200%".
+`description` is the tooltip line; `%s` is replaced by the formatted number. A description with no
+`%s` in it is printed as written, which is what a node with nothing to quantify wants ("Night vision
+while under water").
+
+`format` decides how the number is written:
+
+| `format` | 0.15 reads as | For |
+|---|---|---|
+| `percent` (default) | `+15%` | anything multiplicative |
+| `flat` | `+0.2` | whole-number scales |
+| `decimal` | `+0.15` | flat additions too small for rounding to survive |
+| `percent_reduction` | `-15%` | bonuses that take something away |
+
+Use `decimal` for anything that is not a percentage, or 2.0 max health will read as "+200%".
+
+`percent_reduction` exists because the reduction keys store *the fraction they remove*, so the number
+is positive while the effect is a subtraction. `fall_damage_reduction: 0.15` is fifteen percent less
+fall damage, and under `percent` it announced itself as "+15% fall damage" — the exact opposite. Only
+the sign it is printed with changes; the stored value and everything downstream of the tooltip are
+untouched. Anything named `*_reduction`, plus `breath_retention`, wants this. Resistances do not —
+"+20% blast resistance" already reads the right way round.
 
 ---
 
@@ -211,7 +280,13 @@ Two mechanisms, and they stack.
 `"parents": ["sprint", "dexterity"]` draws the connecting lines *and* means "you need rank 1 in one
 of these". **Several parents means any one of them** — a fork is a real choice, not two prerequisites
 wearing a disguise. If you want a node that genuinely demands all of its parents, add
-`"parent_mode": "all"` to it.
+`"parent_mode": "all"` to it. Every tree's capstone carries it, so the three branches feeding it read
+as three requirements rather than as a choice between them.
+
+**A parent naming a node that does not exist fails the whole file.** `Skill.validateParents` throws
+and the tree is skipped — deliberately, because the alternative is a node carrying an implicit
+"rank 1 in `<missing>`" that can never be satisfied, which in play is indistinguishable from a node
+that is simply, permanently, silently locked. Rename a node and you must fix whatever pointed at it.
 
 ### Requirements
 

@@ -45,7 +45,7 @@
           "key": "tommemod:anvil_cost_reduction",
           "amount_per_rank": 0.05,
           "description": "%s anvil cost",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ]
     },
@@ -71,7 +71,7 @@
           "key": "tommemod:anvil_cost_reduction",
           "amount_per_rank": 0.08,
           "description": "%s anvil cost",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ]
     },
@@ -95,8 +95,8 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:repair_efficiency",
-          "amount_per_rank": 0.1,
-          "description": "%s durability restored",
+          "amount_per_rank": 0.03,
+          "description": "%s durability restored via anvil",
           "format": "percent"
         }
       ]
@@ -130,11 +130,11 @@
     {
       "id": "bellows",
       "title": "Bellows",
-      "description": "Hotter, quicker, cheaper.",
-      "icon": "minecraft:campfire",
+      "description": "Standing at the heat is itself maintenance.",
+      "icon": "minecraft:blast_furnace",
       "x": -3,
       "y": 2,
-      "max_rank": 3,
+      "max_rank": 1,
       "cost": [
         1,
         2,
@@ -146,18 +146,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:anvil_cost_reduction",
-          "amount_per_rank": 0.08,
-          "description": "%s anvil cost",
-          "format": "percent"
+          "key": "tommemod:heat_mending",
+          "amount_per_rank": 0.5,
+          "description": "%s durability mended a second at a fire",
+          "format": "decimal"
         }
       ]
     },
     {
       "id": "forge_sense",
       "title": "Forge Sense",
-      "description": "Reading metal by eye.",
-      "icon": "minecraft:furnace",
+      "description": "A tool worked often stops resenting it.",
+      "icon": "minecraft:anvil",
       "x": -1,
       "y": 2,
       "max_rank": 3,
@@ -172,10 +172,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:repair_efficiency",
-          "amount_per_rank": 0.09,
-          "description": "%s durability restored",
-          "format": "percent"
+          "key": "tommemod:prior_work_reduction",
+          "amount_per_rank": 0.15,
+          "description": "%s of the anvil's prior-work penalty",
+          "format": "percent_reduction"
         }
       ]
     },
@@ -200,7 +200,7 @@
           "type": "tommemod:attribute",
           "attribute": "minecraft:generic.attack_damage",
           "operation": "multiply_base",
-          "amount_per_rank": 0.03,
+          "amount_per_rank": 0.01,
           "description": "%s attack damage"
         }
       ]
@@ -208,7 +208,7 @@
     {
       "id": "plating",
       "title": "Plating",
-      "description": "Armour that does more with the same steel.",
+      "description": "Armor that does more with the same steel.",
       "icon": "minecraft:iron_chestplate",
       "x": 1,
       "y": 2,
@@ -223,12 +223,11 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "minecraft:generic.armor",
-          "operation": "addition",
-          "amount_per_rank": 0.6,
-          "description": "%s armour",
-          "format": "decimal"
+          "type": "tommemod:bonus",
+          "key": "tommemod:armor_durability_save",
+          "amount_per_rank": 0.06,
+          "description": "%s chance worn armor takes no wear",
+          "format": "percent"
         }
       ]
     },
@@ -261,8 +260,8 @@
     {
       "id": "master_repair",
       "title": "Master Repair",
-      "description": "Almost free, and almost complete.",
-      "icon": "minecraft:netherite_ingot",
+      "description": "The anvil stops paying for your work with its own face.",
+      "icon": "minecraft:damaged_anvil",
       "x": -3,
       "y": 3,
       "max_rank": 2,
@@ -276,10 +275,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:anvil_cost_reduction",
-          "amount_per_rank": 0.12,
-          "description": "%s anvil cost",
-          "format": "percent"
+          "key": "tommemod:anvil_preserve",
+          "amount_per_rank": 0.5,
+          "description": "%s chance an anvil chips",
+          "format": "percent_reduction"
         }
       ],
       "requirements": [
@@ -292,8 +291,8 @@
     {
       "id": "reforging",
       "title": "Reforging",
-      "description": "A ruined tool comes back whole.",
-      "icon": "minecraft:anvil",
+      "description": "Now and again the work comes out better than it went in.",
+      "icon": "minecraft:enchanted_book",
       "x": -1,
       "y": 3,
       "max_rank": 2,
@@ -307,9 +306,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:repair_efficiency",
-          "amount_per_rank": 0.14,
-          "description": "%s durability restored",
+          "key": "tommemod:reforge_chance",
+          "amount_per_rank": 0.08,
+          "description": "%s chance a repair raises an enchantment it already has",
           "format": "percent"
         }
       ]
@@ -317,8 +316,8 @@
     {
       "id": "hardening",
       "title": "Hardening",
-      "description": "Everything you carry lasts.",
-      "icon": "minecraft:diamond",
+      "description": "An edge that goes through armor rather than into it.",
+      "icon": "minecraft:netherite_sword",
       "x": 0,
       "y": 3,
       "max_rank": 2,
@@ -332,9 +331,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:tool_durability_save",
-          "amount_per_rank": 0.08,
-          "description": "%s chance to spare durability",
+          "key": "tommemod:armor_pierce",
+          "amount_per_rank": 0.12,
+          "description": "%s of a target's armor ignored by swords and pikes",
           "format": "percent"
         }
       ]
@@ -342,8 +341,8 @@
     {
       "id": "edgecraft",
       "title": "Edgecraft",
-      "description": "Your weapons cut deeper than their make.",
-      "icon": "minecraft:diamond_sword",
+      "description": "A maker's mark, left without meaning to.",
+      "icon": "minecraft:enchanting_table",
       "x": 1,
       "y": 3,
       "max_rank": 2,
@@ -356,18 +355,18 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "minecraft:generic.attack_damage",
-          "operation": "multiply_base",
+          "type": "tommemod:bonus",
+          "key": "tommemod:craft_enchant_chance",
           "amount_per_rank": 0.05,
-          "description": "%s attack damage"
+          "description": "%s chance something you craft comes out enchanted",
+          "format": "percent"
         }
       ]
     },
     {
-      "id": "armourer",
-      "title": "Armourer",
-      "description": "Your armour is better than its material.",
+      "id": "armorer",
+      "title": "Armorer",
+      "description": "Your armor is better than its material.",
       "icon": "minecraft:diamond_chestplate",
       "x": 3,
       "y": 3,
@@ -384,8 +383,8 @@
           "type": "tommemod:attribute",
           "attribute": "minecraft:generic.armor_toughness",
           "operation": "addition",
-          "amount_per_rank": 0.8,
-          "description": "%s armour toughness",
+          "amount_per_rank": 1.5,
+          "description": "%s armor toughness",
           "format": "decimal"
         }
       ],
@@ -418,7 +417,7 @@
           "key": "tommemod:anvil_cost_reduction",
           "amount_per_rank": 0.18,
           "description": "%s anvil cost",
-          "format": "percent"
+          "format": "percent_reduction"
         },
         {
           "type": "tommemod:bonus",
@@ -442,8 +441,8 @@
     {
       "id": "everlasting",
       "title": "Everlasting",
-      "description": "Gear that outlives the campaign.",
-      "icon": "minecraft:netherite_scrap",
+      "description": "The second one comes off the same effort.",
+      "icon": "minecraft:iron_block",
       "x": 0,
       "y": 4,
       "max_rank": 2,
@@ -457,9 +456,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:tool_durability_save",
-          "amount_per_rank": 0.12,
-          "description": "%s chance to spare durability",
+          "key": "tommemod:craft_double_chance",
+          "amount_per_rank": 0.08,
+          "description": "%s chance a craft yields two",
           "format": "percent"
         }
       ],
@@ -477,7 +476,7 @@
     {
       "id": "masterwork",
       "title": "Masterwork",
-      "description": "Everything you touch is a grade better.",
+      "description": "Ore gives up more to somebody who knows the fire.",
       "icon": "minecraft:netherite_ingot",
       "x": 2,
       "y": 4,
@@ -488,23 +487,15 @@
       ],
       "parents": [
         "edgecraft",
-        "armourer"
+        "armorer"
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "minecraft:generic.attack_damage",
-          "operation": "multiply_base",
-          "amount_per_rank": 0.06,
-          "description": "%s attack damage"
-        },
-        {
-          "type": "tommemod:attribute",
-          "attribute": "minecraft:generic.armor",
-          "operation": "addition",
-          "amount_per_rank": 1.0,
-          "description": "%s armour",
-          "format": "decimal"
+          "type": "tommemod:bonus",
+          "key": "tommemod:smelt_bonus",
+          "amount_per_rank": 0.12,
+          "description": "%s chance a smelted item comes out doubled",
+          "format": "percent"
         }
       ],
       "requirements": [
@@ -534,26 +525,27 @@
         "everlasting",
         "masterwork"
       ],
+      "parent_mode": "all",
       "effects": [
         {
           "type": "tommemod:bonus",
           "key": "tommemod:anvil_cost_reduction",
           "amount_per_rank": 0.3,
           "description": "%s anvil cost",
-          "format": "percent"
-        },
-        {
-          "type": "tommemod:bonus",
-          "key": "tommemod:repair_efficiency",
-          "amount_per_rank": 0.25,
-          "description": "%s durability restored",
-          "format": "percent"
+          "format": "percent_reduction"
         },
         {
           "type": "tommemod:bonus",
           "key": "tommemod:tool_durability_save",
           "amount_per_rank": 0.15,
           "description": "%s chance to spare durability",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:craft_enchant_chance",
+          "amount_per_rank": 0.1,
+          "description": "%s chance something you craft comes out enchanted",
           "format": "percent"
         }
       ],

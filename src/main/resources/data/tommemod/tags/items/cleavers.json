@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "tommemod:iron_cleaver",
+    "tommemod:gold_cleaver",
+    "tommemod:diamond_cleaver",
+    "tommemod:netherite_cleaver"
+  ]
+}

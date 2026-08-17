@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "tommemod:boss_crab",
+    "minecraft:warden",
+    "minecraft:wither",
+    "minecraft:ender_dragon"
+  ]
+}

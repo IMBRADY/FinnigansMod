@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:swords",
+    "#tommemod:unique",
+    "tommemod:wooden_dagger",
+    "tommemod:stone_dagger",
+    "tommemod:iron_dagger",
+    "tommemod:gold_dagger",
+    "tommemod:diamond_dagger",
+    "tommemod:netherite_dagger"
+  ]
+}

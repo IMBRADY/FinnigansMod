@@ -13,11 +13,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.Locale;
 
 /**
- * Moves a vanilla or Forge attribute - speed, health, armour, reach, and so on.
+ * Moves a vanilla or Forge attribute - speed, health, armor, reach, and so on.
  *
  * The cheapest kind of node to write, because nothing anywhere has to know it exists: the totals are
  * folded into ordinary AttributeModifiers on the player, and the game applies them the same way it
- * applies a potion or a piece of armour.
+ * applies a potion or a piece of armor.
  *
  * <pre>
  *   {"type": "tommemod:attribute", "attribute": "minecraft:generic.movement_speed",

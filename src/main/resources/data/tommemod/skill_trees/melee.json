@@ -99,9 +99,9 @@
     },
     {
       "id": "footing",
-      "title": "Footing",
-      "description": "Standing where the blow cannot reach.",
-      "icon": "minecraft:iron_boots",
+      "title": "Ambush",
+      "description": "The first blow on something that had not seen you coming.",
+      "icon": "minecraft:leather_boots",
       "x": 2,
       "y": 1,
       "max_rank": 3,
@@ -115,20 +115,19 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "minecraft:generic.armor",
-          "operation": "addition",
-          "amount_per_rank": 0.6,
-          "description": "%s armour",
-          "format": "decimal"
+          "type": "tommemod:bonus",
+          "key": "tommemod:ambush_damage",
+          "amount_per_rank": 0.15,
+          "description": "%s damage to an unaware target",
+          "format": "percent"
         }
       ]
     },
     {
       "id": "heavy_blows",
-      "title": "Heavy Blows",
-      "description": "Every hit costs them more.",
-      "icon": "minecraft:iron_axe",
+      "title": "Stagger",
+      "description": "Something hit that hard arrives late.",
+      "icon": "minecraft:anvil",
       "x": -3,
       "y": 2,
       "max_rank": 3,
@@ -143,18 +142,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:melee_damage",
-          "amount_per_rank": 0.06,
-          "description": "%s melee damage",
-          "format": "percent"
+          "key": "tommemod:stagger",
+          "amount_per_rank": 0.5,
+          "description": "%s seconds of stagger on a struck enemy",
+          "format": "decimal"
         }
       ]
     },
     {
       "id": "cleave",
       "title": "Cleave",
-      "description": "Blows that carry through.",
-      "icon": "minecraft:diamond_axe",
+      "description": "The swing carries into whatever else is standing there.",
+      "icon": "minecraft:iron_axe",
       "x": -1,
       "y": 2,
       "max_rank": 3,
@@ -168,19 +167,19 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "minecraft:generic.attack_damage",
-          "operation": "multiply_base",
-          "amount_per_rank": 0.05,
-          "description": "%s attack damage"
+          "type": "tommemod:bonus",
+          "key": "tommemod:sweep_damage",
+          "amount_per_rank": 0.15,
+          "description": "%s of your damage carried to everything nearby",
+          "format": "percent"
         }
       ]
     },
     {
       "id": "precision",
-      "title": "Precision",
-      "description": "The soft places, every time.",
-      "icon": "minecraft:arrow",
+      "title": "Bleed",
+      "description": "A crit opens something that does not close.",
+      "icon": "minecraft:redstone",
       "x": 0,
       "y": 2,
       "max_rank": 3,
@@ -195,18 +194,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:crit_damage",
-          "amount_per_rank": 0.1,
-          "description": "%s critical damage",
-          "format": "percent"
+          "key": "tommemod:bleed_damage",
+          "amount_per_rank": 1.0,
+          "description": "%s bleed damage a second for three seconds",
+          "format": "decimal"
         }
       ]
     },
     {
       "id": "reach",
-      "title": "Reach",
-      "description": "A step further than they expect.",
-      "icon": "minecraft:stick",
+      "title": "Follow Through",
+      "description": "Blows landed in a row on one target build on each other.",
+      "icon": "minecraft:golden_sword",
       "x": 1,
       "y": 2,
       "max_rank": 3,
@@ -220,12 +219,11 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "forge:entity_reach",
-          "operation": "addition",
-          "amount_per_rank": 0.3,
-          "description": "%s entity reach",
-          "format": "decimal"
+          "type": "tommemod:bonus",
+          "key": "tommemod:combo_damage",
+          "amount_per_rank": 0.05,
+          "description": "%s damage per hit in a row, up to five",
+          "format": "percent"
         }
       ]
     },
@@ -258,9 +256,9 @@
     },
     {
       "id": "brutality",
-      "title": "Brutality",
-      "description": "Nothing survives the second hit.",
-      "icon": "minecraft:netherite_axe",
+      "title": "Momentum",
+      "description": "A kill leaves the hand still moving.",
+      "icon": "minecraft:sugar",
       "x": -3,
       "y": 3,
       "max_rank": 2,
@@ -274,9 +272,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:melee_damage",
-          "amount_per_rank": 0.08,
-          "description": "%s melee damage",
+          "key": "tommemod:kill_momentum",
+          "amount_per_rank": 0.15,
+          "description": "%s attack speed for five seconds after a kill",
           "format": "percent"
         }
       ],
@@ -315,8 +313,8 @@
     {
       "id": "killing_blow",
       "title": "Killing Blow",
-      "description": "Criticals that end it.",
-      "icon": "minecraft:diamond_sword",
+      "description": "Finishing is its own skill.",
+      "icon": "minecraft:iron_sword",
       "x": 0,
       "y": 3,
       "max_rank": 2,
@@ -330,9 +328,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:crit_damage",
-          "amount_per_rank": 0.14,
-          "description": "%s critical damage",
+          "key": "tommemod:execute_damage",
+          "amount_per_rank": 0.12,
+          "description": "%s damage to anything under a third health",
           "format": "percent"
         }
       ]
@@ -358,15 +356,15 @@
           "key": "tommemod:damage_reduction",
           "amount_per_rank": 0.05,
           "description": "%s damage taken",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ]
     },
     {
       "id": "bloodletting",
-      "title": "Bloodletting",
-      "description": "Their wounds keep you standing.",
-      "icon": "minecraft:redstone",
+      "title": "Piercing Strike",
+      "description": "Armor stops being the reason a fight takes longer.",
+      "icon": "minecraft:netherite_sword",
       "x": 3,
       "y": 3,
       "max_rank": 2,
@@ -380,9 +378,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:lifesteal",
-          "amount_per_rank": 0.05,
-          "description": "%s of melee damage healed",
+          "key": "tommemod:armor_recovery",
+          "amount_per_rank": 0.3,
+          "description": "%s of the damage a target's armor stops is recovered",
           "format": "percent"
         }
       ],
@@ -395,9 +393,9 @@
     },
     {
       "id": "berserker",
-      "title": "Berserker",
-      "description": "Faster and harder at once.",
-      "icon": "minecraft:netherite_sword",
+      "title": "Desperation",
+      "description": "You are at your worst when you have least left.",
+      "icon": "minecraft:ghast_tear",
       "x": -2,
       "y": 4,
       "max_rank": 2,
@@ -412,17 +410,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:melee_damage",
-          "amount_per_rank": 0.1,
-          "description": "%s melee damage",
+          "key": "tommemod:desperation_damage",
+          "amount_per_rank": 0.2,
+          "description": "%s damage, scaled by health already lost",
           "format": "percent"
-        },
-        {
-          "type": "tommemod:attribute",
-          "attribute": "minecraft:generic.attack_speed",
-          "operation": "multiply_base",
-          "amount_per_rank": 0.05,
-          "description": "%s attack speed"
         }
       ],
       "requirements": [
@@ -517,8 +508,8 @@
     {
       "id": "warmaster",
       "title": "Warmaster",
-      "description": "There is no close fight you lose.",
-      "icon": "minecraft:netherite_sword",
+      "description": "Being surrounded stops being the problem.",
+      "icon": "minecraft:netherite_chestplate",
       "x": 0,
       "y": 5,
       "max_rank": 1,
@@ -530,26 +521,13 @@
         "executioner",
         "vampiric"
       ],
+      "parent_mode": "all",
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:melee_damage",
-          "amount_per_rank": 0.2,
-          "description": "%s melee damage",
-          "format": "percent"
-        },
-        {
-          "type": "tommemod:bonus",
-          "key": "tommemod:crit_damage",
+          "key": "tommemod:outnumbered",
           "amount_per_rank": 0.25,
-          "description": "%s critical damage",
-          "format": "percent"
-        },
-        {
-          "type": "tommemod:bonus",
-          "key": "tommemod:lifesteal",
-          "amount_per_rank": 0.08,
-          "description": "%s of melee damage healed",
+          "description": "%s damage dealt and less taken with three or more on you",
           "format": "percent"
         }
       ],

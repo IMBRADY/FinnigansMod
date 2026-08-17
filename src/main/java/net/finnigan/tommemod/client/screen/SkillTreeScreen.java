@@ -372,11 +372,12 @@ public class SkillTreeScreen extends Screen {
             graphics.fill(x + 1, y + 1, x + NODE_SIZE - 1, y + NODE_SIZE - 1, 0x99100D14);
         }
 
-        if (node.maxRank() > 1) {
-            String rankText = progress.nodeRank(skill.id(), node.id()) + "/" + node.maxRank();
-            graphics.drawString(font, rankText, cx - font.width(rankText) / 2, y + NODE_SIZE + 1,
-                    state == NodeState.LOCKED ? TEXT_DIM : TEXT, false);
-        }
+        // Single-rank nodes are counted too. Hiding the line on them saved a little clutter and cost
+        // more than it saved: a node with nothing under it reads as a node whose state the screen is
+        // not telling you, when in fact 0/1 and 1/1 are the whole of what there is to say about it.
+        String rankText = progress.nodeRank(skill.id(), node.id()) + "/" + node.maxRank();
+        graphics.drawString(font, rankText, cx - font.width(rankText) / 2, y + NODE_SIZE + 1,
+                state == NodeState.LOCKED ? TEXT_DIM : TEXT, false);
 
         // Only the node under the cursor, or the one being read about, is labelled. Every node
         // labelled at once turns the graph into overlapping text at any grid pitch tight enough to
@@ -411,7 +412,7 @@ public class SkillTreeScreen extends Screen {
         int nextRank = Math.min(rank + 1, node.maxRank());
 
         String heading = node.title().toUpperCase(java.util.Locale.ROOT)
-                + (node.maxRank() > 1 ? "  " + rank + "/" + node.maxRank() : "");
+                + "  " + rank + "/" + node.maxRank();
         graphics.drawString(font, heading, x, y0 + 5, TEXT, false);
 
         String cost = maxed ? "Fully upgraded" : "Cost: " + node.costOf(nextRank)

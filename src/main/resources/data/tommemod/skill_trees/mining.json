@@ -97,7 +97,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:mining_speed",
-          "amount_per_rank": 0.07,
+          "amount_per_rank": 0.03,
           "description": "%s mining speed",
           "format": "percent"
         }
@@ -136,7 +136,7 @@
       "icon": "minecraft:torch",
       "x": 2,
       "y": 1,
-      "max_rank": 3,
+      "max_rank": 2,
       "cost": [
         1,
         2,
@@ -151,16 +151,16 @@
           "attribute": "minecraft:generic.armor",
           "operation": "addition",
           "amount_per_rank": 0.5,
-          "description": "%s armour",
+          "description": "%s armor",
           "format": "decimal"
         }
       ]
     },
     {
       "id": "hard_rock",
-      "title": "Hard Rock",
-      "description": "The stubborn stone stops being stubborn.",
-      "icon": "minecraft:obsidian",
+      "title": "Steady Stance",
+      "description": "Deep water and open air stop having an opinion about your swing.",
+      "icon": "minecraft:scaffolding",
       "x": -3,
       "y": 2,
       "max_rank": 3,
@@ -175,9 +175,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mining_speed",
-          "amount_per_rank": 0.08,
-          "description": "%s mining speed",
+          "key": "tommemod:mining_penalty_ignore",
+          "amount_per_rank": 0.34,
+          "description": "%s of the penalty for mining in water or mid-air is ignored",
           "format": "percent"
         }
       ]
@@ -211,8 +211,8 @@
     {
       "id": "deep_veins",
       "title": "Deep Veins",
-      "description": "Where there was one, there are two.",
-      "icon": "minecraft:raw_gold",
+      "description": "The deeper the rock, the better it pays.",
+      "icon": "minecraft:deepslate",
       "x": 0,
       "y": 2,
       "max_rank": 3,
@@ -227,9 +227,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:ore_double_drop",
-          "amount_per_rank": 0.06,
-          "description": "%s chance of a second ore drop",
+          "key": "tommemod:depth_bonus",
+          "amount_per_rank": 0.08,
+          "description": "%s extra chance of a second ore, at full effect below y=-50",
           "format": "percent"
         }
       ]
@@ -237,8 +237,8 @@
     {
       "id": "long_reach",
       "title": "Long Reach",
-      "description": "Working the face without standing in it.",
-      "icon": "minecraft:stick",
+      "description": "The drops come to you.",
+      "icon": "minecraft:hopper",
       "x": 1,
       "y": 2,
       "max_rank": 3,
@@ -252,11 +252,10 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "forge:block_reach",
-          "operation": "addition",
-          "amount_per_rank": 0.35,
-          "description": "%s block reach",
+          "type": "tommemod:bonus",
+          "key": "tommemod:item_magnet",
+          "amount_per_rank": 1.5,
+          "description": "%s blocks of pickup reach",
           "format": "decimal"
         }
       ]
@@ -264,7 +263,7 @@
     {
       "id": "miners_lamp",
       "title": "Miner's Lamp",
-      "description": "The dark holds less against you.",
+      "description": "The dark stops being a reason to slow down.",
       "icon": "minecraft:lantern",
       "x": 3,
       "y": 2,
@@ -279,20 +278,19 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "minecraft:generic.max_health",
-          "operation": "addition",
-          "amount_per_rank": 1.0,
-          "description": "%s max health",
-          "format": "decimal"
+          "type": "tommemod:bonus",
+          "key": "tommemod:darkness_speed",
+          "amount_per_rank": 0.05,
+          "description": "%s movement speed in the dark",
+          "format": "percent"
         }
       ]
     },
     {
       "id": "power_stroke",
-      "title": "Power Stroke",
-      "description": "Straight through, first time.",
-      "icon": "minecraft:diamond_pickaxe",
+      "title": "Follow the Vein",
+      "description": "A good strike does not stop at the block it landed on.",
+      "icon": "minecraft:raw_iron",
       "x": -3,
       "y": 3,
       "max_rank": 2,
@@ -306,9 +304,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mining_speed",
+          "key": "tommemod:vein_chance",
           "amount_per_rank": 0.1,
-          "description": "%s mining speed",
+          "description": "%s chance to take the whole seam at once",
           "format": "percent"
         }
       ],
@@ -321,14 +319,13 @@
     },
     {
       "id": "unbreaking_grip",
-      "title": "Unbreaking Grip",
-      "description": "Tools you rarely have to replace.",
-      "icon": "minecraft:iron_ingot",
+      "title": "Last Grip",
+      "description": "A tool at the end of its life stops, rather than breaking.",
+      "icon": "minecraft:netherite_scrap",
       "x": -1,
       "y": 3,
-      "max_rank": 2,
+      "max_rank": 1,
       "cost": [
-        2,
         3
       ],
       "parents": [
@@ -337,18 +334,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:tool_durability_save",
-          "amount_per_rank": 0.07,
-          "description": "%s chance to spare durability",
-          "format": "percent"
+          "key": "tommemod:tool_last_stand",
+          "amount_per_rank": 1.0,
+          "description": "Your tools never break outright",
+          "format": "flat"
         }
       ]
     },
     {
       "id": "mother_lode",
       "title": "Mother Lode",
-      "description": "The good seams give twice.",
-      "icon": "minecraft:diamond",
+      "description": "Now and then a seam simply gives.",
+      "icon": "minecraft:raw_gold_block",
       "x": 0,
       "y": 3,
       "max_rank": 2,
@@ -362,18 +359,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:ore_double_drop",
-          "amount_per_rank": 0.08,
-          "description": "%s chance of a second ore drop",
+          "key": "tommemod:motherlode_chance",
+          "amount_per_rank": 0.03,
+          "description": "%s chance an ore pays four times over",
           "format": "percent"
         }
       ]
     },
     {
       "id": "cave_legs",
-      "title": "Cave Legs",
-      "description": "Days below ground cost you nothing.",
-      "icon": "minecraft:cooked_beef",
+      "title": "Braced",
+      "description": "Neither the squeeze nor the ceiling is what gets you.",
+      "icon": "minecraft:iron_bars",
       "x": 1,
       "y": 3,
       "max_rank": 2,
@@ -387,10 +384,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:exhaustion_reduction",
-          "amount_per_rank": 0.12,
-          "description": "%s hunger drain",
-          "format": "percent"
+          "key": "tommemod:spelunker_guard",
+          "amount_per_rank": 0.4,
+          "description": "%s damage from suffocation and falling blocks",
+          "format": "percent_reduction"
         }
       ]
     },
@@ -427,9 +424,9 @@
     },
     {
       "id": "hewer",
-      "title": "Hewer",
-      "description": "Stone yields as fast as you can swing.",
-      "icon": "minecraft:netherite_pickaxe",
+      "title": "Kiln Grip",
+      "description": "Ore that comes out of the ground with the rock already burned off it.",
+      "icon": "minecraft:blast_furnace",
       "x": -2,
       "y": 4,
       "max_rank": 2,
@@ -444,9 +441,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mining_speed",
-          "amount_per_rank": 0.14,
-          "description": "%s mining speed",
+          "key": "tommemod:auto_smelt",
+          "amount_per_rank": 0.5,
+          "description": "%s chance ore drops smelted",
           "format": "percent"
         }
       ],
@@ -524,16 +521,8 @@
           "type": "tommemod:attribute",
           "attribute": "minecraft:generic.max_health",
           "operation": "addition",
-          "amount_per_rank": 2.0,
-          "description": "%s max health",
-          "format": "decimal"
-        },
-        {
-          "type": "tommemod:attribute",
-          "attribute": "minecraft:generic.armor",
-          "operation": "addition",
           "amount_per_rank": 1.0,
-          "description": "%s armour",
+          "description": "%s max health",
           "format": "decimal"
         }
       ],
@@ -564,6 +553,7 @@
         "rich_seam",
         "pit_strength"
       ],
+      "parent_mode": "all",
       "effects": [
         {
           "type": "tommemod:bonus",

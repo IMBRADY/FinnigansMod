@@ -10,7 +10,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.finnigan.tommemod.item.custom.MusketItem;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
@@ -89,6 +91,10 @@ public class SkillCombatTracker {
      */
     @Nullable
     public static ResourceLocation classifyAttack(ServerPlayer player, @Nullable Entity directEntity) {
+        // Checked ahead of the arrow branch: a thrown trident IS an AbstractArrow as far as the class
+        // hierarchy is concerned, so left below it, it fell through to "has gravity, therefore a bow".
+        if (directEntity instanceof ThrownTrident) return ModSkillActions.DAMAGE_DEALT_TRIDENT;
+
         if (directEntity instanceof AbstractArrow arrow) {
             // Fired from what? The arrow itself doesn't say, so the hand does. A player who has since
             // swapped weapons is credited by what they are holding now, which is close enough and far
@@ -103,8 +109,12 @@ public class SkillCombatTracker {
         // Not a projectile, so it has to have been landed in person to count.
         if (!(directEntity instanceof LivingEntity) || !directEntity.equals(player)) return null;
 
-        return player.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty()
-                ? ModSkillActions.DAMAGE_DEALT_UNARMED
-                : ModSkillActions.DAMAGE_DEALT_MELEE;
+        ItemStack weapon = player.getItemBySlot(EquipmentSlot.MAINHAND);
+        if (weapon.isEmpty()) return ModSkillActions.DAMAGE_DEALT_UNARMED;
+        // A musket shot arrives here rather than above, having no projectile to be recognised by. The
+        // held item is the only thing distinguishing it from a swing, which is enough: firing is what a
+        // musket does, and a player who clubs something with one can have the shot's credit for it.
+        if (weapon.getItem() instanceof MusketItem) return ModSkillActions.DAMAGE_DEALT_MUSKET;
+        return ModSkillActions.DAMAGE_DEALT_MELEE;
     }
 }

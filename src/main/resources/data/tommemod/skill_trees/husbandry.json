@@ -45,7 +45,7 @@
           "key": "tommemod:breeding_cooldown_reduction",
           "amount_per_rank": 0.05,
           "description": "%s breeding cooldown",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ]
     },
@@ -71,7 +71,7 @@
           "key": "tommemod:breeding_cooldown_reduction",
           "amount_per_rank": 0.08,
           "description": "%s breeding cooldown",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ]
     },
@@ -150,7 +150,7 @@
           "key": "tommemod:breeding_cooldown_reduction",
           "amount_per_rank": 0.09,
           "description": "%s breeding cooldown",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ]
     },
@@ -228,7 +228,7 @@
           "key": "tommemod:exhaustion_reduction",
           "amount_per_rank": 0.1,
           "description": "%s hunger drain",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ]
     },
@@ -279,7 +279,7 @@
           "key": "tommemod:breeding_cooldown_reduction",
           "amount_per_rank": 0.1,
           "description": "%s breeding cooldown",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ],
       "requirements": [
@@ -360,7 +360,7 @@
           "attribute": "minecraft:generic.armor",
           "operation": "addition",
           "amount_per_rank": 0.5,
-          "description": "%s armour",
+          "description": "%s armor",
           "format": "decimal"
         }
       ]
@@ -419,7 +419,7 @@
           "key": "tommemod:breeding_cooldown_reduction",
           "amount_per_rank": 0.15,
           "description": "%s breeding cooldown",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ],
       "requirements": [
@@ -528,13 +528,14 @@
         "prolific",
         "rancher"
       ],
+      "parent_mode": "all",
       "effects": [
         {
           "type": "tommemod:bonus",
           "key": "tommemod:breeding_cooldown_reduction",
           "amount_per_rank": 0.25,
           "description": "%s breeding cooldown",
-          "format": "percent"
+          "format": "percent_reduction"
         },
         {
           "type": "tommemod:bonus",

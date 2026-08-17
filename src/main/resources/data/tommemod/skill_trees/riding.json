@@ -9,17 +9,17 @@
   "points_per_level": 1,
   "xp_curve": {
     "type": "tommemod:polynomial",
-    "base": 150,
+    "base": 60,
     "exponent": 1.45
   },
   "xp_sources": [
     {
       "action": "tommemod:distance/ride",
-      "xp_per_unit": 1.1
+      "xp_per_unit": 2.5
     },
     {
       "action": "tommemod:distance/minecart",
-      "xp_per_unit": 0.45
+      "xp_per_unit": 1.0
     }
   ],
   "nodes": [
@@ -65,7 +65,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:mount_speed",
-          "amount_per_rank": 0.06,
+          "amount_per_rank": 0.03,
           "description": "%s mount speed",
           "format": "percent"
         }
@@ -74,7 +74,7 @@
     {
       "id": "barding",
       "title": "Barding",
-      "description": "What your mount is wearing starts to matter.",
+      "description": "A mount that picks its feet up.",
       "icon": "minecraft:iron_horse_armor",
       "x": 0,
       "y": 1,
@@ -90,10 +90,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mount_damage_reduction",
-          "amount_per_rank": 0.08,
-          "description": "%s damage taken by your mount",
-          "format": "percent"
+          "key": "tommemod:mount_step_height",
+          "amount_per_rank": 0.5,
+          "description": "%s mount step height",
+          "format": "decimal"
         }
       ]
     },
@@ -119,14 +119,14 @@
           "key": "tommemod:rider_damage_reduction",
           "amount_per_rank": 0.05,
           "description": "%s damage taken while mounted",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ]
     },
     {
       "id": "light_rider",
       "title": "Light Rider",
-      "description": "Carrying yourself, not just sitting there.",
+      "description": "Weight off the forehand, and the ground further away.",
       "icon": "minecraft:feather",
       "x": -3,
       "y": 2,
@@ -142,9 +142,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mount_speed",
-          "amount_per_rank": 0.05,
-          "description": "%s mount speed",
+          "key": "tommemod:mount_jump_power",
+          "amount_per_rank": 0.08,
+          "description": "%s mount jump height",
           "format": "percent"
         }
       ]
@@ -152,15 +152,13 @@
     {
       "id": "spurs",
       "title": "Spurs",
-      "description": "A clear word, clearly given.",
+      "description": "Asked once, answered at once.",
       "icon": "minecraft:iron_nugget",
       "x": -1,
       "y": 2,
-      "max_rank": 3,
+      "max_rank": 1,
       "cost": [
-        1,
-        2,
-        3
+        1
       ],
       "parents": [
         "horsemanship"
@@ -168,10 +166,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mount_speed",
-          "amount_per_rank": 0.05,
-          "description": "%s mount speed",
-          "format": "percent"
+          "key": "tommemod:mount_acceleration",
+          "amount_per_rank": 1.0,
+          "description": "Your mount reaches full speed instantly",
+          "format": "flat"
         }
       ]
     },
@@ -197,7 +195,7 @@
           "key": "tommemod:mount_damage_reduction",
           "amount_per_rank": 0.08,
           "description": "%s damage taken by your mount",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ]
     },
@@ -258,7 +256,7 @@
     {
       "id": "cavalier",
       "title": "Cavalier",
-      "description": "The mount reads you before you ask.",
+      "description": "A mount that has been looked after, and shows it.",
       "icon": "minecraft:golden_apple",
       "x": -3,
       "y": 3,
@@ -273,10 +271,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mount_speed",
-          "amount_per_rank": 0.07,
-          "description": "%s mount speed",
-          "format": "percent"
+          "key": "tommemod:mount_health",
+          "amount_per_rank": 4.0,
+          "description": "%s mount health",
+          "format": "decimal"
         }
       ],
       "requirements": [
@@ -289,8 +287,8 @@
     {
       "id": "gallop",
       "title": "Gallop",
-      "description": "Full stride, held.",
-      "icon": "minecraft:sugar",
+      "description": "Half a ton at full stride goes through whatever is in the way.",
+      "icon": "minecraft:iron_boots",
       "x": -1,
       "y": 3,
       "max_rank": 2,
@@ -304,17 +302,17 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mount_speed",
-          "amount_per_rank": 0.07,
-          "description": "%s mount speed",
-          "format": "percent"
+          "key": "tommemod:mount_trample",
+          "amount_per_rank": 0.4,
+          "description": "%s blocks of shove to anything your gallop runs into",
+          "format": "decimal"
         }
       ]
     },
     {
       "id": "warhorse",
       "title": "Warhorse",
-      "description": "A mount that does not shy.",
+      "description": "Held at a gallop, it finds another gear.",
       "icon": "minecraft:diamond_horse_armor",
       "x": 0,
       "y": 3,
@@ -329,34 +327,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mount_damage_reduction",
-          "amount_per_rank": 0.1,
-          "description": "%s damage taken by your mount",
-          "format": "percent"
-        }
-      ]
-    },
-    {
-      "id": "lancer",
-      "title": "Lancer",
-      "description": "Weight of the horse behind the blow.",
-      "icon": "minecraft:iron_sword",
-      "x": 1,
-      "y": 3,
-      "max_rank": 2,
-      "cost": [
-        2,
-        3
-      ],
-      "parents": [
-        "long_rein"
-      ],
-      "effects": [
-        {
-          "type": "tommemod:bonus",
-          "key": "tommemod:melee_damage",
-          "amount_per_rank": 0.06,
-          "description": "%s melee damage",
+          "key": "tommemod:mount_sustained_speed",
+          "amount_per_rank": 0.15,
+          "description": "%s mount speed after three seconds at a run",
           "format": "percent"
         }
       ]
@@ -382,7 +355,7 @@
           "key": "tommemod:rider_damage_reduction",
           "amount_per_rank": 0.06,
           "description": "%s damage taken while mounted",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ],
       "requirements": [
@@ -395,7 +368,7 @@
     {
       "id": "courser",
       "title": "Courser",
-      "description": "Bred for the road and ridden like it.",
+      "description": "Bred for the road, and mending on it.",
       "icon": "minecraft:golden_carrot",
       "x": -2,
       "y": 4,
@@ -411,10 +384,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mount_speed",
-          "amount_per_rank": 0.08,
-          "description": "%s mount speed",
-          "format": "percent"
+          "key": "tommemod:mount_regen",
+          "amount_per_rank": 0.5,
+          "description": "%s mount health a second while travelling",
+          "format": "decimal"
         }
       ],
       "requirements": [
@@ -429,9 +402,9 @@
       ]
     },
     {
-      "id": "armoured_mount",
-      "title": "Armoured Mount",
-      "description": "Barding that actually turns a blade.",
+      "id": "armored_mount",
+      "title": "Armored Mount",
+      "description": "Horse and rider both land better than they should.",
       "icon": "minecraft:netherite_ingot",
       "x": 0,
       "y": 4,
@@ -446,17 +419,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mount_damage_reduction",
-          "amount_per_rank": 0.12,
-          "description": "%s damage taken by your mount",
-          "format": "percent"
-        },
-        {
-          "type": "tommemod:bonus",
-          "key": "tommemod:rider_damage_reduction",
-          "amount_per_rank": 0.05,
-          "description": "%s damage taken while mounted",
-          "format": "percent"
+          "key": "tommemod:mounted_fall_damage_reduction",
+          "amount_per_rank": 0.25,
+          "description": "%s fall damage, for you and your mount",
+          "format": "percent_reduction"
         }
       ],
       "requirements": [
@@ -473,7 +439,7 @@
     {
       "id": "charge",
       "title": "Charge",
-      "description": "Arriving is the attack.",
+      "description": "Weight of the horse behind the blow.",
       "icon": "minecraft:diamond_sword",
       "x": 2,
       "y": 4,
@@ -483,15 +449,15 @@
         4
       ],
       "parents": [
-        "lancer",
+        "long_rein",
         "high_seat"
       ],
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:melee_damage",
+          "key": "tommemod:mounted_melee_damage",
           "amount_per_rank": 0.1,
-          "description": "%s melee damage",
+          "description": "%s melee damage while mounted",
           "format": "percent"
         }
       ],
@@ -509,7 +475,7 @@
     {
       "id": "cataphract",
       "title": "Cataphract",
-      "description": "Horse and rider as one armoured thing.",
+      "description": "Horse and rider as one armored thing.",
       "icon": "minecraft:netherite_chestplate",
       "x": 0,
       "y": 5,
@@ -519,9 +485,10 @@
       ],
       "parents": [
         "courser",
-        "armoured_mount",
+        "armored_mount",
         "charge"
       ],
+      "parent_mode": "all",
       "effects": [
         {
           "type": "tommemod:bonus",
@@ -535,14 +502,14 @@
           "key": "tommemod:mount_damage_reduction",
           "amount_per_rank": 0.15,
           "description": "%s damage taken by your mount",
-          "format": "percent"
+          "format": "percent_reduction"
         },
         {
           "type": "tommemod:bonus",
           "key": "tommemod:rider_damage_reduction",
           "amount_per_rank": 0.1,
           "description": "%s damage taken while mounted",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ],
       "requirements": [

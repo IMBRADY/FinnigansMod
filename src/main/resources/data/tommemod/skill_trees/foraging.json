@@ -97,7 +97,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:mining_speed",
-          "amount_per_rank": 0.08,
+          "amount_per_rank": 0.03,
           "description": "%s chopping speed",
           "format": "percent"
         }
@@ -149,17 +149,17 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:exhaustion_reduction",
-          "amount_per_rank": 0.08,
+          "amount_per_rank": 0.01,
           "description": "%s hunger drain",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ]
     },
     {
       "id": "timber",
       "title": "Timber",
-      "description": "Trunks come apart quickly.",
-      "icon": "minecraft:oak_log",
+      "description": "One cut, and the whole trunk comes down with it.",
+      "icon": "minecraft:iron_axe",
       "x": -3,
       "y": 2,
       "max_rank": 3,
@@ -174,9 +174,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mining_speed",
-          "amount_per_rank": 0.09,
-          "description": "%s chopping speed",
+          "key": "tommemod:tree_feller",
+          "amount_per_rank": 0.34,
+          "description": "%s chance to fell the whole trunk",
           "format": "percent"
         }
       ]
@@ -184,8 +184,8 @@
     {
       "id": "limbing",
       "title": "Limbing",
-      "description": "Leaves stop slowing you down.",
-      "icon": "minecraft:shears",
+      "description": "There is more in a canopy than sticks.",
+      "icon": "minecraft:oak_leaves",
       "x": -1,
       "y": 2,
       "max_rank": 3,
@@ -200,18 +200,18 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mining_speed",
-          "amount_per_rank": 0.08,
-          "description": "%s chopping speed",
-          "format": "percent"
+          "key": "tommemod:leaf_bounty",
+          "amount_per_rank": 4.0,
+          "description": "%sx the apples from leaves, and rarely a golden one",
+          "format": "decimal"
         }
       ]
     },
     {
       "id": "seed_eye",
       "title": "Seed Eye",
-      "description": "Saplings and seed by the handful.",
-      "icon": "minecraft:oak_sapling",
+      "description": "A crop picked right is back before you have turned round.",
+      "icon": "minecraft:wheat_seeds",
       "x": 0,
       "y": 2,
       "max_rank": 3,
@@ -226,21 +226,21 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:foraging_double_drop",
-          "amount_per_rank": 0.07,
-          "description": "%s chance of a second drop",
+          "key": "tommemod:crop_regrow",
+          "amount_per_rank": 0.08,
+          "description": "%s chance a harvested crop regrows at once",
           "format": "percent"
         }
       ]
     },
     {
       "id": "canopy",
-      "title": "Canopy",
-      "description": "Working the whole tree from one place.",
-      "icon": "minecraft:vine",
+      "title": "Wild Larder",
+      "description": "What you gather off the land goes further than what you buy.",
+      "icon": "minecraft:sweet_berries",
       "x": 1,
       "y": 2,
-      "max_rank": 3,
+      "max_rank": 2,
       "cost": [
         1,
         2,
@@ -251,12 +251,11 @@
       ],
       "effects": [
         {
-          "type": "tommemod:attribute",
-          "attribute": "forge:block_reach",
-          "operation": "addition",
-          "amount_per_rank": 0.35,
-          "description": "%s block reach",
-          "format": "decimal"
+          "type": "tommemod:bonus",
+          "key": "tommemod:forage_nutrition",
+          "amount_per_rank": 0.5,
+          "description": "%s nutrition from foraged food",
+          "format": "percent"
         }
       ]
     },
@@ -290,11 +289,11 @@
     {
       "id": "clearcut",
       "title": "Clearcut",
-      "description": "A stand of trees is an afternoon.",
-      "icon": "minecraft:diamond_axe",
+      "description": "What you take, you put back.",
+      "icon": "minecraft:oak_sapling",
       "x": -3,
       "y": 3,
-      "max_rank": 2,
+      "max_rank": 3,
       "cost": [
         2,
         3
@@ -305,9 +304,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mining_speed",
-          "amount_per_rank": 0.12,
-          "description": "%s chopping speed",
+          "key": "tommemod:auto_replant",
+          "amount_per_rank": 0.34,
+          "description": "%s chance a felled tree replants itself",
           "format": "percent"
         }
       ],
@@ -321,7 +320,7 @@
     {
       "id": "green_thumb",
       "title": "Green Thumb",
-      "description": "Crops come up heavy.",
+      "description": "Things grow better where you have been standing.",
       "icon": "minecraft:bone_meal",
       "x": -1,
       "y": 3,
@@ -336,17 +335,17 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:foraging_double_drop",
-          "amount_per_rank": 0.09,
-          "description": "%s chance of a second drop",
-          "format": "percent"
+          "key": "tommemod:growth_aura",
+          "amount_per_rank": 0.5,
+          "description": "%s growth given to crops around you",
+          "format": "decimal"
         }
       ]
     },
     {
       "id": "axe_care",
       "title": "Axe Care",
-      "description": "An edge that keeps.",
+      "description": "The work keeps the edge instead of wearing it.",
       "icon": "minecraft:grindstone",
       "x": 0,
       "y": 3,
@@ -361,9 +360,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:tool_durability_save",
-          "amount_per_rank": 0.07,
-          "description": "%s chance to spare durability",
+          "key": "tommemod:axe_selfrepair",
+          "amount_per_rank": 0.12,
+          "description": "%s chance a log chopped mends your axe",
           "format": "percent"
         }
       ]
@@ -428,14 +427,13 @@
     {
       "id": "lumberjack",
       "title": "Lumberjack",
-      "description": "Wood is no longer a bottleneck.",
-      "icon": "minecraft:netherite_axe",
+      "description": "The wood goes in the pack, not all over the floor.",
+      "icon": "minecraft:chest",
       "x": -2,
       "y": 4,
-      "max_rank": 2,
+      "max_rank": 1,
       "cost": [
-        3,
-        4
+        3
       ],
       "parents": [
         "clearcut",
@@ -444,10 +442,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:mining_speed",
-          "amount_per_rank": 0.18,
-          "description": "%s chopping speed",
-          "format": "percent"
+          "key": "tommemod:direct_harvest",
+          "amount_per_rank": 1.0,
+          "description": "Foraged drops go straight to your inventory",
+          "format": "flat"
         }
       ],
       "requirements": [
@@ -464,8 +462,8 @@
     {
       "id": "bountiful",
       "title": "Bountiful",
-      "description": "Every harvest overflows.",
-      "icon": "minecraft:hay_block",
+      "description": "A good meal goes further than it has any right to.",
+      "icon": "minecraft:cake",
       "x": 0,
       "y": 4,
       "max_rank": 2,
@@ -479,16 +477,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:foraging_double_drop",
-          "amount_per_rank": 0.14,
-          "description": "%s chance of a second drop",
-          "format": "percent"
-        },
-        {
-          "type": "tommemod:bonus",
-          "key": "tommemod:block_xp_bonus",
-          "amount_per_rank": 0.15,
-          "description": "%s experience from blocks",
+          "key": "tommemod:food_conservation",
+          "amount_per_rank": 0.12,
+          "description": "%s chance eating does not use the food up",
           "format": "percent"
         }
       ],
@@ -520,13 +511,6 @@
         "deep_woods"
       ],
       "effects": [
-        {
-          "type": "tommemod:bonus",
-          "key": "tommemod:exhaustion_reduction",
-          "amount_per_rank": 0.15,
-          "description": "%s hunger drain",
-          "format": "percent"
-        },
         {
           "type": "tommemod:attribute",
           "attribute": "minecraft:generic.luck",
@@ -563,6 +547,7 @@
         "bountiful",
         "woodsman"
       ],
+      "parent_mode": "all",
       "effects": [
         {
           "type": "tommemod:bonus",
@@ -580,10 +565,10 @@
         },
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:tool_durability_save",
-          "amount_per_rank": 0.1,
-          "description": "%s chance to spare durability",
-          "format": "percent"
+          "key": "tommemod:hoe_replant",
+          "amount_per_rank": 1.0,
+          "description": "Crops harvested with a hoe are replanted from your own seeds",
+          "format": "flat"
         }
       ],
       "requirements": [
