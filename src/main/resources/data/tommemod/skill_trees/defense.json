@@ -317,7 +317,7 @@
       "icon": "minecraft:anvil",
       "x": 0,
       "y": 3,
-      "max_rank": 3,
+      "max_rank": 2,
       "cost": [
         1,
         2,
@@ -330,7 +330,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:armor_repair",
-          "amount_per_rank": 1.0,
+          "amount_per_rank": 0.5,
           "description": "%s armor durability mended a second out of combat",
           "format": "decimal"
         }
@@ -355,7 +355,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:sneak_defense",
-          "amount_per_rank": 0.08,
+          "amount_per_rank": 0.03,
           "description": "%s damage taken while sneaking",
           "format": "percent_reduction"
         }
@@ -380,7 +380,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:block_charge",
-          "amount_per_rank": 0.2,
+          "amount_per_rank": 0.05,
           "description": "%s damage on your first swing after a block",
           "format": "percent"
         }

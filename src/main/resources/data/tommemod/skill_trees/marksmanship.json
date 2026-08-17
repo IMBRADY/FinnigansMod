@@ -291,7 +291,7 @@
           "key": "tommemod:arrow_steadiness",
           "amount_per_rank": 0.14,
           "description": "%s projectile drop",
-          "format": "percent"
+          "format": "percent_reduction"
         }
       ],
       "requirements": [
@@ -496,9 +496,9 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:assassinate",
-          "amount_per_rank": 1.0,
-          "description": "A shot at an unaware non-boss kills it outright",
-          "format": "flat"
+          "amount_per_rank": 0.5,
+          "description": "%s damage on a shot at an unaware non-boss",
+          "format": "percent"
         }
       ],
       "requirements": [
@@ -546,11 +546,6 @@
         {
           "type": "tommemod:skill_level",
           "level": 50
-        },
-        {
-          "type": "tommemod:skill_level",
-          "level": 15,
-          "skill": "tommemod:archery"
         }
       ]
     }

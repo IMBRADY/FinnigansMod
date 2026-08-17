@@ -121,24 +121,33 @@ public class SkillMarksmanshipBonuses {
             target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1, false, true, true));
         }
 
-        applyAssassinate(player, target);
+        applyAssassinate(player, event);
         applyImpactArea(player, target, event.getAmount());
     }
 
     /**
-     * Assassin: a shot into something that never saw it.
+     * Assassin: a shot into something that never saw it hits far harder for it.
      *
      * Bosses exempt through {@code tommemod:bosses}, and so is anything already fighting - a mob with a
      * target has been alerted, and this is meant to reward the shot taken before the fight starts rather
      * than to end one already in progress.
+     *
+     * Raises the damage of the blow being resolved rather than dealing a second one. An extra
+     * {@code hurt} from inside a LivingHurtEvent re-enters the same event with this handler still on the
+     * stack, and because {@code lastHurt} is not updated until the outer call returns, every re-entry
+     * passes the "more than last time" check and recurses until the stack gives out.
      */
-    private static void applyAssassinate(Player player, LivingEntity target) {
-        if (!SkillBonuses.has(player, ModSkillBonuses.ASSASSINATE)) return;
+    private static void applyAssassinate(Player player, LivingHurtEvent event) {
+        double bonus = SkillBonuses.get(player, ModSkillBonuses.ASSASSINATE);
+        if (bonus <= 0.0) return;
+
+        LivingEntity target = event.getEntity();
         if (target.getType().is(ModTags.EntityTypes.BOSSES)) return;
-        if (target instanceof Player) return; // never an instant kill on another player
+        // Another player has no target to read, so there is no honest way to call them unaware.
+        if (target instanceof Player) return;
         if (target instanceof Mob mob && mob.getTarget() != null) return;
 
-        target.hurt(player.damageSources().playerAttack(player), target.getMaxHealth() * 2.0F);
+        event.setAmount(event.getAmount() * (float) (1.0 + bonus));
     }
 
     /** Siege Shot: the impact carries past what it hit. */

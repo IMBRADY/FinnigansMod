@@ -69,7 +69,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:draw_speed",
-          "amount_per_rank": 0.07,
+          "amount_per_rank": 0.02,
           "description": "%s faster draw",
           "format": "percent"
         }
@@ -146,7 +146,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:follow_up_shot",
-          "amount_per_rank": 0.08,
+          "amount_per_rank": 0.03,
           "description": "%s chance of a second shot a moment later",
           "format": "percent"
         }
@@ -270,7 +270,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:multishot_chance",
-          "amount_per_rank": 0.1,
+          "amount_per_rank": 0.04,
           "description": "%s chance of an extra arrow alongside",
           "format": "percent"
         }
@@ -303,31 +303,6 @@
           "amount_per_rank": 1.0,
           "description": "A shot after standing still is always critical",
           "format": "flat"
-        }
-      ]
-    },
-    {
-      "id": "true_flight",
-      "title": "True Flight",
-      "description": "Barely an arc left at all.",
-      "icon": "minecraft:arrow",
-      "x": 0,
-      "y": 3,
-      "max_rank": 2,
-      "cost": [
-        2,
-        3
-      ],
-      "parents": [
-        "marks"
-      ],
-      "effects": [
-        {
-          "type": "tommemod:bonus",
-          "key": "tommemod:arrow_steadiness",
-          "amount_per_rank": 0.15,
-          "description": "%s arrow drop",
-          "format": "percent"
         }
       ]
     },
@@ -408,7 +383,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:overdraw_damage",
-          "amount_per_rank": 0.12,
+          "amount_per_rank": 0.06,
           "description": "%s damage per extra second the draw is held",
           "format": "percent"
         }
@@ -437,13 +412,13 @@
         4
       ],
       "parents": [
-        "true_flight"
+        "hunters_mark"
       ],
       "effects": [
         {
           "type": "tommemod:bonus",
           "key": "tommemod:headshot_damage",
-          "amount_per_rank": 0.15,
+          "amount_per_rank": 0.07,
           "description": "%s damage on a headshot",
           "format": "percent"
         }
@@ -516,7 +491,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:marked_damage",
-          "amount_per_rank": 0.4,
+          "amount_per_rank": 0.15,
           "description": "%s damage against a target you have marked",
           "format": "percent"
         }

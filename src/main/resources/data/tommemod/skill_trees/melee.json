@@ -65,7 +65,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:melee_damage",
-          "amount_per_rank": 0.05,
+          "amount_per_rank": 0.02,
           "description": "%s melee damage",
           "format": "percent"
         }
@@ -170,7 +170,7 @@
           "type": "tommemod:bonus",
           "key": "tommemod:sweep_damage",
           "amount_per_rank": 0.15,
-          "description": "%s of your damage carried to everything nearby",
+          "description": "%s of your damage carried to nearby enemies",
           "format": "percent"
         }
       ]
@@ -182,7 +182,7 @@
       "icon": "minecraft:redstone",
       "x": 0,
       "y": 2,
-      "max_rank": 3,
+      "max_rank": 2,
       "cost": [
         1,
         2,
@@ -195,7 +195,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:bleed_damage",
-          "amount_per_rank": 1.0,
+          "amount_per_rank": 0.5,
           "description": "%s bleed damage a second for three seconds",
           "format": "decimal"
         }
@@ -221,7 +221,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:combo_damage",
-          "amount_per_rank": 0.05,
+          "amount_per_rank": 0.02,
           "description": "%s damage per hit in a row, up to five",
           "format": "percent"
         }
@@ -273,7 +273,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:kill_momentum",
-          "amount_per_rank": 0.15,
+          "amount_per_rank": 0.10,
           "description": "%s attack speed for five seconds after a kill",
           "format": "percent"
         }
@@ -329,7 +329,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:execute_damage",
-          "amount_per_rank": 0.12,
+          "amount_per_rank": 0.03,
           "description": "%s damage to anything under a third health",
           "format": "percent"
         }
@@ -398,7 +398,7 @@
       "icon": "minecraft:ghast_tear",
       "x": -2,
       "y": 4,
-      "max_rank": 2,
+      "max_rank": 3,
       "cost": [
         3,
         4
@@ -411,7 +411,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:desperation_damage",
-          "amount_per_rank": 0.2,
+          "amount_per_rank": 0.05,
           "description": "%s damage, scaled by health already lost",
           "format": "percent"
         }
@@ -434,7 +434,7 @@
       "icon": "minecraft:diamond_axe",
       "x": 0,
       "y": 4,
-      "max_rank": 2,
+      "max_rank": 1,
       "cost": [
         3,
         4
@@ -453,7 +453,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:crit_damage",
-          "amount_per_rank": 0.15,
+          "amount_per_rank": 0.05,
           "description": "%s critical damage",
           "format": "percent"
         }

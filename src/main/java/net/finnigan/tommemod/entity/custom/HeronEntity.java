@@ -128,9 +128,26 @@ public class HeronEntity extends Animal implements GeoEntity {
                 && hasWaterWithin(level, pos, 5);
     }
 
+    /**
+     * During world generation the level is a WorldGenRegion that only permits access to the chunk being
+     * generated, so probing a block outside it throws and takes the chunk down with it. Skipping columns
+     * whose chunk is unavailable narrows the search near a chunk border instead of crashing.
+     */
     private static boolean hasWaterWithin(ServerLevelAccessor level, BlockPos pos, int radius) {
-        for (BlockPos candidate : BlockPos.betweenClosed(pos.offset(-radius, -2, -radius), pos.offset(radius, 1, radius))) {
-            if (level.getFluidState(candidate).is(FluidTags.WATER)) return true;
+        int minY = Math.max(pos.getY() - 2, level.getMinBuildHeight());
+        int maxY = Math.min(pos.getY() + 1, level.getMaxBuildHeight() - 1);
+        BlockPos.MutableBlockPos candidate = new BlockPos.MutableBlockPos();
+
+        for (int x = pos.getX() - radius; x <= pos.getX() + radius; x++) {
+            for (int z = pos.getZ() - radius; z <= pos.getZ() + radius; z++) {
+                candidate.set(x, pos.getY(), z);
+                if (!level.hasChunkAt(candidate)) continue;
+
+                for (int y = minY; y <= maxY; y++) {
+                    candidate.set(x, y, z);
+                    if (level.getFluidState(candidate).is(FluidTags.WATER)) return true;
+                }
+            }
         }
         return false;
     }

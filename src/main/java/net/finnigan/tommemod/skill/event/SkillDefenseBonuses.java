@@ -119,6 +119,11 @@ public class SkillDefenseBonuses {
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onDealDamage(LivingHurtEvent event) {
         if (!(event.getSource().getEntity() instanceof Player player)) return;
+
+        // Swinging at something is being in combat, whether or not it ever swings back. Marked before
+        // the directEntity check below so a bow shot counts for it too.
+        markInCombat(player);
+
         if (event.getSource().getDirectEntity() != player) return;
 
         Long blockedAt = BLOCKED_AT.remove(player.getUUID());

@@ -113,8 +113,10 @@ public class SkillArcheryBonuses {
         int pierce = (int) Math.round(SkillBonuses.get(player, ModSkillBonuses.ARROW_PIERCE));
         if (pierce > 0) arrow.setPierceLevel((byte) Math.min(127, arrow.getPierceLevel() + pierce));
 
+        // Added to what the bow already carries: Punch is set on the arrow before it joins the level,
+        // and overwriting it would make Overdraw a downgrade on a Punch II bow.
         int punch = (int) Math.round(SkillBonuses.get(player, ModSkillBonuses.BOW_KNOCKBACK));
-        if (punch > 0) arrow.setKnockback(punch);
+        if (punch > 0) arrow.setKnockback(arrow.getKnockback() + punch);
 
         Double overdraw = LAST_OVERDRAW.remove(player.getUUID());
         if (overdraw != null) arrow.setBaseDamage(arrow.getBaseDamage() * (1.0 + overdraw));

@@ -69,7 +69,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:sprint_speed",
-          "amount_per_rank": 0.15,
+          "amount_per_rank": 0.02,
           "description": "%s speed while sprinting",
           "format": "percent"
         }
@@ -158,7 +158,7 @@
       "icon": "minecraft:cooked_beef",
       "x": -1,
       "y": 2,
-      "max_rank": 3,
+      "max_rank": 2,
       "cost": [
         1,
         2,
@@ -171,7 +171,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:sustained_sprint_speed",
-          "amount_per_rank": 0.06,
+          "amount_per_rank": 0.03,
           "description": "%s sprint speed after three seconds at a run",
           "format": "percent"
         }

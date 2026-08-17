@@ -377,7 +377,7 @@ public final class ModSkillBonuses {
     public static final ResourceLocation IMPACT_AREA = id("impact_area");
     /** Fraction added to a thrown trident, and taken off how long Loyalty takes to bring it home. */
     public static final ResourceLocation TRIDENT_MASTERY = id("trident_mastery");
-    /** Any amount at all: a shot at an unaware non-boss kills it outright. */
+    /** Fraction added to a shot at an unaware non-boss. */
     public static final ResourceLocation ASSASSINATE = id("assassinate");
     /** Any amount at all: a shot landed beyond forty blocks is always a critical. */
     public static final ResourceLocation DISTANCE_CRIT = id("distance_crit");
