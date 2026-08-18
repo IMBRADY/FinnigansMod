@@ -1,0 +1,654 @@
+{
+  "id": "tommemod:vanguard",
+  "category": "tommemod:class_based",
+  "display_name": "Vanguard",
+  "description": "Close-combat specialist, focused on dealing large quantities of damage. Earned by landing blows in reach.",
+  "icon": "minecraft:iron_sword",
+  "sort_order": 0,
+  "max_level": 100,
+  "points_per_level": 1,
+  "xp_curve": {
+    "type": "tommemod:polynomial",
+    "base": 175,
+    "exponent": 1.45
+  },
+  "xp_sources": [
+    {
+      "action": "tommemod:damage_dealt/melee",
+      "xp_per_unit": 3.0
+    },
+    {
+      "action": "tommemod:kill/melee",
+      "xp": 25
+    }
+  ],
+  "nodes": [
+    {
+      "id": "vanguard",
+      "title": "Vanguard",
+      "description": "Hitting what you aimed at, and standing where it can hit back.",
+      "icon": "minecraft:iron_sword",
+      "x": 0,
+      "y": 0,
+      "max_rank": 1,
+      "cost": [
+        1
+      ],
+      "parents": [],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.attack_damage",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.03,
+          "description": "%s attack damage"
+        }
+      ]
+    },
+    {
+      "id": "strength",
+      "title": "Strength",
+      "description": "More weight behind the swing.",
+      "icon": "minecraft:golden_apple",
+      "x": -2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "vanguard"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:melee_damage",
+          "amount_per_rank": 0.02,
+          "description": "%s melee damage",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:undead_damage",
+          "amount_per_rank": 0.05,
+          "description": "%s damage against the undead",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "technique",
+      "title": "Technique",
+      "description": "Finding the gap in the guard.",
+      "icon": "minecraft:iron_sword",
+      "x": 0,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "vanguard"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:crit_chance",
+          "amount_per_rank": 0.05,
+          "description": "%s chance to land a critical",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:crit_damage",
+          "amount_per_rank": 0.04,
+          "description": "%s critical damage",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "footing",
+      "title": "Ambush",
+      "description": "The first blow on something that had not seen you coming.",
+      "icon": "minecraft:leather_boots",
+      "x": 2,
+      "y": 1,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "vanguard"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ambush_damage",
+          "amount_per_rank": 0.15,
+          "description": "%s damage to an unaware target",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "heavy_blows",
+      "title": "Stagger",
+      "description": "Something hit that hard arrives late.",
+      "icon": "minecraft:anvil",
+      "x": -3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "strength"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:stagger",
+          "amount_per_rank": 0.5,
+          "description": "%s seconds of stagger on a struck enemy",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "cleave",
+      "title": "Cleave",
+      "description": "The swing carries into whatever else is standing there.",
+      "icon": "minecraft:iron_axe",
+      "x": -1,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "strength"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:sweep_damage",
+          "amount_per_rank": 0.15,
+          "description": "%s of your damage carried to nearby enemies",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "precision",
+      "title": "Bleed",
+      "description": "A crit opens something that does not close.",
+      "icon": "minecraft:redstone",
+      "x": 1,
+      "y": 2,
+      "max_rank": 2,
+      "cost": [
+        1,
+        2
+      ],
+      "parents": [
+        "technique"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:bleed_damage",
+          "amount_per_rank": 0.5,
+          "description": "%s bleed damage a second for three seconds",
+          "format": "decimal"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:execute_damage",
+          "amount_per_rank": 0.03,
+          "description": "%s damage to anything under a third health",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "stance",
+      "title": "Stance",
+      "description": "Not going anywhere.",
+      "icon": "minecraft:netherite_ingot",
+      "x": 3,
+      "y": 2,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "footing"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.knockback_resistance",
+          "operation": "addition",
+          "amount_per_rank": 0.08,
+          "description": "%s knockback resistance",
+          "format": "decimal"
+        }
+      ]
+    },
+    {
+      "id": "warblood",
+      "title": "Warblood",
+      "description": "The fight has stopped costing you more than it gives back.",
+      "icon": "minecraft:ghast_tear",
+      "x": 0,
+      "y": 3,
+      "max_rank": 2,
+      "cost": [
+        3,
+        4
+      ],
+      "parents": [
+        "heavy_blows",
+        "cleave",
+        "precision",
+        "stance"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:melee_damage",
+          "amount_per_rank": 0.06,
+          "description": "%s melee damage",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:lifesteal",
+          "amount_per_rank": 0.05,
+          "description": "%s of melee damage healed",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:desperation_damage",
+          "amount_per_rank": 0.05,
+          "description": "%s damage, scaled by health already lost",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 10
+        },
+        {
+          "type": "tommemod:points_invested",
+          "points": 10
+        }
+      ]
+    },
+    {
+      "id": "swashbuckler",
+      "title": "Swashbuckler",
+      "description": "Speed over weight. You are not where the blow landed. Taking this closes off Dreadnought.",
+      "icon": "minecraft:golden_sword",
+      "x": -2,
+      "y": 4,
+      "max_rank": 1,
+      "cost": [
+        3
+      ],
+      "parents": [
+        "warblood"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.movement_speed",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.06,
+          "description": "%s movement speed"
+        },
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.attack_speed",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.08,
+          "description": "%s attack speed"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:outnumbered",
+          "amount_per_rank": 0.15,
+          "description": "%s damage dealt and less taken with three or more on you",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 20
+        },
+        {
+          "type": "tommemod:not",
+          "child": {
+            "type": "tommemod:node_rank",
+            "node": "dreadnought",
+            "rank": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "dreadnought",
+      "title": "Dreadnought",
+      "description": "Everything you swing arrives heavier than it left. Taking this closes off Swashbuckler.",
+      "icon": "minecraft:netherite_chestplate",
+      "x": 2,
+      "y": 4,
+      "max_rank": 1,
+      "cost": [
+        3
+      ],
+      "parents": [
+        "warblood"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:melee_damage",
+          "amount_per_rank": 0.10,
+          "description": "%s melee damage",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.knockback_resistance",
+          "operation": "addition",
+          "amount_per_rank": 0.10,
+          "description": "%s knockback resistance",
+          "format": "decimal"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 20
+        },
+        {
+          "type": "tommemod:not",
+          "child": {
+            "type": "tommemod:node_rank",
+            "node": "swashbuckler",
+            "rank": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "footwork",
+      "title": "Footwork",
+      "description": "The fight is somewhere you are always leaving.",
+      "icon": "minecraft:feather",
+      "x": -3,
+      "y": 5,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "swashbuckler"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.movement_speed",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.04,
+          "description": "%s movement speed"
+        },
+        {
+          "type": "tommemod:attribute",
+          "attribute": "minecraft:generic.attack_speed",
+          "operation": "multiply_base",
+          "amount_per_rank": 0.05,
+          "description": "%s attack speed"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:kill_momentum",
+          "amount_per_rank": 0.08,
+          "description": "%s attack speed for five seconds after a kill",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "evasion",
+      "title": "Evasion",
+      "description": "Some of what is aimed at you simply does not land.",
+      "icon": "minecraft:phantom_membrane",
+      "x": -1,
+      "y": 5,
+      "max_rank": 3,
+      "cost": [
+        2,
+        3,
+        4
+      ],
+      "parents": [
+        "swashbuckler"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:dodge_chance",
+          "amount_per_rank": 0.05,
+          "description": "%s chance to take no damage from a blow",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "dash",
+      "title": "Dash",
+      "description": "A step nobody can follow, and for a moment nothing can touch.",
+      "icon": "minecraft:sugar",
+      "x": -2,
+      "y": 6,
+      "max_rank": 1,
+      "cost": [
+        4
+      ],
+      "parents": [
+        "footwork",
+        "evasion"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:dash",
+          "amount_per_rank": 1.0,
+          "description": "Press the dash key to roll, briefly untouchable",
+          "format": "flat"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 30
+        }
+      ]
+    },
+    {
+      "id": "bloodrush",
+      "title": "Bloodrush",
+      "description": "A crowd is not a problem. A crowd is fuel.",
+      "icon": "minecraft:redstone_block",
+      "x": -2,
+      "y": 7,
+      "max_rank": 3,
+      "cost": [
+        3,
+        4,
+        5
+      ],
+      "parents": [
+        "dash"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:kill_stacks",
+          "amount_per_rank": 0.06,
+          "description": "%s damage and speed per recent kill, stacking",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 40
+        }
+      ]
+    },
+    {
+      "id": "escalation",
+      "title": "Escalation",
+      "description": "Every blow that lands makes room for a worse one.",
+      "icon": "minecraft:anvil",
+      "x": 1,
+      "y": 5,
+      "max_rank": 3,
+      "cost": [
+        1,
+        2,
+        3
+      ],
+      "parents": [
+        "dreadnought"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:combo_damage",
+          "amount_per_rank": 0.03,
+          "description": "%s damage per hit in a row on one target",
+          "format": "percent"
+        },
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:combo_cap_bonus",
+          "amount_per_rank": 1.0,
+          "description": "%s to how many hits in a row count",
+          "format": "flat"
+        }
+      ]
+    },
+    {
+      "id": "sunder",
+      "title": "Sunder",
+      "description": "Armor stops being the reason a fight takes longer.",
+      "icon": "minecraft:netherite_sword",
+      "x": 3,
+      "y": 5,
+      "max_rank": 3,
+      "cost": [
+        2,
+        3,
+        4
+      ],
+      "parents": [
+        "dreadnought"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:armor_recovery",
+          "amount_per_rank": 0.25,
+          "description": "%s of the damage a target's armor stops is recovered",
+          "format": "percent"
+        }
+      ]
+    },
+    {
+      "id": "giant_slayer",
+      "title": "Giant Slayer",
+      "description": "The bigger it is, the more of it there is to cut.",
+      "icon": "minecraft:diamond_axe",
+      "x": 2,
+      "y": 6,
+      "max_rank": 3,
+      "cost": [
+        2,
+        3,
+        4
+      ],
+      "parents": [
+        "escalation",
+        "sunder"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:max_health_damage",
+          "amount_per_rank": 0.02,
+          "description": "%s of the target's maximum health added to each blow",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 30
+        }
+      ]
+    },
+    {
+      "id": "breach",
+      "title": "Breach",
+      "description": "What you have opened up, everybody else can reach.",
+      "icon": "minecraft:beacon",
+      "x": 2,
+      "y": 7,
+      "max_rank": 2,
+      "cost": [
+        4,
+        5
+      ],
+      "parents": [
+        "giant_slayer"
+      ],
+      "effects": [
+        {
+          "type": "tommemod:bonus",
+          "key": "tommemod:ally_crit_mark",
+          "amount_per_rank": 0.08,
+          "description": "%s critical chance per stack for allies striking your target",
+          "format": "percent"
+        }
+      ],
+      "requirements": [
+        {
+          "type": "tommemod:skill_level",
+          "level": 40
+        }
+      ]
+    }
+  ]
+}
