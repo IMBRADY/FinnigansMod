@@ -1,6 +1,6 @@
 {
   "id": "tommemod:foraging",
-  "category": "tommemod:gathering",
+  "category": "tommemod:general",
   "display_name": "Foraging",
   "description": "Trees, leaves and what grows. Earned with an axe and a full basket.",
   "icon": "minecraft:iron_axe",

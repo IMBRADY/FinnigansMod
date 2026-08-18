@@ -4,40 +4,39 @@ import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.skill.bonus.ModSkillBonuses;
 import net.finnigan.tommemod.skill.bonus.SkillBonuses;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 /**
  * The Excavation tree: what a shovel does in trained hands.
  *
- * The tree's signature is the wide swing, and most of what is here is either that or a decision about
- * it - how far it reaches, what shape it takes, whether it costs the tool anything. The shape matters
- * more than the reach: a 7x7 that ignores where you aimed turns every dig into a crater, so Terracing
- * and Backfill exist to give the reach back its manners.
+ * The tree used to be built around a wide swing that cleared a 3x3, 5x5 or 7x7 face at a time, with
+ * Terracing and Backfill existing only to make that swing behave. All of it is gone: digging is one
+ * block again, and the four nodes that served the swing now pay for the tool, the spoil and the
+ * experience instead. What is left here is what the shovel is doing rather than how much of the world
+ * it takes at once.
  */
 @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID)
 public class SkillExcavationBonuses {
@@ -50,13 +49,18 @@ public class SkillExcavationBonuses {
     /** How often suspicious blocks are looked for. */
     private static final int SITE_SENSE_INTERVAL_TICKS = 40;
 
-    /** Guards against a wide swing triggering itself through the break events it causes. */
-    private static final java.util.Set<UUID> DIGGING = new java.util.HashSet<>();
+    /** How far from the broken block a drop may appear and still count as that block's. */
+    private static final double HARVEST_CATCH_RADIUS_SQR = 4.0;
 
     private record Momentum(int count, long lastBreakTick) {
     }
 
+    /** A block a direct harvester has just broken: where it was, and on which tick. */
+    private record PendingHarvest(BlockPos pos, long tick) {
+    }
+
     private static final Map<UUID, Momentum> MOMENTUM = new HashMap<>();
+    private static final Map<UUID, PendingHarvest> PENDING_HARVEST = new HashMap<>();
 
     // ---- Digging speed ----
 
@@ -92,7 +96,7 @@ public class SkillExcavationBonuses {
                 || state.is(Blocks.ROOTED_DIRT) || state.is(Blocks.MUDDY_MANGROVE_ROOTS);
     }
 
-    // ---- The swing ----
+    // ---- The dig ----
 
     @SubscribeEvent
     public static void onBlockBroken(BlockEvent.BreakEvent event) {
@@ -107,14 +111,63 @@ public class SkillExcavationBonuses {
             Block.popResource(level, event.getPos(), buriedFind(player));
         }
 
-        // Re-entrancy guard: every block this clears fires its own BreakEvent, and without this the
-        // first swing would recurse outward until it ran out of world.
-        if (!DIGGING.add(player.getUUID())) return;
-        try {
-            widen(level, player, event.getPos(), event.getState());
-        } finally {
-            DIGGING.remove(player.getUUID());
+        noteDirectHarvest(player, event.getPos());
+    }
+
+    // ---- Spoil Heap ----
+
+    /**
+     * Marks a dig whose spoil is to be caught on the way to the floor.
+     *
+     * BreakEvent fires before the block is removed and therefore before anything has dropped, so the
+     * position and tick are all that can be recorded here; the drops are intercepted as they appear.
+     * Catching them that way rather than cancelling the break and re-implementing it keeps vanilla in
+     * charge of the tool wear, the experience and the block state, and leaves the double-drop handler
+     * next door working exactly as it did.
+     */
+    private static void noteDirectHarvest(ServerPlayer player, BlockPos pos) {
+        if (!SkillBonuses.has(player, ModSkillBonuses.EXCAVATION_DIRECT_HARVEST)) return;
+        PENDING_HARVEST.put(player.getUUID(), new PendingHarvest(pos.immutable(),
+                player.level().getGameTime()));
+    }
+
+    /**
+     * Spoil Heap: what a dig turns up goes into the pack instead of onto the floor.
+     *
+     * Matched on the same tick and within a couple of blocks of what was broken, so this only ever
+     * takes the spoil of the dig that asked for it - a mob dying beside the hole keeps its drops.
+     * Anything the pack has no room for is left to spawn as normal.
+     */
+    @SubscribeEvent
+    public static void onDropSpawn(EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide() || event.loadedFromDisk()) return;
+        if (!(event.getEntity() instanceof ItemEntity drop)) return;
+        if (PENDING_HARVEST.isEmpty()) return;
+
+        long now = event.getLevel().getGameTime();
+        for (Map.Entry<UUID, PendingHarvest> entry : PENDING_HARVEST.entrySet()) {
+            PendingHarvest pending = entry.getValue();
+            if (pending.tick() != now) continue;
+            if (drop.position().distanceToSqr(Vec3.atCenterOf(pending.pos())) > HARVEST_CATCH_RADIUS_SQR) {
+                continue;
+            }
+
+            Player player = event.getLevel().getPlayerByUUID(entry.getKey());
+            if (player == null) continue;
+
+            // add() mutates the stack, so a partial pickup leaves the remainder to spawn normally.
+            if (player.getInventory().add(drop.getItem())) event.setCanceled(true);
+            return;
         }
+    }
+
+    /** Yesterday's digs are not worth carrying; the map only ever needs the current tick. */
+    @SubscribeEvent
+    public static void onLevelTick(TickEvent.LevelTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || PENDING_HARVEST.isEmpty()) return;
+
+        long now = event.level.getGameTime();
+        PENDING_HARVEST.values().removeIf(pending -> pending.tick() != now);
     }
 
     private static boolean isShovelWork(BlockState state) {
@@ -128,75 +181,6 @@ public class SkillExcavationBonuses {
                 ? Math.min(current.count() + 1, MOMENTUM_CAP)
                 : 1;
         MOMENTUM.put(player.getUUID(), new Momentum(count, now));
-    }
-
-    /**
-     * Clears the face around the struck block.
-     *
-     * The plane is chosen from the way the player is looking rather than from the hit face, which
-     * BreakEvent does not carry - digging down clears a horizontal slab, digging into a wall clears a
-     * vertical one. Only shovel-work blocks are taken, so a wide swing in a dirt bank stops dead at
-     * the stone behind it rather than quietly mining it.
-     */
-    private static void widen(ServerLevel level, ServerPlayer player, BlockPos origin, BlockState struck) {
-        int radius = (int) SkillBonuses.get(player, ModSkillBonuses.EXCAVATION_AREA);
-        if (radius <= 0) return;
-
-        ItemStack tool = player.getItemBySlot(EquipmentSlot.MAINHAND);
-        if (!(tool.getItem() instanceof ShovelItem)) return;
-
-        // Backfill's other half: sneaking is how you ask for one block when the tree has given you
-        // forty-nine. A wide swing with no way to turn it off is a liability in a build.
-        if (player.isShiftKeyDown() && SkillBonuses.has(player, ModSkillBonuses.BACKFILL)) return;
-
-        boolean terraced = SkillBonuses.has(player, ModSkillBonuses.TERRACING);
-        boolean freeSwing = SkillBonuses.has(player, ModSkillBonuses.WIDE_SWING_FREE);
-        boolean direct = SkillBonuses.has(player, ModSkillBonuses.EXCAVATION_DIRECT_HARVEST);
-
-        for (BlockPos pos : face(origin, player.getDirection(), player.getXRot(), radius, terraced)) {
-            if (pos.equals(origin)) continue;
-
-            BlockState state = level.getBlockState(pos);
-            if (!isShovelWork(state) || state.isAir()) continue;
-            if (state.getDestroySpeed(level, pos) < 0) continue; // unbreakable
-
-            for (ItemStack drop : Block.getDrops(state, level, pos, level.getBlockEntity(pos), player, tool)) {
-                if (direct && player.getInventory().add(drop)) continue;
-                Block.popResource(level, pos, drop);
-            }
-            level.destroyBlock(pos, false, player);
-
-            // Spade Care: the block you aimed at still costs the shovel; the other forty-eight do not.
-            if (!freeSwing) tool.hurtAndBreak(1, player, broken -> {
-            });
-        }
-    }
-
-    /**
-     * The square of positions a swing covers.
-     *
-     * Terracing is applied here rather than filtered afterwards: it means the square never extends
-     * above the block that was aimed at, so a cut into a hillside leaves a step you can walk up
-     * instead of an overhang you cannot see past.
-     */
-    private static List<BlockPos> face(BlockPos origin, Direction facing, float pitch, int radius,
-                                       boolean terraced) {
-        List<BlockPos> positions = new ArrayList<>();
-        boolean vertical = Math.abs(pitch) > 60.0F; // looking mostly up or down
-
-        for (int a = -radius; a <= radius; a++) {
-            for (int b = -radius; b <= radius; b++) {
-                BlockPos pos = vertical
-                        ? origin.offset(a, 0, b)
-                        : facing.getAxis() == Direction.Axis.X
-                                ? origin.offset(0, b, a)
-                                : origin.offset(a, b, 0);
-
-                if (terraced && !vertical && pos.getY() > origin.getY()) continue;
-                positions.add(pos);
-            }
-        }
-        return positions;
     }
 
     /** What comes up out of the ground. The good table is Treasure Hunter's doing. */

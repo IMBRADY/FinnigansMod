@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.skill;
 
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Read-only view of one player's standing in every skill.
@@ -26,4 +27,16 @@ public interface SkillProgressView {
 
     /** How many ranks of a node the player owns; 0 if they have never bought it. */
     int nodeRank(ResourceLocation skill, String nodeId);
+
+    /**
+     * The Class-Based tree this player has committed to, or null while they are still free to choose.
+     *
+     * On the view rather than only on the capability because the screen has to grey out the classes
+     * that are closed off, and it has nothing but this mirror to decide that from.
+     */
+    @Nullable
+    ResourceLocation committedClass();
+
+    /** Experience banked by resetting a class, waiting to be carried into the next one. */
+    double classCredit();
 }

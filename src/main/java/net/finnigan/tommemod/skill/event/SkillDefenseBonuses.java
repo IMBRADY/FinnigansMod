@@ -37,7 +37,8 @@ import java.util.UUID;
 @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID)
 public class SkillDefenseBonuses {
 
-    private static final UUID BLOCK_MOBILITY_MODIFIER = UUID.fromString("b7d3f240-91a6-4c85-8e12-5a04c76bd398");
+    /** Read by the FOV handler, which has to know which speed modifier to discount. */
+    public static final UUID BLOCK_MOBILITY_MODIFIER = UUID.fromString("b7d3f240-91a6-4c85-8e12-5a04c76bd398");
 
     /** How long after a block the bash and the charge remain available. */
     private static final int BLOCK_WINDOW_TICKS = 40;
@@ -136,9 +137,9 @@ public class SkillDefenseBonuses {
         LivingEntity target = event.getEntity();
         if (bash <= 0.0 || target.getType().is(ModTags.EntityTypes.BOSSES)) return;
 
+        // Shove only. The slowness that used to come with it read as a stun rather than as a bash, and
+        // stacked with Melee's Stagger into something a mob never got out from under.
         target.knockback(bash, player.getX() - target.getX(), player.getZ() - target.getZ());
-        target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,
-                (int) Math.round(bash * 20), 2, false, false, false));
     }
 
     // ---- Taking damage ----
@@ -187,6 +188,10 @@ public class SkillDefenseBonuses {
      * The guardian has to be blocking and the sheltering player has to be behind them, worked out from
      * the guardian's own facing - a shield covers what it is pointed at, and somebody stood in front of
      * it is in the way rather than behind cover.
+     *
+     * Only ever one shield's worth, however many are raised: the best on offer is taken rather than the
+     * sum, so a line of players on a server cannot stack their Aegis into blanket immunity by standing
+     * behind each other. A second guardian is a spare, not a multiplier.
      */
     private static double guardFor(Player sheltered) {
         double best = 0.0;

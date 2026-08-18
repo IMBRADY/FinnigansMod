@@ -29,9 +29,24 @@ public class KeyBindings {
             "key.categories.tommemod"
     );
 
+    /**
+     * Fires whichever class ability the player owns - dash, ultimate or bond.
+     *
+     * One binding rather than three, because the classes are mutually exclusive: no player can ever
+     * hold two of these at once, so three keys would be two dead keys each. Bound to V, which vanilla
+     * leaves free.
+     */
+    public static final KeyMapping CLASS_ABILITY = new KeyMapping(
+            "key.tommemod.class_ability",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_V,
+            "key.categories.tommemod"
+    );
+
     @net.minecraftforge.eventbus.api.SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(RELEASE_SOULS_CONFIRM);
         event.register(SKILL_TREE);
+        event.register(CLASS_ABILITY);
     }
 }

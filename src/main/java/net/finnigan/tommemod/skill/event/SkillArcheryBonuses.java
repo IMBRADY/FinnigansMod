@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.skill.event;
 
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.item.custom.LongbowItem;
 import net.finnigan.tommemod.mixin.AbstractArrowAccessor;
 import net.finnigan.tommemod.skill.bonus.ModSkillBonuses;
 import net.finnigan.tommemod.skill.bonus.SkillBonuses;
@@ -45,12 +46,15 @@ import java.util.UUID;
 @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID)
 public class SkillArcheryBonuses {
 
-    private static final UUID DRAW_MOBILITY_MODIFIER = UUID.fromString("3c9f5a71-4e82-4d16-b7a0-92e4c1750d68");
+    /** Read by the FOV handler, which has to know which speed modifier to discount. */
+    public static final UUID DRAW_MOBILITY_MODIFIER = UUID.fromString("3c9f5a71-4e82-4d16-b7a0-92e4c1750d68");
 
     /** Full bow power in blocks per tick, which is what a snap shot is brought up to. */
     private static final float FULL_BOW_VELOCITY = 3.0F;
     /** Ticks of draw that count as full, after which Overdraw starts paying. */
     private static final int FULL_DRAW_TICKS = 20;
+    /** Most extra seconds of hold Overdraw will pay for, past full draw. */
+    private static final double OVERDRAW_CAP_SECONDS = 3.0;
     /** How still, and for how long, an archer has to be for Aimed Shot. */
     private static final int AIM_STILL_TICKS = 20;
     private static final double AIM_STILL_SPEED = 0.02;
@@ -81,18 +85,38 @@ public class SkillArcheryBonuses {
     public static void onArrowLoose(ArrowLooseEvent event) {
         Player player = event.getEntity();
         int charge = event.getCharge();
+        int fullDrawTicks = fullDrawTicks(event.getBow());
+
+        // Noted for the nodes that only pay out on a shot that was actually drawn - the arrow itself
+        // carries no memory of the draw, and this is the last moment anything does.
+        LAST_FULL_DRAW.put(player.getUUID(), charge >= fullDrawTicks);
 
         double overdraw = SkillBonuses.get(player, ModSkillBonuses.OVERDRAW_DAMAGE);
-        if (overdraw > 0.0 && charge > FULL_DRAW_TICKS) {
-            double heldPastFull = (charge - FULL_DRAW_TICKS) / 20.0;
+        if (overdraw > 0.0 && charge > fullDrawTicks) {
+            // Capped: uncapped, standing still with the string held was worth unbounded damage, which
+            // made the strongest thing an archer could do nothing at all for ten seconds.
+            double heldPastFull = Math.min((charge - fullDrawTicks) / 20.0, OVERDRAW_CAP_SECONDS);
             LAST_OVERDRAW.put(player.getUUID(), overdraw * heldPastFull);
         } else {
             LAST_OVERDRAW.remove(player.getUUID());
         }
     }
 
+    /**
+     * How long this particular bow takes to come to full draw.
+     *
+     * Asked of the bow rather than assumed, because the mod's own Longbow charges over fifty ticks
+     * rather than twenty - measuring it against a vanilla bow's draw would have called a two-fifths
+     * pull "fully drawn" and handed it every node meant for a committed shot.
+     */
+    private static int fullDrawTicks(ItemStack bow) {
+        return bow.getItem() instanceof LongbowItem ? LongbowItem.FULL_DRAW_TICKS : FULL_DRAW_TICKS;
+    }
+
     /** How much Overdraw the shot now leaving the bow earned. */
     private static final Map<UUID, Double> LAST_OVERDRAW = new HashMap<>();
+    /** Whether the shot now leaving the bow was fully drawn. Consumed by the spawn handler. */
+    private static final Map<UUID, Boolean> LAST_FULL_DRAW = new HashMap<>();
 
     // ---- What the arrow is ----
 
@@ -106,9 +130,18 @@ public class SkillArcheryBonuses {
     @SubscribeEvent
     public static void onArrowSpawn(EntityJoinLevelEvent event) {
         if (event.getLevel().isClientSide()) return;
+        // Entities read back off disk are a chunk loading, not a shot being taken. Without this, every
+        // arrow stuck in the ground from an earlier session rolled Multishot again on chunk load.
+        if (event.loadedFromDisk()) return;
         if (!(event.getEntity() instanceof AbstractArrow arrow)) return;
         if (!(arrow.getOwner() instanceof Player player)) return;
         if (arrow.getPersistentData().getBoolean("tommemod:skill_extra")) return;
+        if (arrow.tickCount > 0) return;
+
+        // Consumed either way, so a crossbow bolt or a dispensed arrow can never read the draw of the
+        // last bow shot and be treated as fully drawn.
+        Boolean drawn = LAST_FULL_DRAW.remove(player.getUUID());
+        boolean fullDraw = drawn != null && drawn;
 
         int pierce = (int) Math.round(SkillBonuses.get(player, ModSkillBonuses.ARROW_PIERCE));
         if (pierce > 0) arrow.setPierceLevel((byte) Math.min(127, arrow.getPierceLevel() + pierce));
@@ -116,14 +149,17 @@ public class SkillArcheryBonuses {
         // Added to what the bow already carries: Punch is set on the arrow before it joins the level,
         // and overwriting it would make Overdraw a downgrade on a Punch II bow.
         int punch = (int) Math.round(SkillBonuses.get(player, ModSkillBonuses.BOW_KNOCKBACK));
-        if (punch > 0) arrow.setKnockback(arrow.getKnockback() + punch);
+        if (punch > 0 && fullDraw) arrow.setKnockback(arrow.getKnockback() + punch);
 
         Double overdraw = LAST_OVERDRAW.remove(player.getUUID());
         if (overdraw != null) arrow.setBaseDamage(arrow.getBaseDamage() * (1.0 + overdraw));
 
+        // Snap Shot is deliberately outside the full-draw gate: its whole job is the shot let go early.
         applySnapShot(player, arrow);
-        applyAimedCrit(player, arrow);
         refundArrow(player, arrow);
+
+        if (!fullDraw) return;
+        applyAimedCrit(player, arrow);
         scheduleFollowUp(player, arrow);
         fireExtraArrow(player, arrow);
     }

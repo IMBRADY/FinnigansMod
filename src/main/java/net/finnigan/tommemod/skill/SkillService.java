@@ -103,7 +103,27 @@ public final class SkillService {
         UNKNOWN_NODE,
         ALREADY_MAXED,
         NOT_ENOUGH_POINTS,
-        REQUIREMENTS_UNMET
+        REQUIREMENTS_UNMET,
+        /** Already committed to a different skill under the same exclusive heading. */
+        CLASS_LOCKED
+    }
+
+    /** The share of a class's experience that comes back when it is abandoned. */
+    public static final double CLASS_RESET_REFUND = 0.5;
+
+    /**
+     * Whether this player may still buy into the given exclusive tree.
+     *
+     * Committing is buying, not earning. Experience arrives simply from playing - swinging a sword is
+     * Vanguard experience whether or not the player ever means to be one - so locking somebody out of
+     * Ranger because they once punched something would be a decision they never made. Spending a point
+     * is a decision, and it is the one that counts.
+     */
+    public static boolean classLock(SkillsHandler handler, ResourceLocation skillId) {
+        if (!SkillTreeManager.isExclusive(skillId)) return false;
+
+        ResourceLocation committed = handler.committedClass();
+        return committed != null && !committed.equals(skillId);
     }
 
     /**
@@ -128,15 +148,25 @@ public final class SkillService {
         int currentRank = state.getNodeRank(nodeId);
         if (currentRank >= node.maxRank()) return PurchaseResult.ALREADY_MAXED;
 
-        int cost = node.costOf(currentRank + 1);
-        if (state.getPointsAvailable() < cost) return PurchaseResult.NOT_ENOUGH_POINTS;
+        // Checked before the points, so a player who has committed elsewhere is told what is actually
+        // stopping them rather than being sent off to earn points they could never spend here.
+        if (classLock(handler, skillId)) return PurchaseResult.CLASS_LOCKED;
 
         SkillContext context = new SkillContext(handler, skillId, nodeId);
         for (SkillRequirement requirement : node.allRequirements()) {
             if (!requirement.test(context)) return PurchaseResult.REQUIREMENTS_UNMET;
         }
 
+        // Ahead of the points check, because the credit is what pays for this purchase. A player who
+        // has just abandoned a class has nothing in the new tree to spend, so redeeming afterwards
+        // would mean the credit could only ever be claimed by somebody who did not need it.
+        redeemClassCredit(player, handler, skillId, node);
+
+        int cost = node.costOf(currentRank + 1);
+        if (state.getPointsAvailable() < cost) return PurchaseResult.NOT_ENOUGH_POINTS;
+
         state.spendPoints(cost);
+        if (SkillTreeManager.isExclusive(skillId)) handler.setCommittedClass(skillId);
         state.setNodeRank(nodeId, currentRank + 1);
         handler.markChanged();
         applyAttributes(player);
@@ -155,6 +185,93 @@ public final class SkillService {
             applyAttributes(player);
             SkillSync.toPlayer(player);
         });
+    }
+
+    // ---- Classes ----
+
+    /**
+     * Pays a reset's banked credit into the class the player is committing to.
+     *
+     * Only on the root - the node with no parents - because that click is the one that means "this is
+     * the class I am taking". Redeeming on any purchase would spend the credit on whichever node in
+     * whichever tree the player happened to buy first, which is not a choice they were asked to make.
+     *
+     * The commitment is recorded here rather than left to the caller, so that a credit which lands and
+     * a purchase which then fails on points still leave the player as the class they picked. The credit
+     * has gone into that tree; pretending they were still uncommitted would let them carry its levels
+     * into a different class.
+     */
+    private static void redeemClassCredit(ServerPlayer player, SkillsHandler handler,
+                                          ResourceLocation skillId, SkillNode node) {
+        if (!SkillTreeManager.isExclusive(skillId)) return;
+        if (!node.parents().isEmpty()) return;
+        if (handler.classCredit() <= 0.0) return;
+
+        double credit = handler.takeClassCredit();
+        handler.setCommittedClass(skillId);
+        handler.addXp(skillId, credit);
+
+        Skill skill = SkillTreeManager.skill(skillId);
+        player.displayClientMessage(Component.literal(
+                        Math.round(credit) + " credited experience carried into "
+                                + (skill == null ? skillId.getPath() : skill.displayName()))
+                .withStyle(ChatFormatting.AQUA), false);
+    }
+
+    /**
+     * Abandons whichever class the player committed to, banking a share of what they earned in it.
+     *
+     * Every exclusive tree is wiped, not only the committed one, because experience accumulates in all
+     * of them from ordinary play - leaving Ranger sitting at level 30 while its owner walked away from
+     * Vanguard would hand them the second class most of the way built. What comes back is
+     * {@link #CLASS_RESET_REFUND} of the experience banked in the committed class alone, which is the
+     * one they actually chose and invested in.
+     *
+     * Returns the credit banked, or zero if there was no class to leave.
+     */
+    public static double resetClass(ServerPlayer player) {
+        Optional<SkillsHandler> maybeHandler = handler(player);
+        if (maybeHandler.isEmpty()) return 0.0;
+        SkillsHandler handler = maybeHandler.get();
+
+        ResourceLocation committed = handler.committedClass();
+        if (committed == null) return 0.0;
+
+        double credit = totalXpIn(handler, committed) * CLASS_RESET_REFUND;
+
+        for (Skill skill : SkillTreeManager.exclusiveGroupOf(committed)) {
+            handler.get(skill.id()).reset();
+        }
+        handler.setCommittedClass(null);
+        handler.addClassCredit(credit);
+
+        handler.markChanged();
+        applyAttributes(player);
+        SkillSync.toPlayer(player);
+
+        player.level().playSound(null, player.blockPosition(), SoundEvents.ANVIL_USE,
+                SoundSource.PLAYERS, 0.5F, 1.4F);
+        return credit;
+    }
+
+    /**
+     * Everything a player has ever banked in one skill: the cost of every level they climbed, plus
+     * whatever is sitting part-way toward the next one.
+     *
+     * Summed from the curve rather than tracked as a running total, so it stays correct across a
+     * retune - a datapack that makes a class cheaper refunds against the cheaper curve, which is the
+     * curve the player would be climbing again.
+     */
+    private static double totalXpIn(SkillsHandler handler, ResourceLocation skillId) {
+        Skill skill = SkillTreeManager.skill(skillId);
+        if (skill == null) return 0.0;
+
+        SkillProgress state = handler.get(skillId);
+        double total = state.getXp();
+        for (int level = 1; level < state.getLevel(); level++) {
+            total += skill.xpToAdvance(level);
+        }
+        return total;
     }
 
     // ---- Applying ----

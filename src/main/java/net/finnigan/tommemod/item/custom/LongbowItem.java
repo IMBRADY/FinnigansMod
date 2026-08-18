@@ -13,6 +13,14 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 
 public class LongbowItem extends BowItem {
+
+    /**
+     * Ticks of draw that count as full - longer than a vanilla bow's twenty, which is the whole point
+     * of the weapon. Read by the Archery tree, whose full-draw nodes have to ask the bow rather than
+     * assume everything charges in a second.
+     */
+    public static final int FULL_DRAW_TICKS = 50;
+
     public LongbowItem(Properties properties) {
         super(properties);
     }
@@ -35,7 +43,14 @@ public class LongbowItem extends BowItem {
         }
 
         int chargeTicks = this.getUseDuration(stack) - timeLeft;
-        float power = Mth.clamp((float) chargeTicks / 50.0F, 0.0F, 1.0F); // your custom curve
+        // Posted for the same reason vanilla posts it: how long the string was held is known here and
+        // nowhere else, and the Archery tree's Overdraw, Multishot, Aimed Shot and Follow-Up all turn
+        // on it. Overriding releaseUsing without this left every one of them dead on this bow.
+        chargeTicks = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(stack, level, player,
+                chargeTicks, !arrowStack.isEmpty() || hasInfinity);
+        if (chargeTicks < 0) return;
+
+        float power = Mth.clamp((float) chargeTicks / (float) FULL_DRAW_TICKS, 0.0F, 1.0F);
 
         if (power < 0.1F) return;
 

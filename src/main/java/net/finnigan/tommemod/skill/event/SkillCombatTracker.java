@@ -68,13 +68,45 @@ public class SkillCombatTracker {
         }
     }
 
+    /**
+     * A kill, posted twice: once unqualified and once with the weapon that landed it.
+     *
+     * The unqualified action is what a tree uses when it means any kill at all - Uniques does, and
+     * filters on the weapon's tag. A combat tree that took it directly was being paid for every kill
+     * in the game, which is how Melee came to earn from crossbow bolts and thrown tridents.
+     */
     @SubscribeEvent
     public static void onKill(LivingDeathEvent event) {
         if (event.getSource().getEntity() instanceof ServerPlayer player && !player.equals(event.getEntity())) {
+            ItemStack weapon = player.getItemBySlot(EquipmentSlot.MAINHAND);
+
             SkillService.award(player, SkillAction.once(ModSkillActions.KILL)
                     .withEntity(event.getEntity())
-                    .withTool(player.getItemBySlot(EquipmentSlot.MAINHAND)));
+                    .withTool(weapon));
+
+            ResourceLocation classified = classifyKill(player, event.getSource().getDirectEntity());
+            if (classified != null) {
+                SkillService.award(player, SkillAction.once(classified)
+                        .withEntity(event.getEntity())
+                        .withTool(weapon));
+            }
         }
+    }
+
+    /** The kill action matching the damage action the killing blow would have been classified as. */
+    @Nullable
+    private static ResourceLocation classifyKill(ServerPlayer player, @Nullable Entity directEntity) {
+        ResourceLocation damage = classifyAttack(player, directEntity);
+        if (damage == null) return null;
+
+        if (damage.equals(ModSkillActions.DAMAGE_DEALT_MELEE)) return ModSkillActions.KILL_MELEE;
+        if (damage.equals(ModSkillActions.DAMAGE_DEALT_UNARMED)) return ModSkillActions.KILL_UNARMED;
+        if (damage.equals(ModSkillActions.DAMAGE_DEALT_BOW)) return ModSkillActions.KILL_BOW;
+        if (damage.equals(ModSkillActions.DAMAGE_DEALT_CROSSBOW)) return ModSkillActions.KILL_CROSSBOW;
+        if (damage.equals(ModSkillActions.DAMAGE_DEALT_THROWN)) return ModSkillActions.KILL_THROWN;
+        if (damage.equals(ModSkillActions.DAMAGE_DEALT_MUSKET)) return ModSkillActions.KILL_MUSKET;
+        if (damage.equals(ModSkillActions.DAMAGE_DEALT_TRIDENT)) return ModSkillActions.KILL_TRIDENT;
+        return null;
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

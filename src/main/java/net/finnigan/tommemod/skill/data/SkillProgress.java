@@ -81,6 +81,22 @@ public class SkillProgress {
         pointsSpent = 0;
     }
 
+    /**
+     * Wipes the skill entirely, levels and all: what abandoning a class does.
+     *
+     * Harder than {@link #clearNodes} on purpose. A respec is "I spent these points badly"; a class
+     * reset is "I am not this class any more", and leaving the levels behind would mean a player could
+     * hold every class at full level and pick whichever suited the fight. The experience is not simply
+     * destroyed - {@code SkillService.resetClass} banks a share of it first.
+     */
+    public void reset() {
+        nodeRanks.clear();
+        pointsSpent = 0;
+        pointsEarned = 0;
+        level = 1;
+        xp = 0.0;
+    }
+
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
         tag.putDouble("Xp", xp);

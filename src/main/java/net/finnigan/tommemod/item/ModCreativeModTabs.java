@@ -135,6 +135,9 @@ public class ModCreativeModTabs {
                         pOutput.accept(enchantedBook(ModEnchantments.RESILIENCE.get(), 3));
                         pOutput.accept(enchantedBook(ModEnchantments.IMMUNITY.get(), 1));
                         pOutput.accept(enchantedBook(ModEnchantments.POST_MORTEM.get(), 1));
+                        pOutput.accept(enchantedBook(ModEnchantments.TOLERANCE.get(), 3));
+                        pOutput.accept(enchantedBook(ModEnchantments.HEROBLADE.get(), 5));
+                        pOutput.accept(enchantedBook(ModEnchantments.ALLPROT.get(), 1));
 
                         // MISC
                         pOutput.accept(ModItems.END_LANTERN.get());

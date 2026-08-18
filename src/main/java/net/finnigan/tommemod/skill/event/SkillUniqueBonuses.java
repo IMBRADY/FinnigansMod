@@ -24,21 +24,29 @@ import net.minecraftforge.fml.common.Mod;
 public class SkillUniqueBonuses {
 
     /**
-     * Extra damage on a unique's own swing.
+     * What a unique does, on both of the two ways it does it.
      *
-     * LOW, so the shared melee keys have already landed and this multiplies the real figure. Scoped to
-     * the swing rather than to any damage the holder deals: a unique's ability damage is dealt by
-     * projectiles and handlers of its own, and rolling those in here would pay twice for one node.
+     * LOW, so the shared melee keys have already landed and this multiplies the real figure. Whether
+     * the damage source names the player directly is what separates a swing from an ability: a unique's
+     * ability damage always arrives through a projectile or a handler of its own, and never as the
+     * player striking something. That one test is what lets Ranger's Ability Power reach every unique
+     * in the pack - including ones added later - without any of them being edited.
      */
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onDealDamage(LivingHurtEvent event) {
         if (!(event.getSource().getEntity() instanceof Player player)) return;
-        if (event.getSource().getDirectEntity() != player) return;
 
         ItemStack weapon = player.getMainHandItem();
         if (!weapon.is(ModTags.Items.UNIQUE)) return;
 
-        double bonus = SkillBonuses.get(player, ModSkillBonuses.UNIQUE_DAMAGE);
+        boolean swing = event.getSource().getDirectEntity() == player;
+
+        // The two are mutually exclusive on purpose: Unique Damage is the swing, Ability Power is
+        // everything else the weapon does. A blow that took both would pay two nodes for one hit.
+        double bonus = swing
+                ? SkillBonuses.get(player, ModSkillBonuses.UNIQUE_DAMAGE)
+                : SkillBonuses.get(player, ModSkillBonuses.ABILITY_POWER);
+
         if (bonus > 0.0) event.setAmount(event.getAmount() * (float) (1.0 + bonus));
     }
 

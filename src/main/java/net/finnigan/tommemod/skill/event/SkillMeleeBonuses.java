@@ -42,7 +42,7 @@ public class SkillMeleeBonuses {
 
     /** How long a combo survives without landing another hit on the same target. */
     private static final int COMBO_TIMEOUT_TICKS = 40;
-    private static final int COMBO_CAP = 5;
+    private static final int COMBO_CAP = 3;
     /** Below this share of its health, a target is finishable. */
     private static final double EXECUTE_THRESHOLD = 0.33;
     private static final int KILL_MOMENTUM_TICKS = 100;
@@ -125,7 +125,11 @@ public class SkillMeleeBonuses {
                 && current.target().equals(target.getUUID())
                 && now - current.lastHitTick() <= COMBO_TIMEOUT_TICKS;
 
-        int hits = continues ? Math.min(current.hits() + 1, COMBO_CAP) : 1;
+        // Vanguard's Escalation raises the ceiling as well as the step, so the subclass buys a longer
+        // run of escalating blows rather than only a steeper one on the same three.
+        int cap = COMBO_CAP + (int) SkillBonuses.get(player, ModSkillBonuses.COMBO_CAP_BONUS);
+
+        int hits = continues ? Math.min(current.hits() + 1, cap) : 1;
         COMBOS.put(player.getUUID(), new Combo(target.getUUID(), hits, now));
 
         return perHit * (hits - 1); // the first hit of a combo is not yet a combo
@@ -255,9 +259,29 @@ public class SkillMeleeBonuses {
             if (target == null) return false; // in another dimension or unloaded; leave it to expire
             if (!(target instanceof LivingEntity living) || !living.isAlive()) return true;
 
-            living.hurt(living.damageSources().generic(), (float) entry.getValue().perSecond());
+            bleedTick(living, (float) entry.getValue().perSecond());
             return false;
         });
+    }
+
+    /**
+     * One bite of a bleed, taken without spending the target's invulnerability.
+     *
+     * {@code hurt} normally sets twenty ticks of invulnerability on whatever it damages, which for a
+     * wound ticking once a second means the bleed and the player who opened it are competing for the
+     * same window: a swing landing in the wrong half-second was swallowed whole. The counter is
+     * therefore put back exactly as it was found, so a bleed neither grants immunity nor consumes it,
+     * and the player never loses a hit to their own node.
+     */
+    private static void bleedTick(LivingEntity target, float amount) {
+        int invulnerable = target.invulnerableTime;
+        int hurtTime = target.hurtTime;
+
+        target.invulnerableTime = 0;
+        target.hurt(target.damageSources().generic(), amount);
+
+        target.invulnerableTime = invulnerable;
+        target.hurtTime = hurtTime;
     }
 
     /** Momentum: a kill leaves the hand moving faster than it was. */

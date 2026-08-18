@@ -1,6 +1,6 @@
 {
   "id": "tommemod:husbandry",
-  "category": "tommemod:gathering",
+  "category": "tommemod:general",
   "display_name": "Husbandry",
   "description": "Breeding and raising animals. Earned in the pasture.",
   "icon": "minecraft:wheat",

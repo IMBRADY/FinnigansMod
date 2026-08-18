@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShovelItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -41,9 +42,23 @@ public abstract class ItemStackDurabilityMixin {
             return 0;
         }
 
+        // Excavation's Spade Care, on its own key so a shovel that never breaks is what Excavation
+        // pays for rather than something the Mining tree hands out across every tool in the pack.
+        if (self.getItem() instanceof ShovelItem
+                && SkillBonuses.has(player, ModSkillBonuses.SHOVEL_LAST_STAND)
+                && self.getDamageValue() + amount >= self.getMaxDamage() - 1) {
+            return 0;
+        }
+
         // Skills waive the whole cost some of the time rather than halving it every time. Stacking
         // with the totem is intentional - a Smithing specialist wearing one should notice.
         if (SkillBonuses.roll(player, ModSkillBonuses.TOOL_DURABILITY_SAVE)) return 0;
+
+        // Excavation's Shaft Sinking. Shovels only, for the same reason.
+        if (self.getItem() instanceof ShovelItem
+                && SkillBonuses.roll(player, ModSkillBonuses.SHOVEL_DURABILITY_SAVE)) {
+            return 0;
+        }
 
         // Smithing's Plating, on its own key so that armor wearing well is a Smithing reward rather
         // than something the Mining tree pays for.

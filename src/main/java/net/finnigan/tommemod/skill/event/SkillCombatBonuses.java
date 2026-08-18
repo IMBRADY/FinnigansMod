@@ -140,6 +140,11 @@ public class SkillCombatBonuses {
 
         if (!event.isVanillaCritical()) {
             double chance = SkillBonuses.get(player, ModSkillBonuses.CRIT_CHANCE);
+            // Vanguard's Breach, added here rather than to the node's own key so that a marked target
+            // raises the chance for whoever is swinging at it without touching what they own.
+            if (event.getTarget() instanceof LivingEntity marked) {
+                chance += SkillVanguardBonuses.critChanceAgainst(player, marked);
+            }
             if (chance > 0.0 && player.getRandom().nextDouble() < Math.min(chance, 1.0)) {
                 event.setResult(net.minecraftforge.eventbus.api.Event.Result.ALLOW);
             }

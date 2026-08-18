@@ -1,11 +1,13 @@
 package net.finnigan.tommemod.client.screen;
 
 import net.finnigan.tommemod.network.ModNetwork;
+import net.finnigan.tommemod.network.packet.ResetClassPacket;
 import net.finnigan.tommemod.network.packet.UnlockSkillNodePacket;
 import net.finnigan.tommemod.skill.Skill;
 import net.finnigan.tommemod.skill.SkillCategory;
 import net.finnigan.tommemod.skill.SkillNode;
 import net.finnigan.tommemod.skill.SkillProgressView;
+import net.finnigan.tommemod.skill.SkillService;
 import net.finnigan.tommemod.skill.SkillTreeManager;
 import net.finnigan.tommemod.skill.data.ModSkillCapabilities;
 import net.finnigan.tommemod.skill.effect.SkillEffect;
@@ -14,6 +16,7 @@ import net.finnigan.tommemod.skill.requirement.SkillRequirement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -117,6 +120,8 @@ public class SkillTreeScreen extends Screen {
 
     @Nullable
     private Button unlockButton;
+    @Nullable
+    private Button resetButton;
 
     public SkillTreeScreen() {
         super(Component.translatable("screen.tommemod.skill_tree"));
@@ -140,6 +145,12 @@ public class SkillTreeScreen extends Screen {
 
         unlockButton = addRenderableWidget(Button.builder(Component.literal("Unlock"), button -> requestUnlock())
                 .bounds(left + panelWidth - 74, top + panelHeight - 24, 62, 16)
+                .build());
+
+        // Sits to the left of Unlock and only appears on a Class-Based tree. Deliberately not beside
+        // the node buttons in the graph: it undoes the whole class, not the node under the cursor.
+        resetButton = addRenderableWidget(Button.builder(Component.literal("Reset Class"), button -> confirmReset())
+                .bounds(left + panelWidth - 148, top + panelHeight - 24, 70, 16)
                 .build());
 
         layoutSidebar();
@@ -210,6 +221,8 @@ public class SkillTreeScreen extends Screen {
         if (skill == null || progress == null) {
             graphics.drawCenteredString(font, "No skills loaded", left + panelWidth / 2,
                     top + panelHeight / 2, TEXT_DIM);
+            if (unlockButton != null) unlockButton.visible = false;
+            if (resetButton != null) resetButton.visible = false;
             super.render(graphics, mouseX, mouseY, partialTick);
             return;
         }
@@ -397,12 +410,15 @@ public class SkillTreeScreen extends Screen {
 
         graphics.fill(left + SIDEBAR_WIDTH + 1, y0, left + panelWidth - 1, y0 + 1, BORDER);
 
+        updateResetButton(progress, skill);
+
         SkillNode node = selectedNode();
         if (node == null) {
             graphics.drawString(font, skill.description().isEmpty()
                             ? "Select a node to see what it does."
                             : skill.description(),
                     x, y0 + 8, TEXT_DIM, false);
+            renderClassNotice(graphics, progress, skill, x, y0 + 20);
             if (unlockButton != null) unlockButton.visible = false;
             return;
         }
@@ -433,6 +449,8 @@ public class SkillTreeScreen extends Screen {
             lineY += 10;
         }
 
+        lineY = renderClassNotice(graphics, progress, skill, x, lineY);
+
         SkillContext context = new SkillContext(progress, skill.id(), node.id());
         for (SkillRequirement requirement : node.allRequirements()) {
             if (lineY > top + panelHeight - 20) break;
@@ -448,9 +466,81 @@ public class SkillTreeScreen extends Screen {
         if (unlockButton != null) {
             unlockButton.visible = true;
             unlockButton.active = !maxed
-                    && progress.pointsAvailable(skill.id()) >= node.costOf(nextRank)
+                    && !isClassLocked(progress, skill)
+                    && affordable(progress, skill, node, nextRank)
                     && node.allRequirements().stream().allMatch(requirement -> requirement.test(context));
         }
+    }
+
+    /**
+     * Whether the player has the points, counting a reset's banked credit toward the root node.
+     *
+     * The root is where the credit is redeemed, so a player holding a credit and no points can buy it -
+     * greying it out would leave them looking at a button they were told to press with no way to
+     * press it. Every other node is judged on points alone, which is what the server will do.
+     */
+    private boolean affordable(SkillProgressView progress, Skill skill, SkillNode node, int nextRank) {
+        if (progress.pointsAvailable(skill.id()) >= node.costOf(nextRank)) return true;
+
+        return node.parents().isEmpty()
+                && progress.classCredit() > 0.0
+                && SkillTreeManager.isExclusive(skill.id());
+    }
+
+    /**
+     * The one line a Class-Based tree needs that a General one does not: whether this class is still
+     * open to you, and what you are carrying into it.
+     *
+     * Says nothing at all on a General tree, and nothing on a class the player has already taken -
+     * there the tree itself is the answer. Returns the next free line so callers can go on drawing.
+     */
+    private int renderClassNotice(GuiGraphics graphics, SkillProgressView progress, Skill skill, int x, int lineY) {
+        if (!SkillTreeManager.isExclusive(skill.id())) return lineY;
+        if (lineY > top + panelHeight - 20) return lineY;
+
+        ResourceLocation committed = progress.committedClass();
+
+        if (committed != null && !committed.equals(skill.id())) {
+            Skill taken = SkillTreeManager.skill(committed);
+            graphics.drawString(font, Component.literal("✘ Closed off - you are a "
+                                    + (taken == null ? committed.getPath() : taken.displayName()))
+                            .withStyle(ChatFormatting.RED),
+                    x, lineY, 0xFFFFFF, false);
+            return lineY + 10;
+        }
+
+        if (committed == null && progress.classCredit() > 0.0) {
+            graphics.drawString(font, Component.literal("↺ "
+                                    + format(Math.round(progress.classCredit()))
+                                    + " credited experience waiting - take this class to claim it")
+                            .withStyle(ChatFormatting.AQUA),
+                    x, lineY, 0xFFFFFF, false);
+            return lineY + 10;
+        }
+
+        return lineY;
+    }
+
+    /** Whether this tree is closed off because the player has already thrown in with another class. */
+    private boolean isClassLocked(SkillProgressView progress, Skill skill) {
+        if (!SkillTreeManager.isExclusive(skill.id())) return false;
+
+        ResourceLocation committed = progress.committedClass();
+        return committed != null && !committed.equals(skill.id());
+    }
+
+    /**
+     * Shows Reset only on the class the player actually took.
+     *
+     * Not on the other two: from a locked tree the button would read as "reset this", which is the
+     * opposite of what it does, and a player who has committed to Vanguard has nothing in Ranger to
+     * reset. Hidden entirely rather than greyed out on General trees, where it means nothing at all.
+     */
+    private void updateResetButton(SkillProgressView progress, Skill skill) {
+        if (resetButton == null) return;
+
+        ResourceLocation committed = progress.committedClass();
+        resetButton.visible = committed != null && committed.equals(skill.id());
     }
 
     private NodeState stateOf(Skill skill, SkillProgressView progress, SkillNode node) {
@@ -556,6 +646,52 @@ public class SkillTreeScreen extends Screen {
         if (skill == null || node == null) return;
 
         ModNetwork.CHANNEL.sendToServer(new UnlockSkillNodePacket(skill.id(), node.id()));
+    }
+
+    // ---- Resetting a class ----
+
+    /**
+     * Asks before wiping a class, and says what it costs in the same breath.
+     *
+     * A separate screen rather than a button that turns into "Are you sure?", because the numbers are
+     * the point: how much is being thrown away and how much comes back is what the decision turns on,
+     * and neither fits on a button.
+     */
+    private void confirmReset() {
+        if (minecraft == null) return;
+
+        SkillProgressView progress = progress();
+        if (progress == null) return;
+
+        ResourceLocation committedId = progress.committedClass();
+        Skill committed = committedId == null ? null : SkillTreeManager.skill(committedId);
+        if (committed == null) return;
+
+        long banked = Math.round(totalXpIn(progress, committed));
+        long credited = Math.round(banked * SkillService.CLASS_RESET_REFUND);
+
+        minecraft.setScreen(new ConfirmScreen(
+                accepted -> {
+                    if (accepted) ModNetwork.CHANNEL.sendToServer(new ResetClassPacket());
+                    minecraft.setScreen(this);
+                },
+                Component.literal("Give up " + committed.displayName() + "?")
+                        .withStyle(ChatFormatting.RED),
+                Component.literal("Every Class-Based tree is wiped back to level 1 and every point in "
+                        + "them is lost. " + format(credited) + " experience - half of the "
+                        + format(banked) + " banked in " + committed.displayName() + " - is carried "
+                        + "over to whichever class you pick next. It cannot be spent anywhere else."),
+                Component.literal("Reset"),
+                Component.literal("Keep " + committed.displayName())));
+    }
+
+    /** The client's own copy of the sum the server refunds against. Kept identical on purpose. */
+    private static double totalXpIn(SkillProgressView progress, Skill skill) {
+        double total = progress.xp(skill.id());
+        for (int level = 1; level < progress.level(skill.id()); level++) {
+            total += skill.xpToAdvance(level);
+        }
+        return total;
     }
 
     @Override

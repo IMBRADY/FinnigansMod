@@ -1,6 +1,6 @@
 {
   "id": "tommemod:mining",
-  "category": "tommemod:gathering",
+  "category": "tommemod:general",
   "display_name": "Mining",
   "description": "Stone, ore and the dark under the world. Earned with a pick in hand.",
   "icon": "minecraft:iron_pickaxe",

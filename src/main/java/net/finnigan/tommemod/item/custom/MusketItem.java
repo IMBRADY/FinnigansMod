@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.item.custom;
 
 import net.finnigan.tommemod.item.ModItems;
+import net.finnigan.tommemod.skill.event.SkillMarksmanshipBonuses;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -29,6 +30,19 @@ public class MusketItem extends Item {
 
     public static final int RELOAD_TICKS = 25;
 
+    /**
+     * The tick the chambered round becomes firable, written on the weapon itself.
+     *
+     * The reload used to be gated on {@link net.minecraft.world.item.ItemCooldowns}, which is kept
+     * separately on each side and started when each side saw the click - so the server's copy always
+     * finished a round trip's worth of ticks after the client's. A player firing the moment their own
+     * bar cleared had the shot refused by a server still counting, and because the client had already
+     * run {@code use} and marked the musket empty, the round was simply gone and the next click began
+     * another reload. An absolute tick written into the stack is the same number on both sides, and
+     * the client's click can only ever arrive at the server later than it was made, never earlier.
+     */
+    private static final String READY_AT_TAG = "tommemod:ReadyAt";
+
     public MusketItem(Properties properties) {
         super(properties);
     }
@@ -56,6 +70,11 @@ public class MusketItem extends Item {
         stack.getOrCreateTag().putBoolean("Loaded", loaded);
     }
 
+    /** Whether the round in the barrel is still being seated. */
+    private static boolean isReloading(Level level, ItemStack stack) {
+        return stack.hasTag() && level.getGameTime() < stack.getTag().getLong(READY_AT_TAG);
+    }
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 
@@ -64,8 +83,8 @@ public class MusketItem extends Item {
 
         ItemStack stack = player.getItemInHand(hand);
 
-        // Still mid-reload (cooldown running) - the musket hasn't chambered another round yet.
-        if (player.getCooldowns().isOnCooldown(this)) {
+        // Still mid-reload - the musket hasn't seated the round yet.
+        if (isReloading(level, stack)) {
             return InteractionResultHolder.fail(stack);
         }
 
@@ -93,7 +112,14 @@ public class MusketItem extends Item {
         }
 
         setLoaded(stack, true);
+
+        // The tag is what actually gates the shot; the cooldown is left in place for the sweep drawn
+        // over the icon. Both are shortened by the same Marksmanship node - RELOAD_TICKS is passed raw
+        // because ItemCooldownsMixin applies the reduction on the way in.
+        int reload = SkillMarksmanshipBonuses.shortenReload(player, stack, RELOAD_TICKS);
+        stack.getOrCreateTag().putLong(READY_AT_TAG, level.getGameTime() + reload);
         player.getCooldowns().addCooldown(this, RELOAD_TICKS);
+
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.CROSSBOW_LOADING_MIDDLE, SoundSource.PLAYERS, 1.0F, 1.0F);
 

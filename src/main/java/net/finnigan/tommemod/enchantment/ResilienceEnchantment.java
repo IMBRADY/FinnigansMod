@@ -4,7 +4,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
-/** Resilience - armor enchantment granting +5% knockback resistance per level (up to +15%). */
+/** Resilience - armor enchantment granting +2.5% knockback resistance per level, per enchanted piece. */
 public class ResilienceEnchantment extends Enchantment {
 
     public ResilienceEnchantment() {

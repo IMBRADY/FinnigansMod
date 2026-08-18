@@ -3,8 +3,10 @@ package net.finnigan.tommemod.network;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.network.packet.AdjustRideDistancePacket;
 import net.finnigan.tommemod.network.packet.BallistaFirePacket;
+import net.finnigan.tommemod.network.packet.ClassAbilityPacket;
 import net.finnigan.tommemod.network.packet.MonolithUpgradePacket;
 import net.finnigan.tommemod.network.packet.RequestBuildingBannerPacket;
+import net.finnigan.tommemod.network.packet.ResetClassPacket;
 import net.finnigan.tommemod.network.packet.RotateConstructionBannerPacket;
 import net.finnigan.tommemod.network.packet.SyncAccessoryPacket;
 import net.finnigan.tommemod.network.packet.SyncReputationHudPacket;
@@ -58,5 +60,9 @@ public class ModNetwork {
                 SyncSkillDataPacket::encode, SyncSkillDataPacket::new, SyncSkillDataPacket::handle);
         CHANNEL.registerMessage(id++, UnlockSkillNodePacket.class,
                 UnlockSkillNodePacket::encode, UnlockSkillNodePacket::new, UnlockSkillNodePacket::handle);
+        CHANNEL.registerMessage(id++, ResetClassPacket.class,
+                ResetClassPacket::encode, ResetClassPacket::new, ResetClassPacket::handle);
+        CHANNEL.registerMessage(id++, ClassAbilityPacket.class,
+                ClassAbilityPacket::encode, ClassAbilityPacket::new, ClassAbilityPacket::handle);
     }
 }

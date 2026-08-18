@@ -56,6 +56,9 @@ public class SkillCommands {
                                         .then(Commands.argument("skill", ResourceLocationArgument.id())
                                                 .suggests(SKILL_IDS)
                                                 .executes(SkillCommands::respec))))
+                        .then(Commands.literal("resetclass")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(SkillCommands::resetClass)))
                         .then(Commands.literal("query")
                                 .then(Commands.argument("targets", EntityArgument.players())
                                         .executes(SkillCommands::query)))));
@@ -95,6 +98,27 @@ public class SkillCommands {
         }
         context.getSource().sendSuccess(() -> Component.literal(
                 "Granted " + amount + " " + skillId.getPath() + " points"), true);
+        return touched;
+    }
+
+    /**
+     * Abandons a player's class, exactly as the button in the screen does.
+     *
+     * Takes no skill argument, because a player has at most one class to leave and naming which would
+     * only introduce a way to get it wrong. Goes through the same {@code SkillService.resetClass} the
+     * button does, so testing this tests the button.
+     */
+    private static int resetClass(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        int touched = 0;
+        for (ServerPlayer player : EntityArgument.getPlayers(context, "targets")) {
+            double credit = SkillService.resetClass(player);
+            context.getSource().sendSuccess(() -> Component.literal(
+                    credit > 0.0
+                            ? "Reset " + player.getName().getString() + "'s class, banking "
+                                    + Math.round(credit) + " experience"
+                            : player.getName().getString() + " had no class to reset"), true);
+            touched++;
+        }
         return touched;
     }
 

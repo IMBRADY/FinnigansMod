@@ -54,6 +54,7 @@ public class UnlockSkillNodePacket {
                 case ALREADY_MAXED -> "That node is already fully upgraded.";
                 case NOT_ENOUGH_POINTS -> "Not enough points in that skill.";
                 case REQUIREMENTS_UNMET -> "You don't meet the requirements for that node yet.";
+                case CLASS_LOCKED -> "You have already committed to another class. Reset it first.";
                 case BOUGHT -> "";
             }).withStyle(ChatFormatting.GRAY), true);
         });

@@ -146,14 +146,10 @@ public final class ModSkillBonuses {
     public static final ResourceLocation LOOSE_GROUND_STRIDE = id("loose_ground_stride");
     /** Fraction added to digging speed per soft block broken in a row, up to a cap. */
     public static final ResourceLocation DIG_MOMENTUM = id("dig_momentum");
-    /** How far either side of the struck block a shovel clears: 1 is a 3x3 face, 3 a 7x7. */
-    public static final ResourceLocation EXCAVATION_AREA = id("excavation_area");
-    /** Any amount at all: a wide swing never digs above the block that was aimed at. */
-    public static final ResourceLocation TERRACING = id("terracing");
-    /** Any amount at all: sneaking narrows a wide swing to one block, and a shovel can replace earth. */
-    public static final ResourceLocation BACKFILL = id("backfill");
-    /** Any amount at all: the extra blocks of a wide swing cost the shovel no durability. */
-    public static final ResourceLocation WIDE_SWING_FREE = id("wide_swing_free");
+    /** Chance a shovel shrugs off the durability a dig would cost it. */
+    public static final ResourceLocation SHOVEL_DURABILITY_SAVE = id("shovel_durability_save");
+    /** Any amount at all: a shovel one hit from breaking stops taking damage instead. */
+    public static final ResourceLocation SHOVEL_LAST_STAND = id("shovel_last_stand");
     /** Any amount at all: clay, mud and rooted dirt dig at full speed and give their best drop. */
     public static final ResourceLocation HARDPAN = id("hardpan");
     /** Chance digging turns up something buried. */
@@ -427,6 +423,76 @@ public final class ModSkillBonuses {
     public static final ResourceLocation LAST_BREATH = id("last_breath");
     /** Absorption hearts grown back after fifteen seconds without dealing or taking a hit. */
     public static final ResourceLocation OUT_OF_COMBAT_ABSORPTION = id("out_of_combat_absorption");
+
+    // ---- Vanguard ----
+
+    /** Any amount at all: the dash key rolls the player, briefly untouchable. */
+    public static final ResourceLocation DASH = id("dash");
+    /** Chance an incoming blow is avoided outright. Clamped well short of certainty. */
+    public static final ResourceLocation DODGE_CHANCE = id("dodge_chance");
+    /** Fraction added to damage and to speed per recent kill, while the stacks last. */
+    public static final ResourceLocation KILL_STACKS = id("kill_stacks");
+    /** Extra hits of a combo that still count, past {@code COMBO_DAMAGE}'s own ceiling. */
+    public static final ResourceLocation COMBO_CAP_BONUS = id("combo_cap_bonus");
+    /**
+     * Fraction of the target's <em>maximum</em> health added to each blow.
+     *
+     * Capped per hit against the attacker's own damage, so it scales a Dreadnought against a boss
+     * rather than replacing them - a percentage of a large health pool is otherwise a flat number that
+     * makes the weapon in hand irrelevant.
+     */
+    public static final ResourceLocation MAX_HEALTH_DAMAGE = id("max_health_damage");
+    /** Critical chance granted per stack to allies striking whatever this player is striking. */
+    public static final ResourceLocation ALLY_CRIT_MARK = id("ally_crit_mark");
+
+    // ---- Ranger ----
+
+    /**
+     * Fraction of a hit dealt as true damage - unmitigated by the target's armor.
+     *
+     * Added on top of the ordinary hit rather than converted from it, and taken from the pre-armor
+     * figure, so it is what makes a Hexblade the answer to something wearing a great deal of plate.
+     */
+    public static final ResourceLocation TRUE_DAMAGE_SHARE = id("true_damage_share");
+    /** Fraction added to the strength of a unique weapon's right-click ability. */
+    public static final ResourceLocation ABILITY_POWER = id("ability_power");
+    /** Extra projectiles loosed alongside the one that was aimed. Whole numbers. */
+    public static final ResourceLocation EXTRA_PROJECTILES = id("extra_projectiles");
+    /** Fraction of the way a projectile is steered toward the nearest thing in front of it each tick. */
+    public static final ResourceLocation PROJECTILE_HOMING = id("projectile_homing");
+    /** Ticks taken off the player's item cooldowns for every hit landed with a projectile. */
+    public static final ResourceLocation MANASTEAL = id("manasteal");
+    /** Fraction taken off the cooldowns of nearby allies' uniques. */
+    public static final ResourceLocation ALLY_COOLDOWN_AURA = id("ally_cooldown_aura");
+    /** Any amount at all: the ultimate is unlocked and fires from the dash key held. */
+    public static final ResourceLocation ULTIMATE = id("ultimate");
+
+    // ---- Guardian ----
+
+    /**
+     * Fraction of a nearby ally's incoming damage taken instead by this player.
+     *
+     * Read by {@code AllyDamageShare}, which also serves the Allprot chestplate and takes the single
+     * best cover on offer rather than the sum - see there for why.
+     */
+    public static final ResourceLocation ALLY_DAMAGE_SHARE = id("ally_damage_share");
+    /** Any amount at all: a blow that would kill a nearby ally is taken by this player instead. */
+    public static final ResourceLocation ALLY_FATAL_ABSORB = id("ally_fatal_absorb");
+    /** Half-hearts per second handed to nearby allies. */
+    public static final ResourceLocation ALLY_REGEN = id("ally_regen");
+    /** Fraction added to healing this player gives out. */
+    public static final ResourceLocation HEALING_GIVEN = id("healing_given");
+    /** Fraction added to healing this player receives. */
+    public static final ResourceLocation HEALING_RECEIVED = id("healing_received");
+    /**
+     * Fraction of extra care given to one chosen ally: healing, and time cut off their bad effects.
+     *
+     * One ally at a time, chosen by looking at them and pressing the dash key. A bond spread across
+     * everybody nearby would be {@link #ALLY_REGEN} with a bigger number rather than a decision.
+     */
+    public static final ResourceLocation BONDED_ALLY = id("bonded_ally");
+    /** Knockback resistance granted to allies sheltering behind this player. */
+    public static final ResourceLocation ALLY_KNOCKBACK_AURA = id("ally_knockback_aura");
 
     private static ResourceLocation id(String path) {
         return new ResourceLocation(TommeMod.MOD_ID, path);

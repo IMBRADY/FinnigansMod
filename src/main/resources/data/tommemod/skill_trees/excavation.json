@@ -1,6 +1,6 @@
 {
   "id": "tommemod:excavation",
-  "category": "tommemod:gathering",
+  "category": "tommemod:general",
   "display_name": "Excavation",
   "description": "Dirt, sand, gravel and clay. Earned with a shovel.",
   "icon": "minecraft:iron_shovel",
@@ -48,7 +48,7 @@
     {
       "id": "excavation",
       "title": "Excavation",
-      "description": "Moving earth, not fighting it.",
+      "description": "Moving the earth.",
       "icon": "minecraft:iron_shovel",
       "x": 0,
       "y": 0,
@@ -172,7 +172,7 @@
     {
       "id": "shaft_sinking",
       "title": "Shaft Sinking",
-      "description": "A shovel that takes the whole face at once.",
+      "description": "Long work, and the shovel holds up to it.",
       "icon": "minecraft:diamond_shovel",
       "x": -1,
       "y": 2,
@@ -188,10 +188,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:excavation_area",
-          "amount_per_rank": 1.0,
-          "description": "%s block of reach either side: 3x3, then 5x5, then 7x7",
-          "format": "flat"
+          "key": "tommemod:shovel_durability_save",
+          "amount_per_rank": 0.08,
+          "description": "%s chance a dig costs the shovel nothing",
+          "format": "percent"
         }
       ]
     },
@@ -274,7 +274,7 @@
     {
       "id": "landslide",
       "title": "Terracing",
-      "description": "A cut that leaves a step you can walk up, not a hole you fall in.",
+      "description": "Every cut teaches you something about the ground it went through.",
       "icon": "minecraft:stone_brick_stairs",
       "x": -3,
       "y": 3,
@@ -288,10 +288,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:terracing",
-          "amount_per_rank": 1.0,
-          "description": "A wide swing never digs above the block you aimed at",
-          "format": "flat"
+          "key": "tommemod:block_xp_bonus",
+          "amount_per_rank": 0.5,
+          "description": "%s experience from the blocks you break",
+          "format": "percent"
         }
       ],
       "requirements": [
@@ -304,7 +304,7 @@
     {
       "id": "burrower",
       "title": "Backfill",
-      "description": "Knowing when not to move the earth.",
+      "description": "What you moved comes back to you rather than staying at the bottom of the hole.",
       "icon": "minecraft:dirt",
       "x": -1,
       "y": 3,
@@ -318,10 +318,10 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:backfill",
-          "amount_per_rank": 1.0,
-          "description": "Sneak to narrow a wide swing back to one block",
-          "format": "flat"
+          "key": "tommemod:item_magnet",
+          "amount_per_rank": 3.0,
+          "description": "%s blocks of reach on dropped items",
+          "format": "decimal"
         }
       ]
     },
@@ -378,7 +378,7 @@
     {
       "id": "spade_care",
       "title": "Spade Care",
-      "description": "Only the block you aimed at costs the shovel anything.",
+      "description": "A shovel looked after is a shovel you never have to walk home for.",
       "icon": "minecraft:grindstone",
       "x": 3,
       "y": 3,
@@ -392,9 +392,9 @@
       "effects": [
         {
           "type": "tommemod:bonus",
-          "key": "tommemod:wide_swing_free",
+          "key": "tommemod:shovel_last_stand",
           "amount_per_rank": 1.0,
-          "description": "The extra blocks of a wide swing cost no durability",
+          "description": "A shovel one hit from breaking stops taking damage",
           "format": "flat"
         }
       ],
@@ -495,7 +495,7 @@
         {
           "type": "tommemod:bonus",
           "key": "tommemod:exhaustion_reduction",
-          "amount_per_rank": 0.15,
+          "amount_per_rank": 0.03,
           "description": "%s hunger drain",
           "format": "percent_reduction"
         },

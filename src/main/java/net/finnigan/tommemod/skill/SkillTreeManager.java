@@ -93,6 +93,36 @@ public final class SkillTreeManager {
         return categories.get(id);
     }
 
+    /** The category a skill sits under, or null if it names one that was not loaded. */
+    @Nullable
+    public static SkillCategory categoryOf(ResourceLocation skillId) {
+        Skill skill = skills.get(skillId);
+        return skill == null ? null : categories.get(skill.category());
+    }
+
+    /** Whether this skill sits under a heading where picking one closes off the rest. */
+    public static boolean isExclusive(ResourceLocation skillId) {
+        SkillCategory category = categoryOf(skillId);
+        return category != null && category.exclusive();
+    }
+
+    /**
+     * Every skill that competes with this one for the same commitment, itself included.
+     *
+     * Empty for anything outside an exclusive category, which is the ordinary case and the reason
+     * callers can treat an empty answer as "no commitment involved" rather than as an error.
+     */
+    public static List<Skill> exclusiveGroupOf(ResourceLocation skillId) {
+        SkillCategory category = categoryOf(skillId);
+        if (category == null || !category.exclusive()) return List.of();
+
+        List<Skill> group = new ArrayList<>();
+        for (Skill skill : orderedSkills) {
+            if (skill.category().equals(category.id())) group.add(skill);
+        }
+        return group;
+    }
+
     /** Everything that earns experience from a given action. Empty is the common case; don't allocate. */
     public static List<SourceBinding> sourcesFor(ResourceLocation actionId) {
         return actionIndex.getOrDefault(actionId, List.of());

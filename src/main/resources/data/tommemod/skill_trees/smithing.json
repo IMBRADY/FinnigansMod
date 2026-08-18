@@ -1,6 +1,6 @@
 {
   "id": "tommemod:smithing",
-  "category": "tommemod:gathering",
+  "category": "tommemod:general",
   "display_name": "Smithing",
   "description": "Repairing, upgrading and enchanting equipment. Earned at the anvil.",
   "icon": "minecraft:smithing_table",

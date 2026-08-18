@@ -45,12 +45,23 @@ public class SkillMarksmanshipBonuses {
 
     // ---- The projectile ----
 
-    /** Pierce and spread are properties of the bolt, settled the tick it exists. */
+    /**
+     * Pierce and spread are properties of the bolt, settled the tick it exists.
+     *
+     * EntityJoinLevelEvent also fires for entities being read back off disk, which is not a shot being
+     * taken - it is a chunk being loaded. Bolts that stuck in the ground days ago all rejoin the level
+     * at once, and without this guard every one of them rolled Volley Fire again and fired a fresh
+     * arrow out of the player: walk back to somewhere you had been shooting, with a crossbow in hand,
+     * and the sky fills up. The same reload also re-added Bolt Piercing to bolts that already had it.
+     */
     @SubscribeEvent
     public static void onProjectileSpawn(EntityJoinLevelEvent event) {
-        if (event.getLevel().isClientSide()) return;
+        if (event.getLevel().isClientSide() || event.loadedFromDisk()) return;
         if (!(event.getEntity() instanceof AbstractArrow arrow)) return;
         if (!(arrow.getOwner() instanceof Player player)) return;
+        // A bolt that has already flown is not one being loosed now, whatever brought it back - a
+        // dimension change re-adds the same entity object rather than loading a new one.
+        if (arrow.tickCount > 0) return;
 
         boolean crossbow = player.getMainHandItem().getItem() instanceof CrossbowItem;
         boolean trident = arrow instanceof ThrownTrident;

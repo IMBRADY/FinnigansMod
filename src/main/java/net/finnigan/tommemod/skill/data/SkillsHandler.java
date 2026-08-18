@@ -9,6 +9,7 @@ import net.finnigan.tommemod.skill.effect.SkillEffectTotals;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.INBTSerializable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +25,28 @@ import java.util.Map;
 public class SkillsHandler implements INBTSerializable<CompoundTag>, SkillProgressView {
 
     private final Map<ResourceLocation, SkillProgress> progress = new HashMap<>();
+
+    /**
+     * Experience banked by resetting a class, waiting for the next class to be picked.
+     *
+     * Held here rather than in a {@link SkillProgress} because it belongs to no skill: it is what a
+     * player carries away from the class they abandoned, and it is only ever spent on whichever
+     * Class-Based tree they commit to next. Deliberately not usable on General trees - a reset is a
+     * change of mind about a class, not a refund into mining.
+     */
+    private double classCredit;
+
+    /**
+     * The Class-Based tree this player has thrown in with, or null while they are still uncommitted.
+     *
+     * Stored rather than derived from "which exclusive tree has points spent in it". Deriving it read
+     * well until the credit arrived: redeeming a reset's credit has to happen before the points check
+     * of the purchase that redeems it, so there is a moment where the player has chosen a class and
+     * spent nothing on it yet, and a derived answer calls that moment uncommitted. One field says what
+     * is true at every point in that sequence.
+     */
+    @Nullable
+    private ResourceLocation committedClass;
 
     /** Derived from the ranks above; never saved, always rebuilt from them. */
     private SkillEffectTotals totals = new SkillEffectTotals();
@@ -84,6 +107,23 @@ public class SkillsHandler implements INBTSerializable<CompoundTag>, SkillProgre
         return progress;
     }
 
+    // ---- Class credit ----
+
+    public void addClassCredit(double credit) {
+        this.classCredit = Math.max(0.0, this.classCredit + credit);
+    }
+
+    /** Hands the whole banked credit over and empties the bank. Zero when there was none. */
+    public double takeClassCredit() {
+        double taken = classCredit;
+        classCredit = 0.0;
+        return taken;
+    }
+
+    public void setCommittedClass(@Nullable ResourceLocation skillId) {
+        this.committedClass = skillId;
+    }
+
     // ---- SkillProgressView ----
 
     @Override
@@ -109,6 +149,17 @@ public class SkillsHandler implements INBTSerializable<CompoundTag>, SkillProgre
     @Override
     public int nodeRank(ResourceLocation skill, String nodeId) {
         return get(skill).getNodeRank(nodeId);
+    }
+
+    @Override
+    @Nullable
+    public ResourceLocation committedClass() {
+        return committedClass;
+    }
+
+    @Override
+    public double classCredit() {
+        return classCredit;
     }
 
     // ---- Levelling ----
@@ -159,6 +210,8 @@ public class SkillsHandler implements INBTSerializable<CompoundTag>, SkillProgre
             if (!state.isUntouched()) skills.put(id.toString(), state.save());
         });
         tag.put("Skills", skills);
+        tag.putDouble("ClassCredit", classCredit);
+        if (committedClass != null) tag.putString("CommittedClass", committedClass.toString());
         return tag;
     }
 
@@ -170,6 +223,9 @@ public class SkillsHandler implements INBTSerializable<CompoundTag>, SkillProgre
             ResourceLocation id = ResourceLocation.tryParse(key);
             if (id != null) progress.put(id, SkillProgress.load(skills.getCompound(key)));
         }
+        classCredit = Math.max(0.0, tag.getDouble("ClassCredit"));
+        committedClass = tag.contains("CommittedClass")
+                ? ResourceLocation.tryParse(tag.getString("CommittedClass")) : null;
         recompute();
     }
 }

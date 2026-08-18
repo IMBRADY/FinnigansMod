@@ -24,6 +24,14 @@ public class ModTags {
          * extends Item rather than SwordItem, to escape SwordItem's hardcoded sweep.
          */
         public static final TagKey<Item> PIERCING_WEAPONS = tag("piercing_weapons");
+        /**
+         * What Heroblade may be put on: blades, cleavers, daggers and uniques.
+         *
+         * Kept apart from {@link #PIERCING_WEAPONS} rather than reused despite the near-identical
+         * membership, because the two answer different questions - one is "what can pierce armor",
+         * the other "what counts as a hero's weapon" - and a cleaver belongs to the second only.
+         */
+        public static final TagKey<Item> HEROBLADE_WEAPONS = tag("heroblade_weapons");
 
         private static TagKey<Item> tag(String name) {
             return TagKey.create(Registries.ITEM, new ResourceLocation(TommeMod.MOD_ID, name));

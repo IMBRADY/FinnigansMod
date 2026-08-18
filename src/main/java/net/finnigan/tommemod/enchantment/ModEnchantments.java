@@ -26,4 +26,10 @@ public class ModEnchantments {
             ENCHANTMENTS.register("immunity", ImmunityEnchantment::new);
     public static final RegistryObject<Enchantment> POST_MORTEM =
             ENCHANTMENTS.register("post_mortem", PostMortemEnchantment::new);
+    public static final RegistryObject<Enchantment> TOLERANCE =
+            ENCHANTMENTS.register("tolerance", ToleranceEnchantment::new);
+    public static final RegistryObject<Enchantment> HEROBLADE =
+            ENCHANTMENTS.register("heroblade", HerobladeEnchantment::new);
+    public static final RegistryObject<Enchantment> ALLPROT =
+            ENCHANTMENTS.register("allprot", AllprotEnchantment::new);
 }

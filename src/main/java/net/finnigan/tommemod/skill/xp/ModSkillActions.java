@@ -54,8 +54,28 @@ public final class ModSkillActions {
     public static final ResourceLocation DAMAGE_DEALT_TRIDENT = id("damage_dealt/trident");
     public static final ResourceLocation DAMAGE_BLOCKED = id("damage_blocked");
     public static final ResourceLocation DAMAGE_TAKEN = id("damage_taken");
-    /** One per kill; the victim rides along so a tree can pay more for tougher marks. */
+    /**
+     * One per kill, however it was landed; the victim rides along so a tree can pay more for tougher
+     * marks. Kept alongside the classified kills below for the trees that genuinely mean "any kill" -
+     * Uniques pays out on this one and filters by the weapon's tag instead.
+     */
     public static final ResourceLocation KILL = id("kill");
+    /**
+     * The same kill, said again with the weapon that landed it.
+     *
+     * Posted beside {@link #KILL} because a combat tree paying out on the unqualified action pays out
+     * for every kill in the game: Melee was earning its 25 from bow shots, thrown tridents and musket
+     * balls, and Marksmanship - which had no kill source at all - earned nothing from any of them.
+     * Classified exactly as damage is, by {@code SkillCombatTracker#classifyAttack}, so a weapon that
+     * feeds one tree's damage feeds the same tree's kills.
+     */
+    public static final ResourceLocation KILL_MELEE = id("kill/melee");
+    public static final ResourceLocation KILL_UNARMED = id("kill/unarmed");
+    public static final ResourceLocation KILL_BOW = id("kill/bow");
+    public static final ResourceLocation KILL_CROSSBOW = id("kill/crossbow");
+    public static final ResourceLocation KILL_THROWN = id("kill/thrown");
+    public static final ResourceLocation KILL_MUSKET = id("kill/musket");
+    public static final ResourceLocation KILL_TRIDENT = id("kill/trident");
     /** One per projectile that connects. Amount is the distance it flew, for precision trees. */
     public static final ResourceLocation PROJECTILE_HIT = id("projectile_hit");
 

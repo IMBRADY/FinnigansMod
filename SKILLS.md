@@ -8,26 +8,27 @@ to unlock it.
 
 ```
 src/main/resources/data/tommemod/
-├── skill_categories/          the three sidebar headings
-│   ├── movement.json
-│   ├── gathering.json
-│   └── combat.json
+├── skill_categories/          the two sidebar headings
+│   ├── general.json
+│   └── class_based.json
 └── skill_trees/               one file per skill
-    ├── agility.json  riding.json  gliding.json
-    ├── mining.json   excavation.json  foraging.json  husbandry.json  smithing.json
-    └── melee.json    archery.json  defense.json  marksmanship.json  unarmed.json
+    ├── mining.json  excavation.json  foraging.json  husbandry.json  smithing.json
+    ├── agility.json  riding.json  gliding.json  uniques.json
+    └── vanguard.json  ranger.json  guardian.json
 ```
 
 Adding a skill is adding a file. Deleting one is deleting a file - Sailing used to sit alongside
 Riding and Gliding and its removal was exactly that, with the `distance/sail` action and the
-`boat_speed` key left in place so a boat tree can be reinstated without touching Java.
+`boat_speed` key left in place so a boat tree can be reinstated without touching Java. Melee, Archery,
+Marksmanship and Defense went the same way when the classes replaced them: Melee and Defense became
+Vanguard and Guardian, and Archery and Marksmanship were folded together into Ranger.
 
 **Applying a change.** Edit the file, then run `/reload` in game. The trees reload, every online
 player's client is resent the definitions, and their bonuses are recomputed against the new values on
 the spot. No restart, no relog.
 
 If a file has a mistake in it, that one tree is skipped and the reason is written to the log
-(`Skipping skill tree tommemod:agility: ...`). The other twelve keep working.
+(`Skipping skill tree tommemod:agility: ...`). The other eleven keep working.
 
 **Worth knowing, because it is quiet:** a tree that has been skipped is not missing from the screen
 in any obvious way, it simply is not there. A parent naming a node that does not exist is enough to
@@ -101,8 +102,11 @@ These are fixed — they are what the mod's event handlers post. Adding a genuin
 | `block_broken` | 1 per block (carries the block and tool) |
 | `damage_dealt/melee` `damage_dealt/unarmed` | half-hearts |
 | `damage_dealt/bow` `damage_dealt/crossbow` `damage_dealt/thrown` | half-hearts |
+| `damage_dealt/musket` `damage_dealt/trident` | half-hearts |
 | `damage_blocked` `damage_taken` | half-hearts |
-| `kill` | 1 per kill (carries the victim) |
+| `kill` | 1 per kill, however landed (carries the victim) |
+| `kill/melee` `kill/unarmed` `kill/bow` `kill/crossbow` | 1 per kill with that weapon |
+| `kill/thrown` `kill/musket` `kill/trident` | 1 per kill with that weapon |
 | `projectile_hit` | blocks the projectile flew |
 | `animal_bred` `animal_tamed` `animal_fed` | 1 each (carries the animal) |
 | `item_repaired` | durability points restored |
@@ -203,8 +207,8 @@ what unit it is in, is in
   `landing_momentum` `flight_regen` `rocket_conservation` `dive_impact`
 - **Gathering, shared** — `mining_speed` `ore_double_drop` `excavation_double_drop`
   `foraging_double_drop` `tool_durability_save` `block_xp_bonus`
-- **Excavation** — `loose_ground_stride` `dig_momentum` `excavation_area` `terracing` `backfill`
-  `wide_swing_free` `hardpan` `buried_find` `treasure_quality` `excavation_direct_harvest`
+- **Excavation** — `loose_ground_stride` `dig_momentum` `shovel_durability_save` `shovel_last_stand`
+  `hardpan` `buried_find` `treasure_quality` `excavation_direct_harvest`
   `dig_site_sense` `cave_in_immunity`
 - **Mining** — `mining_penalty_ignore` `vein_chance` `auto_smelt` `depth_bonus` `motherlode_chance`
   `item_magnet` `spelunker_guard` `darkness_speed` `tool_last_stand`
@@ -213,9 +217,37 @@ what unit it is in, is in
 - **Smithing** — `anvil_cost_reduction` `repair_efficiency` `heat_mending` `prior_work_reduction`
   `armor_durability_save` `anvil_preserve` `reforge_chance` `armor_pierce` `craft_enchant_chance`
   `craft_double_chance` `smelt_bonus`
+- **Husbandry** — `breeding_cooldown_reduction` `twin_birth_chance` `animal_drop_bonus`
+- **Uniques** — `unique_damage` `ability_cooldown`
+- **Combat, shared** — `melee_damage` `unarmed_damage` `ranged_damage` `crit_chance` `crit_damage`
+  `lifesteal` `undead_damage` `unarmed_knockback`
+- **Vanguard** — `ambush_damage` `sweep_damage` `stagger` `bleed_damage` `combo_damage`
+  `kill_momentum` `execute_damage` `armor_recovery` `desperation_damage` `outnumbered`, and for the
+  subclasses `dash` `dodge_chance` `kill_stacks` `combo_cap_bonus` `max_health_damage`
+  `ally_crit_mark`
+- **Ranger** — `draw_speed` `arrow_velocity` `arrow_steadiness` `long_shot_damage` `headshot_damage`
+  `musket_damage` `arrow_pierce` `arrow_conservation` `follow_up_shot` `bow_knockback` `hunters_mark`
+  `draw_mobility` `snap_shot` `multishot_chance` `aimed_crit` `arrow_slow` `bow_durability_save`
+  `overdraw_damage` `headshot_blind` `marked_damage` `musket_reload` `bolt_pierce`
+  `suppressed_damage` `suppress_slow` `bayonet_damage` `crossbow_multishot` `holster_reload`
+  `impact_area` `trident_mastery` `assassinate` `distance_crit`, and for the subclasses
+  `extra_projectiles` `projectile_homing` `true_damage_share` `ability_power` `manasteal`
+  `ally_cooldown_aura` `ultimate`
+- **Guardian** — `shield_durability_save` `riposte` `damage_reduction` `blast_resistance`
+  `fire_resistance` `projectile_resistance` `block_mobility` `shield_bash`
+  `block_knockback_reduction` `damage_falloff` `armor_repair` `sneak_defense` `block_charge`
+  `guard_ally` `thorns_no_wear` `last_breath` `out_of_combat_absorption`, and for the subclasses
+  `ally_damage_share` `ally_fatal_absorb` `ally_regen` `healing_given` `healing_received`
+  `bonded_ally` `ally_knockback_aura`
 
 `boat_speed` is still read by its handler with no tree pointing at it, Sailing having been removed.
-Point a node at it and boats are quick again.
+Point a node at it and boats are quick again. A good many of the Ranger keys are in the same position
+after Archery and Marksmanship were folded into one tree — the handlers all still work, so a node
+pointed at any of them starts paying immediately.
+
+`ally_damage_share` is the one key with a second owner: the Allprot chestplate does the same job, and
+both are served by `AllyDamageShare`, which takes the single best cover on offer rather than the sum.
+Raising the numbers on Aegis and Sentinel will not stack them with the enchantment.
 
 ### Switches, not dials
 
@@ -223,8 +255,9 @@ Some keys only ask whether the player has *any* of them, so ranking one up does 
 `max_rank: 1` and a description with no `%s` in it:
 
 `sprint_acceleration` `underwater_vision` `unhindered_stride` `mount_acceleration` `direct_harvest`
-`hoe_replant` `tool_last_stand` `loose_ground_stride` `terracing` `backfill` `wide_swing_free`
-`hardpan` `excavation_direct_harvest`
+`hoe_replant` `tool_last_stand` `loose_ground_stride` `hardpan` `excavation_direct_harvest`
+`shovel_last_stand` `block_mobility` `draw_mobility` `snap_shot` `aimed_crit` `distance_crit`
+`holster_reload` `thorns_no_wear` `last_breath` `dash` `ultimate` `ally_fatal_absorb`
 
 ### One rule worth keeping
 
@@ -237,15 +270,6 @@ at 15%, and a cap on falling speed rather than a cut to the force causing it.
 
 If a new key would be read every tick and applied to velocity or to gravity, **give it exactly one node
 and check what full investment comes to** before shipping it.
-- **Gathering** — `mining_speed` `ore_double_drop` `excavation_double_drop` `foraging_double_drop`
-  `tool_durability_save` `block_xp_bonus`
-- **Husbandry / Smithing** — `breeding_cooldown_reduction` `twin_birth_chance` `animal_drop_bonus`
-  `anvil_cost_reduction` `repair_efficiency`
-- **Combat** — `melee_damage` `unarmed_damage` `ranged_damage` `crit_chance` `crit_damage`
-  `lifesteal` `undead_damage` `unarmed_knockback`
-- **Ranged** — `draw_speed` `arrow_velocity` `arrow_steadiness` `long_shot_damage` `headshot_damage`
-- **Defence** — `shield_durability_save` `riposte` `damage_reduction` `blast_resistance`
-  `fire_resistance` `projectile_resistance`
 
 `description` is the tooltip line; `%s` is replaced by the formatted number. A description with no
 `%s` in it is printed as written, which is what a node with nothing to quantify wants ("Night vision
@@ -332,13 +356,54 @@ bought.
 
 ---
 
+## 4a. Classes, and what makes one
+
+Class-Based is an ordinary category with one extra line in it:
+
+```json
+{ "display_name": "Class-Based", "sort_order": 1, "exclusive": true }
+```
+
+`exclusive` is what turns three trees into a choice. Buying a node in one of them commits the player
+to it, and every other tree under the same heading is closed off from that moment — the Unlock button
+greys out, the detail panel says which class they took instead, and the server refuses the purchase
+even if a client asks anyway. Nothing names Vanguard, Ranger or Guardian in Java; moving a tree into
+or out of the category is all it takes to add or remove a class.
+
+**Committing is buying, not earning.** Experience keeps accruing in all three from ordinary play —
+swinging a sword is Vanguard experience whether or not the player means to be one. What locks the
+choice in is spending a point, because that is the first thing the player actually decided.
+
+**Subclasses** are not a mechanism. They are two nodes at the same depth, each carrying a
+`tommemod:not` requirement naming the other:
+
+```json
+"requirements": [
+  { "type": "tommemod:skill_level", "level": 20 },
+  { "type": "tommemod:not", "child": { "type": "tommemod:node_rank", "node": "dreadnought", "rank": 1 } }
+]
+```
+
+That is the whole of it. A third subclass is a third node with a `not` for each of the other two.
+
+**The reset** wipes every tree under the exclusive heading back to level 1 — not only the committed
+one, since the others have been quietly accruing experience the whole time and leaving them would hand
+the player their second class most of the way built. Half of what was banked in the class they
+actually took (`SkillService.CLASS_RESET_REFUND`) becomes a credit, which is paid into the next class
+the moment they buy its root node. The credit is not spendable on General trees and does not expire.
+
+Reachable from the Reset Class button on the committed tree, which asks first and shows both numbers,
+and from `/tommemod skill resetclass <players>` — the same code path, so testing one tests the other.
+
+---
+
 ## 5. Layout
 
 `x` and `y` place a node on a grid. `y` is depth (0 is the root, increasing downward), `x` is
 horizontal and may be negative. The screen fits `x` from -3 to 3 without scrolling; deeper than about
 four rows and the player scrolls, which is normal.
 
-The stock trees all use the same 18-node shape, so they read consistently:
+The General trees all use the same 18-node shape, so they read consistently:
 
 ```
 y=0                        root(0,0)
@@ -352,6 +417,24 @@ y=5                      capstone(0,5)
 Fully maxing one tree costs 100 points; 100 levels earns 99. That is deliberate — you can very nearly
 complete one tree and never two.
 
+The three class trees are a different shape, because they have to say something the General ones do
+not: where the fork is. They run to `y=7` rather than `y=5`, with a shared trunk down to a gate node
+at `y=3`, the two subclasses side by side at `y=4`, and each subclass's own four nodes below it:
+
+```
+y=0                      root(0,0)
+y=1        A(-2,1)        B(0,1)        C(2,1)
+y=2  A1(-3,2) A2(-1,2)  B1(1,2)      C1(3,2)
+y=3                      gate(0,3)
+y=4          left(-2,4)              right(2,4)
+y=5   L1(-3,5) L2(-1,5)              R1(1,5) R2(3,5)
+y=6          L3(-2,6)                  R3(2,6)
+y=7          L4(-2,7)                  R4(2,7)
+```
+
+Because a player only ever goes down one side, the reachable half of a class tree is about fourteen
+nodes — deliberately smaller than a General tree, and cheaper to finish.
+
 ---
 
 ## 6. Testing without playing to it
@@ -359,6 +442,7 @@ complete one tree and never two.
 ```
 /tommemod skill addxp <players> <skill> <amount>
 /tommemod skill points <players> <skill> <amount>
+/tommemod skill resetclass <players>
 /tommemod skill respec <players> <skill>
 /tommemod skill query  <players>
 ```

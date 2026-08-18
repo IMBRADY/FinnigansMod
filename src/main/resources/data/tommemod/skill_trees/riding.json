@@ -1,10 +1,10 @@
 {
   "id": "tommemod:riding",
-  "category": "tommemod:movement",
+  "category": "tommemod:general",
   "display_name": "Riding",
   "description": "Horses, minecarts and everything else that carries you. Earned in the saddle.",
   "icon": "minecraft:saddle",
-  "sort_order": 1,
+  "sort_order": 6,
   "max_level": 100,
   "points_per_level": 1,
   "xp_curve": {
