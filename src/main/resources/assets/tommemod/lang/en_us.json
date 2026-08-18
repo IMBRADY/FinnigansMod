@@ -192,5 +192,6 @@
   "item.tommemod.totem_of_fire_magic": "Totem of Fire Magic",
   "item.tommemod.totem_of_stickiness": "Totem of Stickiness",
   "effect.tommemod.well_fed": "Well-Fed",
-  "item.tommemod.pearlwood_stick": "Pearlwood Stick"
+  "item.tommemod.pearlwood_stick": "Pearlwood Stick",
+  "entity.tommemod.harrington": "Harrington"
 }

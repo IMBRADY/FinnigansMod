@@ -96,6 +96,7 @@ public class ModEvents {
 
         @SubscribeEvent
         public static void registerAttributes(EntityAttributeCreationEvent event) {
+            event.put(ModEntityTypes.HARRINGTON.get(), HarringtonEntity.createAttributes().build());
             event.put(ModEntityTypes.JELLYFISH.get(), JellyfishEntity.createAttributes().build());
             event.put(ModEntityTypes.BUTTERFLY.get(), ButterflyEntity.createAttributes().build());
             event.put(ModEntityTypes.END_LANTERN.get(), EndLanternEntity.createAttributes().build());
