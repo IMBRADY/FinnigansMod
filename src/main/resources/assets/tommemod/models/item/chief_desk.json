@@ -1,17 +1,17 @@
 {
-  "_comment": "builtin/entity hands rendering to ChiefDeskItemRenderer (GeckoLib). Transforms are the vanilla block-item ones; re-tune once the real desk model lands, since it is wider than one block.",
+  "_comment": "builtin/entity hands rendering to ChiefDeskItemRenderer (GeckoLib), which centres the mesh on the origin so these transforms can be the vanilla block-item ones. Scales are the vanilla values divided by 1.94, the ratio between this desk's bounding sphere and a one-block cube's - the desk is 2 blocks wide and 2.2 deep once the slanted top is counted.",
   "parent": "builtin/entity",
   "textures": {
     "particle": "tommemod:block/chiefdesk"
   },
   "display": {
-    "gui": { "rotation": [30, 225, 0], "translation": [0, -1, 0], "scale": [0.5, 0.5, 0.5] },
-    "ground": { "rotation": [0, 0, 0], "translation": [0, 3, 0], "scale": [0.25, 0.25, 0.25] },
-    "fixed": { "rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [0.5, 0.5, 0.5] },
-    "thirdperson_righthand": { "rotation": [75, 45, 0], "translation": [0, 2.5, 0], "scale": [0.375, 0.375, 0.375] },
-    "thirdperson_lefthand": { "rotation": [75, 45, 0], "translation": [0, 2.5, 0], "scale": [0.375, 0.375, 0.375] },
-    "firstperson_righthand": { "rotation": [0, 45, 0], "translation": [0, 0, 0], "scale": [0.4, 0.4, 0.4] },
-    "firstperson_lefthand": { "rotation": [0, 225, 0], "translation": [0, 0, 0], "scale": [0.4, 0.4, 0.4] },
-    "head": { "rotation": [0, 0, 0], "translation": [0, 8, 0], "scale": [0.6, 0.6, 0.6] }
+    "gui": { "rotation": [30, 225, 0], "translation": [0, 0, 0], "scale": [0.32, 0.32, 0.32] },
+    "ground": { "rotation": [0, 0, 0], "translation": [0, 3, 0], "scale": [0.13, 0.13, 0.13] },
+    "fixed": { "rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [0.26, 0.26, 0.26] },
+    "thirdperson_righthand": { "rotation": [75, 45, 0], "translation": [0, 2.5, 0], "scale": [0.19, 0.19, 0.19] },
+    "thirdperson_lefthand": { "rotation": [75, 45, 0], "translation": [0, 2.5, 0], "scale": [0.19, 0.19, 0.19] },
+    "firstperson_righthand": { "rotation": [0, 45, 0], "translation": [0, 0, 0], "scale": [0.21, 0.21, 0.21] },
+    "firstperson_lefthand": { "rotation": [0, 225, 0], "translation": [0, 0, 0], "scale": [0.21, 0.21, 0.21] },
+    "head": { "rotation": [0, 0, 0], "translation": [0, 8, 0], "scale": [0.31, 0.31, 0.31] }
   }
 }

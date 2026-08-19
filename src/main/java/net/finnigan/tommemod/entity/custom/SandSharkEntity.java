@@ -43,8 +43,19 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  */
 public class SandSharkEntity extends Monster implements GeoEntity {
 
-    /** How deep into its own block the model sits - half the model's 1.24-block height. */
-    public static final float SUBMERGE_DEPTH = 0.6F;
+    /**
+     * How deep into its own block the model sits, in blocks. Raise it to sink the shark further,
+     * lower it to bring more of the body up; nothing else moves, since this is applied by
+     * SandSharkRenderer alone and the hitbox is fixed by the {@code .sized(1.6f, 1.2f)} on
+     * ModEntityTypes.SAND_SHARK.
+     *
+     * <p>Half the model's 1.24-block height reads like the obvious value and was the first one
+     * tried, but the mesh is not centred on the entity origin - it runs from -0.25 to +0.99 blocks -
+     * so sinking it by 0.62 left only the top 0.27 of a block showing and the shark looked buried
+     * rather than swimming. At 0.35 the back and dorsal fin break the surface and the belly stays
+     * under it.
+     */
+    public static final float SUBMERGE_DEPTH = 0.35F;
 
     private static final EntityDataAccessor<Boolean> DATA_LEAPING =
             SynchedEntityData.defineId(SandSharkEntity.class, EntityDataSerializers.BOOLEAN);

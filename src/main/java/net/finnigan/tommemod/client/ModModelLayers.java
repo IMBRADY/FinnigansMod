@@ -13,6 +13,12 @@ public class ModModelLayers {
     public static final ModelLayerLocation WARRIOR_VILLAGER =
             new ModelLayerLocation(new ResourceLocation(TommeMod.MOD_ID, "warrior_villager"), "main");
 
+    /** Armor cut to fit the Warrior's villager proportions. Inner is leggings, outer everything else. */
+    public static final ModelLayerLocation VILLAGER_ARMOR_INNER =
+            new ModelLayerLocation(new ResourceLocation(TommeMod.MOD_ID, "villager_armor"), "inner");
+    public static final ModelLayerLocation VILLAGER_ARMOR_OUTER =
+            new ModelLayerLocation(new ResourceLocation(TommeMod.MOD_ID, "villager_armor"), "outer");
+
     private ModModelLayers() {
     }
 }

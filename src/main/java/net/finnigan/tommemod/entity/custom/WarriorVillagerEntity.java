@@ -31,6 +31,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -96,6 +97,17 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
     private static final int HEALTHY_WARRIORS_REFRESH_INTERVAL_TICKS = 40;
 
     private int healthyWarriorsCooldown = 0;
+
+    /**
+     * The Chief's stash slot for this Warrior - the one thing it carries that is neither worn nor
+     * held. Storage only for now: nothing in the mod eats, reloads from or otherwise reads it yet,
+     * and like the rest of a Warrior's kit it is lost with the Warrior rather than dropped.
+     */
+    private final SimpleContainer supply = new SimpleContainer(1);
+
+    public SimpleContainer getSupplyContainer() {
+        return supply;
+    }
 
     public WarriorVillagerEntity(EntityType<? extends WarriorVillagerEntity> type, Level level) {
         super(type, level);
@@ -253,6 +265,7 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
         UUID villageId = getVillageId();
         if (villageId != null) tag.putUUID("VillageId", villageId);
         tag.putString("VillagerType", getVillagerType());
+        if (!supply.getItem(0).isEmpty()) tag.put("Supply", supply.getItem(0).save(new CompoundTag()));
     }
 
     @Override
@@ -263,6 +276,9 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
         if (tag.contains("VillagerType", CompoundTag.TAG_STRING)) {
             this.entityData.set(DATA_VILLAGER_TYPE, tag.getString("VillagerType"));
         }
+        supply.setItem(0, tag.contains("Supply", CompoundTag.TAG_COMPOUND)
+                ? ItemStack.of(tag.getCompound("Supply"))
+                : ItemStack.EMPTY);
     }
 
     @Override

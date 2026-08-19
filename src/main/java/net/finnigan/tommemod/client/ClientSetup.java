@@ -207,6 +207,15 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
                                 if ("tommemod:fleet".equals(id)) {
                                     return 47.0F;
                                 }
+                                if ("tommemod:tolerance".equals(id)) {
+                                    return 48.0F;
+                                }
+                                if ("tommemod:heroblade".equals(id)) {
+                                    return 49.0F;
+                                }
+                                if ("tommemod:allprot".equals(id)) {
+                                    return 50.0F;
+                                }
                             }
                         }
                         return 0.0F;
@@ -274,6 +283,10 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
         public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
             event.registerLayerDefinition(ModModelLayers.WARRIOR_VILLAGER,
                     net.finnigan.tommemod.client.model.WarriorVillagerModel::createBodyLayer);
+            event.registerLayerDefinition(ModModelLayers.VILLAGER_ARMOR_INNER,
+                    net.finnigan.tommemod.client.model.VillagerArmorModel::createInnerLayer);
+            event.registerLayerDefinition(ModModelLayers.VILLAGER_ARMOR_OUTER,
+                    net.finnigan.tommemod.client.model.VillagerArmorModel::createOuterLayer);
         }
 
         @SubscribeEvent

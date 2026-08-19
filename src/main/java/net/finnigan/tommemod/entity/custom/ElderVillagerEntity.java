@@ -8,6 +8,7 @@ import net.finnigan.tommemod.village.VillageRegion;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -15,17 +16,21 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.PoiTypeTags;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
@@ -39,8 +44,10 @@ import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
@@ -59,6 +66,12 @@ public class ElderVillagerEntity extends PathfinderMob {
 
     private static final EntityDataAccessor<Optional<UUID>> DATA_VILLAGE_ID =
             SynchedEntityData.defineId(ElderVillagerEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    // Biome variant carried over from the Villager that was promoted, so a desert village's Elder
+    // still looks like it came from there. Synched because only the renderer consumes it.
+    private static final EntityDataAccessor<String> DATA_VILLAGER_TYPE =
+            SynchedEntityData.defineId(ElderVillagerEntity.class, EntityDataSerializers.STRING);
+
+    public static final String DEFAULT_VILLAGER_TYPE = "plains";
 
     public ElderVillagerEntity(EntityType<? extends ElderVillagerEntity> type, Level level) {
         super(type, level);
@@ -74,6 +87,31 @@ public class ElderVillagerEntity extends PathfinderMob {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_VILLAGE_ID, Optional.empty());
+        this.entityData.define(DATA_VILLAGER_TYPE, DEFAULT_VILLAGER_TYPE);
+    }
+
+    /** The villager biome variant's registry path ("desert", "snow", "taiga", ...). */
+    public String getVillagerType() {
+        return this.entityData.get(DATA_VILLAGER_TYPE);
+    }
+
+    public void setVillagerType(VillagerType type) {
+        ResourceLocation id = BuiltInRegistries.VILLAGER_TYPE.getKey(type);
+        this.entityData.set(DATA_VILLAGER_TYPE, id != null ? id.getPath() : DEFAULT_VILLAGER_TYPE);
+    }
+
+    /**
+     * Only reached by a spawn egg or {@code /summon} - a promoted Elder is given the type of the
+     * Villager it replaced by {@link net.finnigan.tommemod.village.ElderPromotion}, which runs after
+     * this. Falling back to the biome is what vanilla Villagers do in the same spot.
+     */
+    @Nullable
+    @Override
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
+                                        MobSpawnType reason, @Nullable SpawnGroupData spawnData,
+                                        @Nullable CompoundTag dataTag) {
+        setVillagerType(VillagerType.byBiome(level.getBiome(this.blockPosition())));
+        return super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
     }
 
     @Nullable
@@ -135,12 +173,16 @@ public class ElderVillagerEntity extends PathfinderMob {
         super.addAdditionalSaveData(tag);
         UUID villageId = getVillageId();
         if (villageId != null) tag.putUUID("VillageId", villageId);
+        tag.putString("VillagerType", getVillagerType());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.hasUUID("VillageId")) setVillageId(tag.getUUID("VillageId"));
+        if (tag.contains("VillagerType", CompoundTag.TAG_STRING)) {
+            this.entityData.set(DATA_VILLAGER_TYPE, tag.getString("VillagerType"));
+        }
     }
 
     @Override

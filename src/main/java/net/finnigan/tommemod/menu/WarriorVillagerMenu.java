@@ -17,7 +17,7 @@ import net.minecraft.world.item.ItemStack;
  */
 public class WarriorVillagerMenu extends AbstractContainerMenu {
 
-    private static final int EQUIPMENT_SLOT_COUNT = 5;
+    private static final int EQUIPMENT_SLOT_COUNT = 7;
 
     private final WarriorVillagerEntity entity;
 
@@ -25,20 +25,29 @@ public class WarriorVillagerMenu extends AbstractContainerMenu {
         super(ModMenuTypes.WARRIOR_VILLAGER_MENU.get(), windowId);
         this.entity = entity;
 
-        this.addSlot(new EquipmentSlotUi(entity, EquipmentSlot.MAINHAND, 8, 18));
-        this.addSlot(new EquipmentSlotUi(entity, EquipmentSlot.HEAD, 8, 36));
-        this.addSlot(new EquipmentSlotUi(entity, EquipmentSlot.CHEST, 8, 54));
-        this.addSlot(new EquipmentSlotUi(entity, EquipmentSlot.LEGS, 8, 72));
-        this.addSlot(new EquipmentSlotUi(entity, EquipmentSlot.FEET, 8, 90));
+        // Two staggered columns, matching the wells painted into textures/gui/warrior_villager_gui.png:
+        // armor down the inner column, what the Warrior carries down the outer one.
+        this.addSlot(new EquipmentSlotUi(entity, EquipmentSlot.HEAD, 36, 6));
+        this.addSlot(new EquipmentSlotUi(entity, EquipmentSlot.CHEST, 36, 24));
+        this.addSlot(new EquipmentSlotUi(entity, EquipmentSlot.LEGS, 36, 42));
+        this.addSlot(new EquipmentSlotUi(entity, EquipmentSlot.FEET, 36, 60));
+        this.addSlot(new EquipmentSlotUi(entity, EquipmentSlot.MAINHAND, 18, 15));
+        this.addSlot(new EquipmentSlotUi(entity, EquipmentSlot.OFFHAND, 18, 33));
+        this.addSlot(new Slot(entity.getSupplyContainer(), 0, 18, 51));
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 122 + row * 18));
+                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 9 + col * 18, 82 + row * 18));
             }
         }
         for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 180));
+            this.addSlot(new Slot(playerInventory, col, 9 + col * 18, 140));
         }
+    }
+
+    /** The Warrior this menu edits - the screen reads it for the preview and the stat readout. */
+    public WarriorVillagerEntity getEntity() {
+        return entity;
     }
 
     @Override
@@ -85,7 +94,8 @@ public class WarriorVillagerMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            if (equipmentSlot == EquipmentSlot.MAINHAND) return true;
+            // Both hands take anything; the armor slots only take the piece that belongs there.
+            if (equipmentSlot.getType() == EquipmentSlot.Type.HAND) return true;
             return stack.getItem() instanceof ArmorItem armor && armor.getEquipmentSlot() == equipmentSlot;
         }
 

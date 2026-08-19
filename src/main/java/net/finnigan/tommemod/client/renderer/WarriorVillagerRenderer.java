@@ -4,12 +4,9 @@ import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.client.ModModelLayers;
 import net.finnigan.tommemod.client.model.WarriorVillagerModel;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerEntity;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
 
@@ -21,29 +18,35 @@ import java.util.Map;
  * the Elder Villager's crossed-arm VillagerModel, since the Warrior needs to visibly hold a weapon
  * like a player. The mesh itself is villager-shaped - see WarriorVillagerModel.
  *
- * Skinned by the biome variant of the Villager it was conscripted from, mirroring how vanilla
- * villagers are skinned. Variants with no art of their own fall back to the plain warrior_villager
- * texture, so shipping (say) a jungle skin later needs nothing but the .png.
+ * Skinned by climate rather than by biome. There are three sheets - cold, temperate and warm - and
+ * every vanilla villager type maps onto one of them, so a taiga Warrior and a snowy one share a coat
+ * instead of each needing art of its own. Anything unrecognised (a villager type from another mod)
+ * falls back to the plain warrior_villager texture.
  */
 public class WarriorVillagerRenderer extends MobRenderer<WarriorVillagerEntity, WarriorVillagerModel> {
 
     private static final ResourceLocation DEFAULT_TEXTURE =
             new ResourceLocation(TommeMod.MOD_ID, "textures/entity/warrior_villager/warrior_villager.png");
 
-    /** Vanilla's registry name for the snowy variant is "snow", but the art is named for the biome. */
-    private static final Map<String, String> TEXTURE_SUFFIX_ALIASES = Map.of("snow", "snowy");
+    private static final Map<String, String> CLIMATE_BY_VILLAGER_TYPE = Map.of(
+            "snow", "cold",
+            "taiga", "cold",
+            "plains", "temperate",
+            "swamp", "temperate",
+            "desert", "warm",
+            "savanna", "warm",
+            "jungle", "warm");
 
-    /** Resolved per variant once - the resource lookup below is far too expensive to redo every frame. */
+    /** Resolved per variant once - building a ResourceLocation every frame is wasted work. */
     private static final Map<String, ResourceLocation> RESOLVED = new HashMap<>();
 
     public WarriorVillagerRenderer(EntityRendererProvider.Context context) {
         super(context, new WarriorVillagerModel(context.bakeLayer(ModModelLayers.WARRIOR_VILLAGER)), 0.5F);
-        // ZOMBIE_VILLAGER armor layers, not ZOMBIE: those are the meshes vanilla builds for a 10-tall
-        // villager head, so a helmet caps the top of the skull instead of sinking two pixels into it.
-        this.addLayer(new HumanoidArmorLayer<>(this,
-                new HumanoidModel<>(context.bakeLayer(ModelLayers.ZOMBIE_VILLAGER_INNER_ARMOR)),
-                new HumanoidModel<>(context.bakeLayer(ModelLayers.ZOMBIE_VILLAGER_OUTER_ARMOR)),
-                context.getModelManager()));
+        this.addLayer(new VillagerArmorLayer(this,
+                new VillagerArmorLayer.VillagerArmorModelPair(
+                        new HumanoidModel<>(context.bakeLayer(ModModelLayers.VILLAGER_ARMOR_INNER)),
+                        new HumanoidModel<>(context.bakeLayer(ModModelLayers.VILLAGER_ARMOR_OUTER))),
+                context.getResourceManager()));
         this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
     }
 
@@ -53,11 +56,10 @@ public class WarriorVillagerRenderer extends MobRenderer<WarriorVillagerEntity, 
     }
 
     private static ResourceLocation resolve(String villagerType) {
-        String suffix = TEXTURE_SUFFIX_ALIASES.getOrDefault(villagerType, villagerType);
-        ResourceLocation candidate = new ResourceLocation(TommeMod.MOD_ID,
-                "textures/entity/warrior_villager/warrior_villager_" + suffix + ".png");
-        return Minecraft.getInstance().getResourceManager().getResource(candidate).isPresent()
-                ? candidate
-                : DEFAULT_TEXTURE;
+        String climate = CLIMATE_BY_VILLAGER_TYPE.get(villagerType);
+        return climate == null
+                ? DEFAULT_TEXTURE
+                : new ResourceLocation(TommeMod.MOD_ID,
+                        "textures/entity/warrior_villager/warrior_villager_" + climate + ".png");
     }
 }

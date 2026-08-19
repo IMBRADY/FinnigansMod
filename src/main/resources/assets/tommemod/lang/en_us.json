@@ -193,5 +193,9 @@
   "item.tommemod.totem_of_stickiness": "Totem of Stickiness",
   "effect.tommemod.well_fed": "Well-Fed",
   "item.tommemod.pearlwood_stick": "Pearlwood Stick",
-  "entity.tommemod.harrington": "Harrington"
+  "entity.tommemod.harrington": "Harrington",
+  "gui.tommemod.warrior_villager.health": "Health",
+  "gui.tommemod.warrior_villager.armour": "Armour",
+  "gui.tommemod.warrior_villager.damage": "Damage",
+  "gui.tommemod.warrior_villager.close": "Close"
 }

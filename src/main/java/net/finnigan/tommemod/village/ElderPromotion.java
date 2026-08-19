@@ -40,6 +40,7 @@ public final class ElderPromotion {
 
         elder.copyPosition(villager);
         elder.setVillageId(villageId);
+        elder.setVillagerType(villager.getVillagerData().getType());
         if (!level.addFreshEntity(elder)) return false;
 
         if (!manager.tryRegisterElder(villageId, elder.getUUID())) {
