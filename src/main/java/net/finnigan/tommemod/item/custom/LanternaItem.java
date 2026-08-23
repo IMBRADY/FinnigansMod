@@ -51,6 +51,23 @@ public class LanternaItem extends SwordItem {
     }
 
     @Override
+    public boolean onDroppedByPlayer(ItemStack stack, Player player) {
+        if (!player.level().isClientSide) {
+            Integer chainId = ACTIVE_CHAINS.get(player.getUUID());
+            if (chainId != null && player.level() instanceof ServerLevel serverLevel) {
+                Entity entity = serverLevel.getEntity(chainId);
+                if (entity instanceof LanternaChainEntity chain) chain.startRetract();
+            }
+        }
+        if (stack.hasTag()) {
+            stack.getTag().remove(FIRED_TAG);
+            stack.getTag().remove("LanternaShot");
+            stack.getTag().remove(NEEDS_RELEASE_TAG);
+        }
+        return true;
+    }
+
+    @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (stack.getOrCreateTag().getBoolean(NEEDS_RELEASE_TAG)
