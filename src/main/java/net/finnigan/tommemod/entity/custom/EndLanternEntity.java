@@ -1,5 +1,6 @@
 package net.finnigan.tommemod.entity.custom;
 
+import net.finnigan.tommemod.entity.ai.FlightPhysics;
 import net.finnigan.tommemod.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
@@ -13,6 +14,7 @@ import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -39,7 +41,8 @@ public class EndLanternEntity extends PathfinderMob implements GeoEntity {
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 10.0D)
-                .add(Attributes.FLYING_SPEED, 0.4D)
+                // Blocks per tick (see FlightPhysics) - a slow ~3 blocks/second drift.
+                .add(Attributes.FLYING_SPEED, 0.15D)
                 .add(Attributes.MOVEMENT_SPEED, 0.2D)
                 .add(Attributes.FOLLOW_RANGE, 16.0D);
     }
@@ -66,12 +69,13 @@ public class EndLanternEntity extends PathfinderMob implements GeoEntity {
 
     @Override
     public void travel(Vec3 travelVector) {
-        if (this.isControlledByLocalInstance()) {
-            this.moveRelative(this.getSpeed(), travelVector);
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.2D));
-        }
+        FlightPhysics.travel(this, travelVector);
         this.calculateEntityAnimation(true);
+    }
+
+    @Override
+    protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {
+        // it hovers; it never really falls
     }
 
     @Override

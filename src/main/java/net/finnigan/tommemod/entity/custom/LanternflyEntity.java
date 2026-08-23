@@ -1,9 +1,9 @@
 package net.finnigan.tommemod.entity.custom;
 
+import net.finnigan.tommemod.entity.ai.FlightPhysics;
 import net.finnigan.tommemod.entity.ai.FlutterGoal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -48,7 +48,8 @@ public class LanternflyEntity extends PathfinderMob implements GeoEntity {
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 10.0D) // same as the End Lantern
-                .add(Attributes.FLYING_SPEED, 0.2D)
+                // Blocks per tick (see FlightPhysics); the flutter goal's 0.7 modifier makes that ~2.5 blocks/second.
+                .add(Attributes.FLYING_SPEED, 0.18D)
                 .add(Attributes.MOVEMENT_SPEED, 0.2D)
                 .add(Attributes.FOLLOW_RANGE, 16.0D);
     }
@@ -72,11 +73,7 @@ public class LanternflyEntity extends PathfinderMob implements GeoEntity {
 
     @Override
     public void travel(Vec3 travelVector) {
-        if (this.isControlledByLocalInstance()) {
-            this.moveRelative(this.getSpeed(), travelVector);
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.91D));
-        }
+        FlightPhysics.travel(this, travelVector);
         this.calculateEntityAnimation(true);
     }
 

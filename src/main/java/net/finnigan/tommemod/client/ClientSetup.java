@@ -308,6 +308,7 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.IXE_BOX.get(), IxeBoxRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.END_SCYTHE_PROJECTILE.get(), EndScytheProjectileRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.BOSS_CRAB.get(), BossCrabRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.END_DRAYK.get(), EndDraykRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.CAPYBARA.get(), CapybaraRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.MANTA.get(), MantaRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.TIGER.get(), TigerRenderer::new);

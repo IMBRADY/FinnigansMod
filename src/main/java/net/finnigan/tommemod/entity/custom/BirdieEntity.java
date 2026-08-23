@@ -1,5 +1,6 @@
 package net.finnigan.tommemod.entity.custom;
 
+import net.finnigan.tommemod.entity.ai.FlightPhysics;
 import net.finnigan.tommemod.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -132,6 +134,11 @@ public class BirdieEntity extends Animal implements GeoEntity {
     @Override
     public boolean isNoGravity() {
         return this.isFlying() || super.isNoGravity();
+    }
+
+    @Override
+    protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {
+        // it comes down under its own power
     }
 
     public static boolean checkBirdieSpawnRules(EntityType<BirdieEntity> type, ServerLevelAccessor level,
@@ -260,13 +267,17 @@ public class BirdieEntity extends Animal implements GeoEntity {
 
     // ==========================================================
     // Custom flight goal: occasionally takes off, flies to a random
-    // nearby point above ground, then lands.
+    // nearby point above ground, then glides back down and lands.
     // ==========================================================
     private static class BirdieFlyGoal extends Goal {
+        private static final double FLIGHT_SPEED = 0.18;
+        private static final double DESCENT_SPEED = 0.12;
+
         private final BirdieEntity birdie;
         private double targetX, targetY, targetZ;
         private int flightTimer = 0;
         private int groundedCooldown = 20;
+        private boolean landing = false;
 
         BirdieFlyGoal(BirdieEntity birdie) {
             this.birdie = birdie;
@@ -280,20 +291,31 @@ public class BirdieEntity extends Animal implements GeoEntity {
             return birdie.random.nextInt(15) == 0; // takes off frequently
         }
 
+        // Runs until the bird is actually back down. The flight timer only starts the descent, it no
+        // longer ends the goal - ending it in mid-air is what used to switch the wings off and drop it.
         @Override
         public boolean canContinueToUse() {
-            return birdie.isFlying() && flightTimer > 0;
+            return birdie.isFlying();
         }
 
         @Override
         public void start() {
             birdie.setFlying(true);
+            landing = false;
             pickNewTarget();
             flightTimer = 400 + birdie.random.nextInt(400); // long flights, 20-40s
         }
 
         @Override
         public void tick() {
+            if (landing) {
+                if (FlightPhysics.descend(birdie, DESCENT_SPEED)) {
+                    birdie.setFlying(false);
+                    groundedCooldown = 20 + birdie.random.nextInt(40);
+                }
+                return;
+            }
+
             flightTimer--;
             Vec3 pos = birdie.position();
             Vec3 target = new Vec3(targetX, targetY, targetZ);
@@ -302,7 +324,7 @@ public class BirdieEntity extends Animal implements GeoEntity {
             if (diff.lengthSqr() < 1.0) {
                 pickNewTarget();
             } else {
-                Vec3 motion = diff.normalize().scale(0.18);
+                Vec3 motion = diff.normalize().scale(FLIGHT_SPEED);
                 Vec3 nextPos = pos.add(motion.scale(4.0)); // look a little ahead, not just one tick's worth
 
                 if (isPathBlocked(pos, nextPos)) {
@@ -310,15 +332,15 @@ public class BirdieEntity extends Animal implements GeoEntity {
                     return;
                 }
 
+                // Set the velocity only - the birdie's own travel() does the move. Doing both here
+                // stepped it twice per tick, so it actually flew at double this speed.
                 birdie.setDeltaMovement(motion);
-                birdie.move(MoverType.SELF, birdie.getDeltaMovement());
                 birdie.getLookControl().setLookAt(targetX, targetY, targetZ);
                 faceMovementDirection(motion);
             }
 
             if (flightTimer <= 0) {
-                birdie.setFlying(false);
-                groundedCooldown = 20 + birdie.random.nextInt(40);
+                landing = true;
             }
         }
 
@@ -340,8 +362,13 @@ public class BirdieEntity extends Animal implements GeoEntity {
 
         @Override
         public void stop() {
-            birdie.setFlying(false);
-            birdie.setDeltaMovement(birdie.getDeltaMovement().x, 0, birdie.getDeltaMovement().z);
+            // Only ever clear the flag on the ground; leaving it set in mid-air means canUse() picks
+            // the goal straight back up and the bird keeps flying instead of dropping.
+            if (birdie.onGround() || birdie.isInWater()) {
+                birdie.setFlying(false);
+                birdie.setDeltaMovement(birdie.getDeltaMovement().x, 0, birdie.getDeltaMovement().z);
+            }
+            landing = false;
         }
 
         private void pickNewTarget() {

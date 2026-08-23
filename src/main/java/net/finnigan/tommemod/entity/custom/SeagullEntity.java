@@ -1,5 +1,6 @@
 package net.finnigan.tommemod.entity.custom;
 
+import net.finnigan.tommemod.entity.ai.FlightPhysics;
 import net.finnigan.tommemod.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -80,6 +82,11 @@ public class SeagullEntity extends Animal implements GeoEntity {
         return this.isFlying() || super.isNoGravity();
     }
 
+    @Override
+    protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {
+        // it comes down under its own power
+    }
+
     public static boolean checkSeagullSpawnRules(EntityType<SeagullEntity> type, ServerLevelAccessor level,
                                                  MobSpawnType spawnType, BlockPos pos, RandomSource random) {
         return level.getBlockState(pos.below()).is(net.minecraft.tags.BlockTags.ANIMALS_SPAWNABLE_ON)
@@ -130,10 +137,14 @@ public class SeagullEntity extends Animal implements GeoEntity {
     // faces direction of travel, mostly airborne, no hopping.
     // ==========================================================
     private static class SeagullFlyGoal extends Goal {
+        private static final double FLIGHT_SPEED = 0.18;
+        private static final double DESCENT_SPEED = 0.12;
+
         private final SeagullEntity seagull;
         private double targetX, targetY, targetZ;
         private int flightTimer = 0;
         private int groundedCooldown = 20;
+        private boolean landing = false;
 
         SeagullFlyGoal(SeagullEntity seagull) {
             this.seagull = seagull;
@@ -147,20 +158,30 @@ public class SeagullEntity extends Animal implements GeoEntity {
             return seagull.random.nextInt(15) == 0;
         }
 
+        // Runs until the bird is actually back down; the flight timer only starts the descent.
         @Override
         public boolean canContinueToUse() {
-            return seagull.isFlying() && flightTimer > 0;
+            return seagull.isFlying();
         }
 
         @Override
         public void start() {
             seagull.setFlying(true);
+            landing = false;
             pickNewTarget();
             flightTimer = 400 + seagull.random.nextInt(400);
         }
 
         @Override
         public void tick() {
+            if (landing) {
+                if (FlightPhysics.descend(seagull, DESCENT_SPEED)) {
+                    seagull.setFlying(false);
+                    groundedCooldown = 20 + seagull.random.nextInt(40);
+                }
+                return;
+            }
+
             flightTimer--;
             Vec3 pos = seagull.position();
             Vec3 target = new Vec3(targetX, targetY, targetZ);
@@ -169,7 +190,7 @@ public class SeagullEntity extends Animal implements GeoEntity {
             if (diff.lengthSqr() < 1.0) {
                 pickNewTarget();
             } else {
-                Vec3 motion = diff.normalize().scale(0.18);
+                Vec3 motion = diff.normalize().scale(FLIGHT_SPEED);
                 Vec3 nextPos = pos.add(motion.scale(4.0));
 
                 if (isPathBlocked(pos, nextPos)) {
@@ -177,22 +198,24 @@ public class SeagullEntity extends Animal implements GeoEntity {
                     return;
                 }
 
+                // Velocity only: travel() does the move. Doing both stepped it twice per tick.
                 seagull.setDeltaMovement(motion);
-                seagull.move(MoverType.SELF, seagull.getDeltaMovement());
                 seagull.getLookControl().setLookAt(targetX, targetY, targetZ);
                 faceMovementDirection(motion);
             }
 
             if (flightTimer <= 0) {
-                seagull.setFlying(false);
-                groundedCooldown = 20 + seagull.random.nextInt(40);
+                landing = true;
             }
         }
 
         @Override
         public void stop() {
-            seagull.setFlying(false);
-            seagull.setDeltaMovement(seagull.getDeltaMovement().x, 0, seagull.getDeltaMovement().z);
+            if (seagull.onGround() || seagull.isInWater()) {
+                seagull.setFlying(false);
+                seagull.setDeltaMovement(seagull.getDeltaMovement().x, 0, seagull.getDeltaMovement().z);
+            }
+            landing = false;
         }
 
         private void pickNewTarget() {

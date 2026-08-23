@@ -1,5 +1,6 @@
 package net.finnigan.tommemod.entity.custom;
 
+import net.finnigan.tommemod.entity.ai.FlightPhysics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -11,7 +12,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -24,6 +24,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -105,8 +106,8 @@ public class DuckEntity extends Animal implements GeoEntity {
     }
 
     @Override
-    public boolean causeFallDamage(float fallDistance, float multiplier, DamageSource source) {
-        return false;
+    protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {
+        // it comes down under its own power
     }
 
     @Override
@@ -229,6 +230,13 @@ public class DuckEntity extends Animal implements GeoEntity {
     // Flight steers away from the threat and avoids flying into blocks.
     // ==========================================================
     private static class DuckFleeFlyGoal extends Goal {
+        private static final double FLIGHT_SPEED = 0.2;
+        private static final double LANDING_SPEED = 0.15;
+        /** Straight-down speed once the duck is over its landing spot, or has run out of patience. */
+        private static final double DESCENT_SPEED = 0.12;
+        /** How long the duck will keep angling for a landing spot before it just comes straight down. */
+        private static final int LANDING_TIMEOUT = 200;
+
         private final DuckEntity duck;
         private double targetX, targetY, targetZ;
         private int flightTimer = 0;
@@ -284,7 +292,7 @@ public class DuckEntity extends Animal implements GeoEntity {
             if (diff.lengthSqr() < 1.0) {
                 pickFleeTarget();
             } else {
-                Vec3 motion = diff.normalize().scale(0.2);
+                Vec3 motion = diff.normalize().scale(FLIGHT_SPEED);
                 Vec3 nextPos = pos.add(motion.scale(4.0));
 
                 if (isPathBlocked(pos, nextPos)) {
@@ -292,8 +300,9 @@ public class DuckEntity extends Animal implements GeoEntity {
                     return;
                 }
 
+                // Velocity only: the duck's own travel() does the move. Doing both here stepped it
+                // twice per tick, at double the intended speed.
                 duck.setDeltaMovement(motion);
-                duck.move(MoverType.SELF, duck.getDeltaMovement());
                 faceMovementDirection(motion);
             }
 
@@ -304,8 +313,12 @@ public class DuckEntity extends Animal implements GeoEntity {
 
         @Override
         public void stop() {
-            duck.setFlying(false);
-            duck.setDeltaMovement(duck.getDeltaMovement().x, 0, duck.getDeltaMovement().z);
+            // Only ever clear the flight flag on the ground or the water. Clearing it in mid-air is
+            // what used to make the duck stop flying part way through a flight and drop.
+            if (duck.onGround() || duck.isInWater()) {
+                duck.setFlying(false);
+                duck.setDeltaMovement(duck.getDeltaMovement().x, 0, duck.getDeltaMovement().z);
+            }
             landing = false;
         }
 
@@ -314,8 +327,11 @@ public class DuckEntity extends Animal implements GeoEntity {
         // ground/water surface there, instead of dropping like a plumb line.
         private void beginLanding() {
             landing = true;
-            landingTimeout = 200;
+            landingTimeout = LANDING_TIMEOUT;
+            pickLandingSpot();
+        }
 
+        private void pickLandingSpot() {
             Vec3 pos = duck.position();
             double angle = duck.random.nextDouble() * Math.PI * 2;
             double dist = 2.0 + duck.random.nextDouble() * 5.0;
@@ -334,9 +350,16 @@ public class DuckEntity extends Animal implements GeoEntity {
         }
 
         private void tickLanding() {
-            if (duck.onGround() || duck.isInWater() || --landingTimeout <= 0) {
+            if (duck.onGround() || duck.isInWater()) {
                 duck.setFlying(false);
                 groundedCooldown = 40 + duck.random.nextInt(60);
+                return;
+            }
+
+            // Out of patience for the glide: come straight down under power. The duck keeps flying
+            // (and so keeps its lift) until it actually touches down.
+            if (--landingTimeout <= 0) {
+                FlightPhysics.descend(duck, DESCENT_SPEED);
                 return;
             }
 
@@ -345,20 +368,20 @@ public class DuckEntity extends Animal implements GeoEntity {
             Vec3 diff = target.subtract(pos);
 
             if (diff.lengthSqr() < 0.3) {
-                duck.setFlying(false);
-                groundedCooldown = 40 + duck.random.nextInt(60);
+                FlightPhysics.descend(duck, DESCENT_SPEED);
                 return;
             }
 
-            Vec3 motion = diff.normalize().scale(0.15);
+            Vec3 motion = diff.normalize().scale(LANDING_SPEED);
             Vec3 nextPos = pos.add(motion.scale(4.0));
             if (isPathBlocked(pos, nextPos)) {
-                beginLanding(); // pick a fresh spot rather than flying into whatever's in the way
+                // Fresh spot rather than gliding into whatever's in the way, but the timeout keeps
+                // running so a duck boxed in by terrain still comes down instead of circling forever.
+                pickLandingSpot();
                 return;
             }
 
             duck.setDeltaMovement(motion);
-            duck.move(MoverType.SELF, duck.getDeltaMovement());
             faceMovementDirection(motion);
         }
 

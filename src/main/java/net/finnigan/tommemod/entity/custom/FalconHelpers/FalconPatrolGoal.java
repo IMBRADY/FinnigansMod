@@ -1,10 +1,10 @@
 package net.finnigan.tommemod.entity.custom.FalconHelpers;
 
+import net.finnigan.tommemod.entity.ai.FlightPhysics;
 import net.finnigan.tommemod.entity.custom.FalconEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -22,6 +22,7 @@ import java.util.EnumSet;
 public class FalconPatrolGoal extends Goal {
 
     private static final double FLIGHT_SPEED = 0.22;
+    private static final double DESCENT_SPEED = 0.14;
     private static final int WATER_SCAN_RADIUS = 16;
     private static final int WATER_SCAN_ATTEMPTS = 24;
     /** How far above the surface the falcon holds station while hunting. */
@@ -31,6 +32,7 @@ public class FalconPatrolGoal extends Goal {
     private double targetX, targetY, targetZ;
     private int flightTimer;
     private int groundedCooldown = 20;
+    private boolean landing;
 
     public FalconPatrolGoal(FalconEntity falcon) {
         this.falcon = falcon;
@@ -45,28 +47,43 @@ public class FalconPatrolGoal extends Goal {
         return falcon.getRandom().nextInt(10) == 0;
     }
 
+    // Runs until the falcon is actually back down (or the dive goal takes over). The flight timer
+    // starts the descent rather than ending the goal, so it is never left in mid-air without lift.
     @Override
     public boolean canContinueToUse() {
-        return falcon.isFlying() && !falcon.isDiving() && flightTimer > 0;
+        return falcon.isFlying() && !falcon.isDiving();
     }
 
     @Override
     public void start() {
         falcon.setFlying(true);
         falcon.getNavigation().stop();
+        landing = false;
         pickNewTarget();
         flightTimer = 600 + falcon.getRandom().nextInt(600); // 30-60s patrol legs
     }
 
     @Override
     public void stop() {
-        falcon.setFlying(false);
-        falcon.setDeltaMovement(falcon.getDeltaMovement().x, 0, falcon.getDeltaMovement().z);
+        // Only clear the flight flag once it is down; the dive goal interrupts this one in mid-air
+        // and expects the falcon to still be flying when the dive is over.
+        if (falcon.onGround() || falcon.isInWater()) {
+            falcon.setFlying(false);
+            falcon.setDeltaMovement(falcon.getDeltaMovement().x, 0, falcon.getDeltaMovement().z);
+        }
+        landing = false;
         groundedCooldown = 40 + falcon.getRandom().nextInt(60);
     }
 
     @Override
     public void tick() {
+        if (landing) {
+            if (FlightPhysics.descend(falcon, DESCENT_SPEED)) {
+                falcon.setFlying(false);
+            }
+            return;
+        }
+
         flightTimer--;
 
         Vec3 pos = falcon.position();
@@ -81,14 +98,15 @@ public class FalconPatrolGoal extends Goal {
                 pickNewTarget();
                 return;
             }
+            // Velocity only: the falcon's own travel() does the move. Doing both here stepped it
+            // twice per tick, at double the intended patrol speed.
             falcon.setDeltaMovement(motion);
-            falcon.move(MoverType.SELF, falcon.getDeltaMovement());
             falcon.getLookControl().setLookAt(targetX, targetY, targetZ);
             faceMovementDirection(motion);
         }
 
         if (flightTimer <= 0) {
-            falcon.setFlying(false);
+            landing = true;
         }
     }
 

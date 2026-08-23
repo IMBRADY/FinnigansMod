@@ -5,7 +5,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.level.Level;
@@ -93,9 +92,9 @@ public class FalconDiveGoal extends Goal {
             return;
         }
 
-        Vec3 motion = toQuarry.normalize().scale(DIVE_SPEED);
-        falcon.setDeltaMovement(motion);
-        falcon.move(MoverType.SELF, motion);
+        // Velocity only: the falcon's own travel() does the move. Setting it and moving here as well
+        // stepped the dive twice per tick, which overshot the fish and made the stoop look jerky.
+        falcon.setDeltaMovement(toQuarry.normalize().scale(DIVE_SPEED));
     }
 
     private AbstractFish findQuarry() {

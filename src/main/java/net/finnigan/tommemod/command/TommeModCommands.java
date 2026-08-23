@@ -1,10 +1,12 @@
 package net.finnigan.tommemod.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.capability.reputation.ModReputationCapabilities;
+import net.finnigan.tommemod.capability.reputation.ReputationHandler;
 import net.finnigan.tommemod.capability.reputation.ReputationTier;
 import net.finnigan.tommemod.entity.custom.ElderVillagerEntity;
 import net.finnigan.tommemod.village.VillageManager;
@@ -39,7 +41,43 @@ public class TommeModCommands {
                 .then(Commands.literal("chief")
                         .then(Commands.literal("confirm")
                                 .then(Commands.argument("villageId", UuidArgument.uuid())
-                                        .executes(TommeModCommands::confirmChief)))));
+                                        .executes(TommeModCommands::confirmChief)))
+                        .then(Commands.literal("reputation")
+                                // Op-gated: this hands out progression outright, unlike "confirm",
+                                // which any player may run because it only cashes in what they earned.
+                                .requires(source -> source.hasPermission(2))
+                                .then(Commands.argument("amount", IntegerArgumentType.integer())
+                                        .executes(TommeModCommands::grantReputation)))));
+    }
+
+    /**
+     * {@code /tommemod chief reputation <amount>} - grants the running player that much reputation with
+     * the village they are standing in. Negative amounts work too, and are clamped by the same
+     * configured floor as any other loss.
+     */
+    private static int grantReputation(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        ServerLevel level = player.serverLevel();
+        int amount = IntegerArgumentType.getInteger(ctx, "amount");
+
+        // Resolved from where the player is standing rather than taken as an argument, so it matches how
+        // every other reputation gain in the mod is attributed.
+        Optional<UUID> villageId = VillageManager.get(level).resolveVillage(level, player.blockPosition());
+        if (villageId.isEmpty()) {
+            ctx.getSource().sendFailure(Component.literal("You aren't standing in a village."));
+            return 0;
+        }
+
+        return player.getCapability(ModReputationCapabilities.REPUTATION_HANDLER).map(handler -> {
+            ReputationHandler.ReputationChange change = handler.addReputation(villageId.get(), amount);
+
+            String message = "Reputation " + change.oldScore() + " -> " + change.newScore()
+                    + (change.tierChanged()
+                            ? " (" + change.oldTier().name() + " -> " + change.newTier().name() + ")"
+                            : " (" + change.newTier().name() + ")");
+            ctx.getSource().sendSuccess(() -> Component.literal(message), true);
+            return 1;
+        }).orElse(0);
     }
 
     private static int confirmChief(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {

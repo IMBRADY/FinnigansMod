@@ -1,5 +1,6 @@
 package net.finnigan.tommemod.entity.custom;
 
+import net.finnigan.tommemod.entity.ai.FlightPhysics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -15,7 +16,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -287,11 +287,13 @@ public class HeronEntity extends Animal implements GeoEntity {
     private static class HeronFlyGoal extends Goal {
 
         private static final double FLIGHT_SPEED = 0.16;
+        private static final double DESCENT_SPEED = 0.11;
 
         private final HeronEntity heron;
         private double targetX, targetY, targetZ;
         private int flightTimer;
         private int groundedCooldown = 100;
+        private boolean landing;
 
         HeronFlyGoal(HeronEntity heron) {
             this.heron = heron;
@@ -306,28 +308,41 @@ public class HeronEntity extends Animal implements GeoEntity {
             return heron.getRandom().nextInt(200) == 0; // mostly walks
         }
 
+        // Runs until the heron is actually back down. The flight timer starts the descent rather than
+        // ending the goal outright, so the bird is never left in mid-air with its lift switched off.
         @Override
         public boolean canContinueToUse() {
-            return heron.isFlying() && flightTimer > 0;
+            return heron.isFlying();
         }
 
         @Override
         public void start() {
             heron.setFlying(true);
             heron.getNavigation().stop();
+            landing = false;
             pickNewTarget();
             flightTimer = 100 + heron.getRandom().nextInt(120); // 5-11s
         }
 
         @Override
         public void stop() {
-            heron.setFlying(false);
-            heron.setDeltaMovement(heron.getDeltaMovement().x, 0, heron.getDeltaMovement().z);
+            if (heron.onGround() || heron.isInWater()) {
+                heron.setFlying(false);
+                heron.setDeltaMovement(heron.getDeltaMovement().x, 0, heron.getDeltaMovement().z);
+            }
+            landing = false;
             groundedCooldown = 200 + heron.getRandom().nextInt(200);
         }
 
         @Override
         public void tick() {
+            if (landing) {
+                if (FlightPhysics.descend(heron, DESCENT_SPEED)) {
+                    heron.setFlying(false);
+                }
+                return;
+            }
+
             flightTimer--;
 
             Vec3 pos = heron.position();
@@ -341,14 +356,15 @@ public class HeronEntity extends Animal implements GeoEntity {
                     pickNewTarget();
                     return;
                 }
+                // Velocity only: the heron's own travel() does the move. Doing both here moved it
+                // twice per tick, at double the intended speed.
                 heron.setDeltaMovement(motion);
-                heron.move(MoverType.SELF, heron.getDeltaMovement());
                 heron.getLookControl().setLookAt(targetX, targetY, targetZ);
                 faceMovementDirection(motion);
             }
 
             if (flightTimer <= 0) {
-                heron.setFlying(false);
+                landing = true;
             }
         }
 

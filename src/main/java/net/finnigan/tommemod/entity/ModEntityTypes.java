@@ -6,6 +6,7 @@ import net.finnigan.tommemod.entity.custom.ArackopeshHelpers.GrappleHookEntity;
 import net.finnigan.tommemod.entity.custom.BallistaHelpers.BallistaBoltEntity;
 import net.finnigan.tommemod.entity.custom.ColletisHelpers.ColletisVineEntity;
 import net.finnigan.tommemod.entity.custom.Bosses.BossCrab.BossCrabEntity;
+import net.finnigan.tommemod.entity.custom.EndDrayk.EndDraykEntity;
 import net.finnigan.tommemod.entity.custom.IxeHelpers.IxeBoxEntity;
 import net.finnigan.tommemod.entity.custom.IxeHelpers.IxeProjectileEntity;
 import net.finnigan.tommemod.entity.custom.EndScytheHelpers.EndScytheProjectileEntity;
@@ -39,6 +40,17 @@ public class ModEntityTypes {
                     .sized(3.6f, 2.0f) // hitbox
                     .updateInterval(1)
                     .build("boss_crab"));
+
+    // Segmented flying snake. The .sized() box is a stub the parent never uses for hits - the real
+    // hitboxes are the ten EndDraykPart collision boxes it owns. updateInterval(1) matters and stays even
+    // though this isn't a boss: the client rebuilds the whole trail from the parent's synced position, so
+    // a coarse interval lags the entire body rather than just the head.
+    public static final RegistryObject<EntityType<EndDraykEntity>> END_DRAYK =
+            ENTITY_TYPES.register("end_drayk", () -> EntityType.Builder.of(EndDraykEntity::new, MobCategory.MONSTER)
+                    .sized(0.9f, 0.9f)
+                    .clientTrackingRange(10)
+                    .updateInterval(1)
+                    .build("end_drayk"));
 
     public static final RegistryObject<EntityType<IxeProjectileEntity>> IXE_PROJECTILE =
             ENTITY_TYPES.register("ixe_projectile", () -> EntityType.Builder.<IxeProjectileEntity>of(IxeProjectileEntity::new, MobCategory.MISC)

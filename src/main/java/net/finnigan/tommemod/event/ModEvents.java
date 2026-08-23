@@ -7,6 +7,7 @@ import net.finnigan.tommemod.client.renderer.layer.AccessoryHeadLayer;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.entity.custom.*;
 import net.finnigan.tommemod.entity.custom.Bosses.BossCrab.BossCrabEntity;
+import net.finnigan.tommemod.entity.custom.EndDrayk.EndDraykEntity;
 import net.finnigan.tommemod.item.custom.LongbowItem;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SpawnPlacements;
@@ -102,6 +103,7 @@ public class ModEvents {
             event.put(ModEntityTypes.END_LANTERN.get(), EndLanternEntity.createAttributes().build());
             event.put(ModEntityTypes.MUSHLING.get(), MushlingEntity.createAttributes().build());
             event.put(ModEntityTypes.BOSS_CRAB.get(), BossCrabEntity.createAttributes().build());
+            event.put(ModEntityTypes.END_DRAYK.get(), EndDraykEntity.createAttributes().build());
             event.put(ModEntityTypes.CAPYBARA.get(), CapybaraEntity.createAttributes().build());
             event.put(ModEntityTypes.MANTA.get(), MantaEntity.createAttributes().build());
             event.put(ModEntityTypes.TIGER.get(), TigerEntity.createAttributes().build());
@@ -146,6 +148,13 @@ public class ModEvents {
                     SpawnPlacements.Type.NO_RESTRICTIONS,
                     Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     EndLanternEntity::checkEndLanternSpawnRules,
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
+            // NO_RESTRICTIONS because it is airborne - an ON_GROUND placement would reject most of the
+            // open space over the End islands where a flying snake actually belongs.
+            event.register(ModEntityTypes.END_DRAYK.get(),
+                    SpawnPlacements.Type.NO_RESTRICTIONS,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    EndDraykEntity::checkEndDraykSpawnRules,
                     SpawnPlacementRegisterEvent.Operation.REPLACE);
             event.register(ModEntityTypes.MANTA.get(),
                     SpawnPlacements.Type.IN_WATER,

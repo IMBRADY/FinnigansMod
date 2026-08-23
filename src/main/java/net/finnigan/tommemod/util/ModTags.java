@@ -32,6 +32,12 @@ public class ModTags {
          * the other "what counts as a hero's weapon" - and a cleaver belongs to the second only.
          */
         public static final TagKey<Item> HEROBLADE_WEAPONS = tag("heroblade_weapons");
+        /**
+         * Weapons that should take reforges but aren't caught by an {@code instanceof} against a vanilla
+         * weapon class - daggers, pikes, halberds, the musket, the god sword. Armour, shields, swords,
+         * bows and crossbows are all detected by class and don't need listing here.
+         */
+        public static final TagKey<Item> REFORGEABLE_WEAPONS = tag("reforgeable_weapons");
 
         private static TagKey<Item> tag(String name) {
             return TagKey.create(Registries.ITEM, new ResourceLocation(TommeMod.MOD_ID, name));

@@ -34,7 +34,8 @@
     "AbstractContainerScreenAccessor",
     "MouseHandlerMixin",
     "MouseHandlerAccessor",
-    "ItemStackUniqueNameMixin"
+    "ItemStackUniqueNameMixin",
+    "ItemStackReforgeNameMixin"
   ],
   "server": [
   ],

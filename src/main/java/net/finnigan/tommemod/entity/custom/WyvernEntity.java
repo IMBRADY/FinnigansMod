@@ -1,5 +1,6 @@
 package net.finnigan.tommemod.entity.custom;
 
+import net.finnigan.tommemod.entity.ai.FlightPhysics;
 import net.finnigan.tommemod.entity.ai.FlutterGoal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
@@ -8,7 +9,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
@@ -44,6 +44,12 @@ public class WyvernEntity extends Monster implements GeoEntity {
     /** Cruise speed while it has nothing to chase, as a fraction of its hunting speed. */
     private static final double IDLE_SPEED_MODIFIER = 0.5D;
 
+    /**
+     * Hunting speed in blocks per tick (see {@link FlightPhysics}), so ~6.4 blocks/second - a shade
+     * faster than a sprinting player, and half that while cruising.
+     */
+    private static final double HUNT_SPEED = 0.32D;
+
     private static final RawAnimation FLY_ANIM = RawAnimation.begin().thenLoop("fly");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -60,7 +66,7 @@ public class WyvernEntity extends Monster implements GeoEntity {
                 .add(Attributes.MAX_HEALTH, 26.0D)
                 .add(Attributes.ATTACK_DAMAGE, 7.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.03D)
-                .add(Attributes.FLYING_SPEED, 0.8D)
+                .add(Attributes.FLYING_SPEED, HUNT_SPEED)
                 .add(Attributes.FOLLOW_RANGE, 32.0D);
     }
 
@@ -96,11 +102,7 @@ public class WyvernEntity extends Monster implements GeoEntity {
 
     @Override
     public void travel(Vec3 travelVector) {
-        if (this.isControlledByLocalInstance()) {
-            this.moveRelative(this.getSpeed(), travelVector);
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.91D));
-        }
+        FlightPhysics.travel(this, travelVector);
         this.calculateEntityAnimation(true);
     }
 

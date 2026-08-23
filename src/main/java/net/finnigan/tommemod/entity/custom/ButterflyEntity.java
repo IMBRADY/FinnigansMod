@@ -1,9 +1,9 @@
 package net.finnigan.tommemod.entity.custom;
 
 import net.finnigan.tommemod.entity.ai.ButterflyFlutterGoal;
+import net.finnigan.tommemod.entity.ai.FlightPhysics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -44,7 +44,8 @@ public class ButterflyEntity extends PathfinderMob implements GeoEntity {
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 3.0D)
-                .add(Attributes.FLYING_SPEED, 0.6D)
+                // Blocks per tick (see FlightPhysics) - a slow, fluttery ~1.4 blocks/second.
+                .add(Attributes.FLYING_SPEED, 0.12D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
                 .add(Attributes.FOLLOW_RANGE, 16.0D);
     }
@@ -68,11 +69,7 @@ public class ButterflyEntity extends PathfinderMob implements GeoEntity {
 
     @Override
     public void travel(Vec3 travelVector) {
-        if (this.isControlledByLocalInstance()) {
-            this.moveRelative(this.getSpeed(), travelVector);
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.91D));
-        }
+        FlightPhysics.travel(this, travelVector);
         this.calculateEntityAnimation(true);
     }
 

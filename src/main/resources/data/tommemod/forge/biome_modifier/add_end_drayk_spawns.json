@@ -1,0 +1,16 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": [
+    "minecraft:end_highlands",
+    "minecraft:end_midlands",
+    "minecraft:end_barrens"
+  ],
+  "spawners": [
+    {
+      "type": "tommemod:end_drayk",
+      "weight": 1,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}

@@ -1,12 +1,12 @@
 package net.finnigan.tommemod.entity.custom;
 
+import net.finnigan.tommemod.entity.ai.FlightPhysics;
 import net.finnigan.tommemod.entity.ai.FlutterGoal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -52,7 +52,8 @@ public class MiniflyEntity extends PathfinderMob implements GeoEntity {
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 3.0D)
-                .add(Attributes.FLYING_SPEED, 0.5D)
+                // Blocks per tick (see FlightPhysics); the flutter goal's 0.6 modifier makes that ~1.8 blocks/second.
+                .add(Attributes.FLYING_SPEED, 0.15D)
                 .add(Attributes.MOVEMENT_SPEED, 0.2D)
                 .add(Attributes.FOLLOW_RANGE, 16.0D);
     }
@@ -88,11 +89,7 @@ public class MiniflyEntity extends PathfinderMob implements GeoEntity {
 
     @Override
     public void travel(Vec3 travelVector) {
-        if (this.isControlledByLocalInstance()) {
-            this.moveRelative(this.getSpeed(), travelVector);
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.91D));
-        }
+        FlightPhysics.travel(this, travelVector);
         this.calculateEntityAnimation(true);
     }
 
