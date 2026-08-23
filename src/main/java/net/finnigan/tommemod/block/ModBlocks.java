@@ -123,7 +123,7 @@ public class ModBlocks {
             () -> new InvisibleLightBlock(BlockBehaviour.Properties.of()
                     .noCollission()
                     .noOcclusion()
-                    .lightLevel(state -> 14)
+                    .lightLevel(state -> 15)
                     .noLootTable()
                     .strength(-1.0F, 3600000.0F)));
 

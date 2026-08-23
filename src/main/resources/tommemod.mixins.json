@@ -35,7 +35,11 @@
     "MouseHandlerMixin",
     "MouseHandlerAccessor",
     "ItemStackUniqueNameMixin",
-    "ItemStackReforgeNameMixin"
+    "ItemStackReforgeNameMixin",
+    "ItemStackUniqueNameMixin",   
+    "WitherspineItemUseAnimationMixin",
+    "LumapierItemGlowMixin",
+    "DynamicParticleLightMixin"
   ],
   "server": [
   ],

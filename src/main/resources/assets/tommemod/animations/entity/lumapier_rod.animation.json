@@ -1,0 +1,27 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation": {
+			"loop": "hold_on_last_frame",
+			"animation_length": 2,
+			"bones": {
+				"LumaRod": {
+					"rotation": {
+						"vector": [0, 0, 0]
+					},
+					"position": {
+						"vector": [0, 0, 0]
+					},
+					"scale": {
+						"0.0": {
+							"vector": [1, 1, 1]
+						},
+						"2.0": {
+							"vector": [1, 1, 24]
+						}
+					}
+				}
+			}
+		}
+	}
+}

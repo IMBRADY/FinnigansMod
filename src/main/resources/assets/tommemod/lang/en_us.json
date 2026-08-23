@@ -224,5 +224,8 @@
   "reforge.tommemod.brittle": "Brittle",
   "reforge.tommemod.brittle.desc": "-1% Armor",
   "reforge.tommemod.unlucky": "Unlucky",
-  "reforge.tommemod.unlucky.desc": "-10% Luck"
+  "reforge.tommemod.unlucky.desc": "-10% Luck",
+  "item.tommemod.witherspine": "Witherspine",
+  "item.tommemod.lanterna": "Lanterna",
+  "effect.tommemod.enchained": "Enchained"
 }

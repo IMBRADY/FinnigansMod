@@ -14,6 +14,9 @@ import net.finnigan.tommemod.network.packet.SyncReputationPacket;
 import net.finnigan.tommemod.network.packet.SyncSkillDataPacket;
 import net.finnigan.tommemod.network.packet.SyncSkillDefinitionsPacket;
 import net.finnigan.tommemod.network.packet.UnlockSkillNodePacket;
+import net.finnigan.tommemod.network.packet.SyncWitherspineChargeResetPacket;
+import net.finnigan.tommemod.network.packet.SyncWitherspineStatePacket;
+import net.finnigan.tommemod.network.packet.ReleaseLanternaUsePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -64,5 +67,17 @@ public class ModNetwork {
                 ResetClassPacket::encode, ResetClassPacket::new, ResetClassPacket::handle);
         CHANNEL.registerMessage(id++, ClassAbilityPacket.class,
                 ClassAbilityPacket::encode, ClassAbilityPacket::new, ClassAbilityPacket::handle);
+        CHANNEL.registerMessage(id++, SyncWitherspineChargeResetPacket.class,
+                SyncWitherspineChargeResetPacket::encode,
+                SyncWitherspineChargeResetPacket::new,
+                SyncWitherspineChargeResetPacket::handle);
+        CHANNEL.registerMessage(id++, SyncWitherspineStatePacket.class,
+                SyncWitherspineStatePacket::encode,
+                SyncWitherspineStatePacket::new,
+                SyncWitherspineStatePacket::handle);
+        CHANNEL.registerMessage(id++, ReleaseLanternaUsePacket.class,
+                ReleaseLanternaUsePacket::encode,
+                ReleaseLanternaUsePacket::new,
+                ReleaseLanternaUsePacket::handle);
     }
 }
