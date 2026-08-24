@@ -1,6 +1,8 @@
 package net.finnigan.tommemod.entity.custom.LanternaHelpers;
 
+import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.entity.ModEntityTypes;
+import net.finnigan.tommemod.entity.custom.GrapplingHookSupport;
 import net.finnigan.tommemod.effect.EnchainedEffect;
 import net.finnigan.tommemod.item.custom.LanternaItem;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -30,12 +32,16 @@ public class LanternaChainEntity extends ThrowableItemProjectile {
             SynchedEntityData.defineId(LanternaChainEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> ARRIVED =
             SynchedEntityData.defineId(LanternaChainEntity.class, EntityDataSerializers.BOOLEAN);
-    private static final double CHAIN_SPEED = 2.2;
-    private static final double MAX_DISTANCE_SQR = 64.0 * 64.0;
+    public static final GrapplingHookSupport.Settings GRAPPLE_SETTINGS = new GrapplingHookSupport.Settings(
+            new net.minecraft.resources.ResourceLocation(TommeMod.MOD_ID, "textures/entity/lanternchain.png"),
+            new net.minecraft.resources.ResourceLocation(TommeMod.MOD_ID, "textures/entity/lanternprojectile.png"),
+            3.0, 64.0, 0.9, 0.08, 0.16, 5.0, 1.5,
+            0.11, 1.75, 0.995, 0.5F, 0.08F, 0.5F, -90.0F);
     private static final int LIGHT_LINGER_TICKS = 6;
     private UUID shotId = UUID.randomUUID();
     private int arrivalTicks;
     private boolean stateCleared;
+    private final GrapplingHookSupport.State grappleState = new GrapplingHookSupport.State();
 
     public LanternaChainEntity(EntityType<? extends LanternaChainEntity> type, Level level) {
         super(type, level);
@@ -158,7 +164,8 @@ public class LanternaChainEntity extends ThrowableItemProjectile {
 
         if (isStuck()) {
             pullOwner(owner);
-        } else if (!level().isClientSide && distanceToSqr(owner) >= MAX_DISTANCE_SQR) {
+        } else if (!level().isClientSide && distanceToSqr(owner) >=
+                GRAPPLE_SETTINGS.maxDistance() * GRAPPLE_SETTINGS.maxDistance()) {
             startRetract();
         }
     }
@@ -166,7 +173,7 @@ public class LanternaChainEntity extends ThrowableItemProjectile {
     private void retractStep(Player owner) {
         Vec3 hand = owner.getEyePosition().add(0, -0.2, 0);
         Vec3 toHand = hand.subtract(position());
-        if (toHand.length() <= CHAIN_SPEED) {
+        if (toHand.length() <= GRAPPLE_SETTINGS.flightSpeed()) {
             setPos(hand.x, hand.y, hand.z);
             setDeltaMovement(Vec3.ZERO);
             entityData.set(RETRACTING, false);
@@ -174,19 +181,13 @@ public class LanternaChainEntity extends ThrowableItemProjectile {
             clearWeaponState(owner);
             return;
         }
-        setDeltaMovement(toHand.normalize().scale(CHAIN_SPEED));
+        setDeltaMovement(toHand.normalize().scale(GRAPPLE_SETTINGS.flightSpeed()));
     }
 
     private void pullOwner(Player owner) {
-        Vec3 toHook = position().subtract(owner.position());
-        double distance = toHook.length();
-        if (distance < 1.8) {
-            owner.setDeltaMovement(owner.getDeltaMovement().multiply(0.2, 1.0, 0.2));
-        } else {
-            owner.setDeltaMovement(toHook.normalize().scale(Math.min(distance * 0.2, 1.2)).add(0, 0.1, 0));
-            owner.hurtMarked = true;
-            owner.fallDistance = 0;
-        }
+        float input = level().isClientSide ? owner.xxa : GrapplingHookSupport.getSwingInput(owner);
+        GrapplingHookSupport.pullPlayer(this, owner, grappleState, GRAPPLE_SETTINGS, input);
+        GrapplingHookSupport.grappleShorten(this, owner, grappleState, owner.isShiftKeyDown());
     }
 
     @Override

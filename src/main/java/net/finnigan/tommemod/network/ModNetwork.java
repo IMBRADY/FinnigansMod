@@ -17,6 +17,7 @@ import net.finnigan.tommemod.network.packet.UnlockSkillNodePacket;
 import net.finnigan.tommemod.network.packet.SyncWitherspineChargeResetPacket;
 import net.finnigan.tommemod.network.packet.SyncWitherspineStatePacket;
 import net.finnigan.tommemod.network.packet.ReleaseLanternaUsePacket;
+import net.finnigan.tommemod.network.packet.GrappleSwingInputPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -79,5 +80,9 @@ public class ModNetwork {
                 ReleaseLanternaUsePacket::encode,
                 ReleaseLanternaUsePacket::new,
                 ReleaseLanternaUsePacket::handle);
+        CHANNEL.registerMessage(id++, GrappleSwingInputPacket.class,
+                GrappleSwingInputPacket::encode,
+                GrappleSwingInputPacket::new,
+                GrappleSwingInputPacket::handle);
     }
 }

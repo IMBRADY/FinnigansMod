@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.item.custom;
 
 import net.finnigan.tommemod.entity.custom.LanternaHelpers.LanternaChainEntity;
+import net.finnigan.tommemod.entity.custom.GrapplingHookSupport;
 import net.finnigan.tommemod.event.UniqueSwordEnforcementHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -88,7 +89,8 @@ public class LanternaItem extends SwordItem {
             LanternaChainEntity chain = new LanternaChainEntity(level, player, shotId);
             Vec3 look = player.getLookAngle();
             chain.setPos(player.getX() + look.x, player.getEyeY() - 0.2, player.getZ() + look.z);
-            chain.shoot(look.x, look.y, look.z, 2.2F, 0.0F);
+            chain.shoot(look.x, look.y, look.z,
+                    (float) LanternaChainEntity.GRAPPLE_SETTINGS.flightSpeed(), 0.0F);
             level.addFreshEntity(chain);
             ACTIVE_CHAINS.put(player.getUUID(), chain.getId());
             level.playSound(null, player.blockPosition(), SoundEvents.FISHING_BOBBER_THROW,
@@ -113,6 +115,14 @@ public class LanternaItem extends SwordItem {
         clearFired(owner.getMainHandItem(), shotId);
         clearFired(owner.getOffhandItem(), shotId);
         for (ItemStack stack : owner.getInventory().items) clearFired(stack, shotId);
+    }
+
+    public static void setSwingInput(Player player, float input) {
+        GrapplingHookSupport.setSwingInput(player, input);
+    }
+
+    public static float getSwingInput(Player player) {
+        return GrapplingHookSupport.getSwingInput(player);
     }
 
     public static void requireFreshClick(Player owner, UUID shotId) {

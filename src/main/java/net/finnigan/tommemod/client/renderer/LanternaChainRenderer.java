@@ -16,9 +16,8 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 public class LanternaChainRenderer extends EntityRenderer<LanternaChainEntity> {
-    private static final ResourceLocation CHAIN = new ResourceLocation(TommeMod.MOD_ID, "textures/entity/lanternchain.png");
-    private static final ResourceLocation TIP = new ResourceLocation(TommeMod.MOD_ID, "textures/entity/lanternprojectile.png");
-    private static final float WIDTH = 0.08F;
+    private static final ResourceLocation CHAIN = LanternaChainEntity.GRAPPLE_SETTINGS.chainTexture();
+    private static final ResourceLocation TIP = LanternaChainEntity.GRAPPLE_SETTINGS.tipTexture();
 
     public LanternaChainRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -48,8 +47,8 @@ public class LanternaChainRenderer extends EntityRenderer<LanternaChainEntity> {
         Vec3 direction = difference.scale(1.0 / length);
         Vec3 side = direction.cross(new Vec3(0, 1, 0));
         if (side.lengthSqr() < 0.0001) side = new Vec3(1, 0, 0);
-        side = side.normalize().scale(WIDTH);
-        float tiles = (float) (length / 0.5);
+        side = side.normalize().scale(LanternaChainEntity.GRAPPLE_SETTINGS.chainWidth());
+        float tiles = (float) (length / LanternaChainEntity.GRAPPLE_SETTINGS.segmentLength());
         VertexConsumer vertices = buffer.getBuffer(RenderType.entityCutout(CHAIN));
         Matrix4f matrix = poseStack.last().pose();
         vertex(vertices, matrix, start.subtract(side), 0, 0);
@@ -68,8 +67,9 @@ public class LanternaChainRenderer extends EntityRenderer<LanternaChainEntity> {
         poseStack.pushPose();
         poseStack.translate(end.x, end.y, end.z);
         poseStack.mulPose(Minecraft.getInstance().getEntityRenderDispatcher().cameraOrientation());
-        poseStack.mulPose(Axis.ZP.rotationDegrees(-90.0F));
-        poseStack.scale(0.5F, 0.5F, 0.5F);
+        poseStack.mulPose(Axis.ZP.rotationDegrees(LanternaChainEntity.GRAPPLE_SETTINGS.tipRotationDegrees()));
+        float tipScale = LanternaChainEntity.GRAPPLE_SETTINGS.tipScale();
+        poseStack.scale(tipScale, tipScale, tipScale);
         VertexConsumer vertices = buffer.getBuffer(RenderType.entityCutout(TIP));
         Matrix4f matrix = poseStack.last().pose();
         tipVertex(vertices, matrix, -0.5F, -0.5F, 0, 1, light);

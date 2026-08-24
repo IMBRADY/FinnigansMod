@@ -39,6 +39,7 @@
     "ItemStackUniqueNameMixin",   
     "WitherspineItemUseAnimationMixin",
     "LumapierItemGlowMixin",
+    "DynamicEntityLightMixin",
     "DynamicParticleLightMixin"
   ],
   "server": [

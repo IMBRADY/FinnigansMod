@@ -16,6 +16,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.ToIntFunction;
+import java.util.function.BiFunction;
 
 /**
  * Client-only registry for render-time dynamic lights. Registered items emit while held or dropped,
@@ -94,7 +95,17 @@ public final class DynamicLightManager {
 
     /** Registers a variable entity light and chooses whether fixed RGB retains block/biome hue. */
     public static void registerEntity(EntityType<?> type, ToIntFunction<Entity> lightLevel, Integer rgb, boolean useVanillaLightmap, boolean preserveMaterialHue) {
-        ENTITY_LIGHTS.put(type, new EntityLightDefinition(lightLevel, rgb == null ? new Vec3(1.0D, 1.0D, 1.0D) : colorFromRgb(rgb), useVanillaLightmap, preserveMaterialHue));
+        registerEntitySources(type, lightLevel, rgb, useVanillaLightmap, preserveMaterialHue,
+                (entity, partialTick) -> List.of(entity.getPosition(partialTick)));
+    }
+
+    /** Registers an entity whose light is emitted from one or more render-interpolated positions. */
+    public static void registerEntitySources(EntityType<?> type, ToIntFunction<Entity> lightLevel, Integer rgb,
+                                             boolean useVanillaLightmap, boolean preserveMaterialHue,
+                                             BiFunction<Entity, Float, List<Vec3>> positions) {
+        ENTITY_LIGHTS.put(type, new EntityLightDefinition(lightLevel,
+                rgb == null ? new Vec3(1.0D, 1.0D, 1.0D) : colorFromRgb(rgb),
+                useVanillaLightmap, preserveMaterialHue, positions));
     }
 
     /** Collects interpolated source positions for the render thread. */
@@ -113,7 +124,12 @@ public final class DynamicLightManager {
                         ITEM_LIGHTS.get(itemEntity.getItem().getItem()));
             }
             EntityLightDefinition emitter = ENTITY_LIGHTS.get(entity.getType());
-            if (emitter != null) addSource(sources, entity.getPosition(partialTick), emitter.level().applyAsInt(entity), emitter.color(), emitter.useVanillaLightmap(), emitter.preserveMaterialHue());
+            if (emitter != null) {
+                int lightLevel = emitter.level().applyAsInt(entity);
+                for (Vec3 position : emitter.positions().apply(entity, partialTick)) {
+                    addSource(sources, position, lightLevel, emitter.color(), emitter.useVanillaLightmap(), emitter.preserveMaterialHue());
+                }
+            }
         }
         return sources;
     }
@@ -134,10 +150,9 @@ public final class DynamicLightManager {
         return 0;
     }
 
-    /** @deprecated The former chunk/entity light-mixin path is no longer registered. */
-    @Deprecated(forRemoval = true)
+    /** Returns render-time dynamic brightness at an entity or equipment position. */
     public static int getRenderedLightLevel(Vec3 position, float partialTick) {
-        return 0;
+        return getParticleLightLevel(position, partialTick);
     }
 
     private static void addHeldItem(List<Source> sources, Player player, ItemStack stack, float partialTick) {
@@ -177,6 +192,8 @@ public final class DynamicLightManager {
 
     private record LightDefinition(ToIntFunction<ItemStack> level, Vec3 color, boolean useVanillaLightmap, boolean preserveMaterialHue) {}
 
-    private record EntityLightDefinition(ToIntFunction<Entity> level, Vec3 color, boolean useVanillaLightmap, boolean preserveMaterialHue) {}
+    private record EntityLightDefinition(ToIntFunction<Entity> level, Vec3 color, boolean useVanillaLightmap,
+                                         boolean preserveMaterialHue,
+                                         BiFunction<Entity, Float, List<Vec3>> positions) {}
 
 }

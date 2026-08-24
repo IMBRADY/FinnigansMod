@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class DynamicEntityLightMixin<T extends Entity> {
     @Inject(method = "getPackedLightCoords", at = @At("RETURN"), cancellable = true)
     private void tommemod$applyDynamicEntityLight(T entity, float partialTick, CallbackInfoReturnable<Integer> cir) {
-        int dynamicBlockLight = DynamicLightManager.getRenderedLightLevel(entity.getPosition(partialTick), partialTick);
+        int dynamicBlockLight = DynamicLightManager.getRenderedLightLevel(
+                entity.getPosition(partialTick).add(0.0D, entity.getBbHeight() * 0.5D, 0.0D), partialTick);
         int packedLight = cir.getReturnValue();
         int existingBlockLight = packedLight >> 4 & 15;
         if (dynamicBlockLight > existingBlockLight) cir.setReturnValue((packedLight & ~0xF0) | dynamicBlockLight << 4);
