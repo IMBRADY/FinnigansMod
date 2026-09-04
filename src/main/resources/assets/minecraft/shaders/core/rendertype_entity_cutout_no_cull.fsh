@@ -1,0 +1,77 @@
+#version 150
+
+#moj_import <dynamic_light.glsl>
+
+#moj_import <fog.glsl>
+
+uniform sampler2D Sampler0;
+uniform sampler2D Sampler2;
+uniform vec4 ColorModulator;
+uniform float FogStart;
+uniform float FogEnd;
+uniform vec4 FogColor;
+uniform vec4 DynamicLight0;
+uniform vec4 DynamicLight1;
+uniform vec4 DynamicLight2;
+uniform vec4 DynamicLight3;
+uniform vec4 DynamicLight4;
+uniform vec4 DynamicLight5;
+uniform vec4 DynamicLight6;
+uniform vec4 DynamicLight7;
+uniform vec4 DynamicLight8; uniform vec4 DynamicLight9; uniform vec4 DynamicLight10; uniform vec4 DynamicLight11;
+uniform vec4 DynamicLight12; uniform vec4 DynamicLight13; uniform vec4 DynamicLight14; uniform vec4 DynamicLight15;
+uniform vec4 DynamicLight16; uniform vec4 DynamicLight17; uniform vec4 DynamicLight18; uniform vec4 DynamicLight19;
+uniform vec3 DynamicLightColor0; uniform vec3 DynamicLightColor1; uniform vec3 DynamicLightColor2; uniform vec3 DynamicLightColor3;
+uniform vec3 DynamicLightColor4; uniform vec3 DynamicLightColor5; uniform vec3 DynamicLightColor6; uniform vec3 DynamicLightColor7;
+uniform vec3 DynamicLightColor8; uniform vec3 DynamicLightColor9; uniform vec3 DynamicLightColor10; uniform vec3 DynamicLightColor11;
+uniform vec3 DynamicLightColor12; uniform vec3 DynamicLightColor13; uniform vec3 DynamicLightColor14; uniform vec3 DynamicLightColor15;
+uniform vec3 DynamicLightColor16; uniform vec3 DynamicLightColor17; uniform vec3 DynamicLightColor18; uniform vec3 DynamicLightColor19;
+
+in float vertexDistance;
+in vec4 vertexColor;
+in vec4 lightMapColor;
+in vec4 overlayColor;
+in vec2 texCoord0;
+in vec4 normal;
+in vec3 dynamicWorldPos;
+flat in ivec2 dynamicLightmapUv;
+
+out vec4 fragColor;
+
+float lightContribution(vec4 source) {
+    float range = abs(source.w);
+    if (range <= 0.0) return 0.0;
+    float normalizedDistance = clamp((range - distance(dynamicWorldPos, source.xyz)) / range, 0.0, 1.0);
+    return normalizedDistance * normalizedDistance * (3.0 - 2.0 * normalizedDistance);
+}
+
+vec3 sampleDynamicLightmap(float light) {
+    float level = clamp(light * 14.0, 0.0, 15.0);
+    int lowerLevel = int(floor(level));
+    int upperLevel = min(lowerLevel + 1, 15);
+    return mix(texelFetch(Sampler2, ivec2(lowerLevel, dynamicLightmapUv.y), 0).rgb,
+               texelFetch(Sampler2, ivec2(upperLevel, dynamicLightmapUv.y), 0).rgb,
+               fract(level));
+}
+
+void main() {
+    vec4 unlitColor = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
+    if (unlitColor.a < 0.1) discard;
+    unlitColor.rgb = mix(overlayColor.rgb, unlitColor.rgb, overlayColor.a);
+    vec4 color = unlitColor * lightMapColor;
+    float lights[20] = float[](lightContribution(DynamicLight0),lightContribution(DynamicLight1),lightContribution(DynamicLight2),lightContribution(DynamicLight3),lightContribution(DynamicLight4),lightContribution(DynamicLight5),lightContribution(DynamicLight6),lightContribution(DynamicLight7),lightContribution(DynamicLight8),lightContribution(DynamicLight9),lightContribution(DynamicLight10),lightContribution(DynamicLight11),lightContribution(DynamicLight12),lightContribution(DynamicLight13),lightContribution(DynamicLight14),lightContribution(DynamicLight15),lightContribution(DynamicLight16),lightContribution(DynamicLight17),lightContribution(DynamicLight18),lightContribution(DynamicLight19));
+    vec3 colors[20] = vec3[](DynamicLightColor0,DynamicLightColor1,DynamicLightColor2,DynamicLightColor3,DynamicLightColor4,DynamicLightColor5,DynamicLightColor6,DynamicLightColor7,DynamicLightColor8,DynamicLightColor9,DynamicLightColor10,DynamicLightColor11,DynamicLightColor12,DynamicLightColor13,DynamicLightColor14,DynamicLightColor15,DynamicLightColor16,DynamicLightColor17,DynamicLightColor18,DynamicLightColor19);
+    float totalLight = 0.0;
+    vec3 accumulatedColor = vec3(0.0);
+    for (int index = 0; index < 20; index++) {
+        float light = lights[index];
+        if (light <= 0.0) continue;
+        vec3 lightColor = colors[index];
+        if (lightColor.y < 0.0) lightColor = sampleDynamicLightmap(light);
+        if (length(lightColor) < 0.01) lightColor = vec3(1.0);
+        accumulatedColor += unlitColor.rgb * lightColor * light;
+        totalLight += light;
+    }
+    if (totalLight > 0.0) color.rgb = mix(color.rgb, accumulatedColor / totalLight, 1.0 - exp(-totalLight * 1.35));
+    fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
+}

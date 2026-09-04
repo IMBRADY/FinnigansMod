@@ -27,6 +27,7 @@ public class AmethystBeamRenderer extends GeoEntityRenderer<AmethystBeamEntity> 
 
         LivingEntity owner = animatable.getOwner();
         Vec3 look;
+        float lengthScale;
         if (owner != null) {
             // The base renderer already translated poseStack to the beam entity's own
             // interpolated position, but that position (and rotation, read below) only gets
@@ -41,9 +42,12 @@ public class AmethystBeamRenderer extends GeoEntityRenderer<AmethystBeamEntity> 
             Vec3 correction = liveOrigin.subtract(beamInterpPos);
             poseStack.translate(correction.x, correction.y, correction.z);
 
-            look = owner.getViewVector(partialTick);
+            Vec3 aimPoint = AmethystBeamEntity.computeAimPoint(owner, partialTick, animatable.getLength());
+            look = aimPoint.subtract(liveOrigin);
+            lengthScale = (float) look.length();
         } else {
             look = animatable.getViewVector(partialTick);
+            lengthScale = animatable.getLength();
         }
 
         Vector3f dir = new Vector3f((float) look.x, (float) look.y, (float) look.z).normalize();
@@ -52,7 +56,6 @@ public class AmethystBeamRenderer extends GeoEntityRenderer<AmethystBeamEntity> 
         Quaternionf rotation = new Quaternionf().rotationTo(up, dir);
         poseStack.mulPose(rotation);
 
-        float lengthScale = animatable.getLength();
         poseStack.scale(1.0F, lengthScale, 1.0F);
 
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick,

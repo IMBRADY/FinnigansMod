@@ -16,9 +16,8 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.UUID;
 
 /**
- * Lumapier passive: while held (main or offhand), continuously grants Purifying Light (poison/wither/
- * nausea immunity + torch-level light, see PurifyingLightImmunityHandler/LumapierLightHandler) and a
- * flat +20% MOVEMENT_SPEED AttributeModifier - explicitly NOT the vanilla Speed I MobEffect, per spec.
+ * Lumapier's previous held passive has been retired. Its only movement benefit is temporary flight
+ * while it is actively charging, managed directly by LumapierItem.
  */
 @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID)
 public class LumapierPassiveHandler {
@@ -36,7 +35,7 @@ public class LumapierPassiveHandler {
         Player player = event.player;
         if (player.level().isClientSide) return;
 
-        boolean held = LumapierItem.isHeldBy(player);
+        boolean held = false;
 
         if (held) {
             player.addEffect(new MobEffectInstance(ModMobEffects.PURIFYING_LIGHT.get(),

@@ -5,11 +5,13 @@ import net.finnigan.tommemod.block.entity.ModBlockEntities;
 import net.finnigan.tommemod.client.particle.AquatanaParticle;
 import net.finnigan.tommemod.client.particle.FireRingParticle;
 import net.finnigan.tommemod.client.renderer.*;
+import net.finnigan.tommemod.client.light.DynamicLightManager;
 import net.finnigan.tommemod.client.renderer.layer.AccessoryElytraLayer;
 import net.finnigan.tommemod.client.renderer.layer.AccessoryHeadLayer;
 import net.finnigan.tommemod.client.screen.OvenScreen;
 import net.finnigan.tommemod.entity.ModEntityTypes;
 import net.finnigan.tommemod.entity.custom.*;
+import net.finnigan.tommemod.entity.custom.AmethystCutlassHelpers.AmethystBeamEntity;
 import net.finnigan.tommemod.entity.custom.Bosses.BossCrab.BossCrabEntity;
 import net.finnigan.tommemod.item.ModItems;
 import net.finnigan.tommemod.item.custom.BetterBuzzItem;
@@ -38,6 +40,26 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            DynamicLightManager.registerItem(ModItems.LUMAPIER.get(), 15, 0xFFFFFF, false, true);
+            DynamicLightManager.registerEntity(ModEntityTypes.LIGHT_BOLT_PROJECTILE.get(), 15, 0xFFFFFF, false, true);
+            DynamicLightManager.registerItem(ModItems.AMETHYST_CUTLASS.get(), 10, 0xC79BFF, false, true);
+            DynamicLightManager.registerEntitySources(ModEntityTypes.AMETHYST_BEAM.get(), entity -> 10,
+                    0xC79BFF, false, true,
+                    (entity, partialTick) -> entity instanceof AmethystBeamEntity beam
+                            ? beam.getDynamicLightPositions(partialTick)
+                            : java.util.List.of(entity.getPosition(partialTick)));
+            int lanternaOrange = 0xFFD4A8;
+            DynamicLightManager.registerItem(ModItems.LANTERNA.get(),
+                    stack -> stack.getOrCreateTag().getBoolean("LanternaFired") ? 0 : 15,
+                    lanternaOrange, false, true);
+            DynamicLightManager.registerEntity(ModEntityTypes.LANTERNA_CHAIN.get(),
+                    entity -> entity instanceof net.finnigan.tommemod.entity.custom.LanternaHelpers.LanternaChainEntity chain
+                            ? chain.getDynamicLightLevel() : 0,
+                    lanternaOrange, false, true);
+            DynamicLightManager.registerEntity(ModEntityTypes.LANTERNA_CHAINS.get(), 15, lanternaOrange, false, true);
+            ItemProperties.register(ModItems.LANTERNA.get(), new ResourceLocation(TommeMod.MOD_ID, "fired"),
+                    (stack, level, entity, seed) -> stack.getOrCreateTag().getBoolean("LanternaFired") ? 1.0F : 0.0F);
+            DynamicLightManager.registerItem(Items.TORCH, 14);
             ItemProperties.register(ModItems.LONGBOW.get(), new ResourceLocation("pull"),
                     (stack, level, entity, seed) -> {
                         if (entity == null || entity.getUseItem() != stack) return 0.0F;
@@ -304,9 +326,13 @@ public class ClientSetup { // .MOD file, idk im too lazy to research but it does
             event.registerEntityRenderer(ModEntityTypes.GIANT_SWORD.get(), GiantSwordRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.GRAPPLE_HOOK.get(), GrappleHookRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.COLLETIS_VINE.get(), ColletisVineRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.LANTERNA_CHAIN.get(), LanternaChainRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.LANTERNA_CHAINS.get(), LanternaChainsRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.IXE_PROJECTILE.get(), IxeProjectileRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.IXE_BOX.get(), IxeBoxRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.END_SCYTHE_PROJECTILE.get(), EndScytheProjectileRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.WITHERSPINE_ARROW.get(), WitherspineArrowRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.WITHERSPINE_SKULL.get(), WitherspineSkullRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.BOSS_CRAB.get(), BossCrabRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.END_DRAYK.get(), EndDraykRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.CAPYBARA.get(), CapybaraRenderer::new);

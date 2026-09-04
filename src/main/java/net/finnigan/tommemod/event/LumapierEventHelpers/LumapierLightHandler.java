@@ -54,8 +54,8 @@ public class LumapierLightHandler {
 
         UUID id = player.getUUID();
 
-        // Keyed off the effect rather than off Lumapier specifically, so every weapon that grants
-        // Purifying Light (Candeliere too) lights the way without duplicating this whole handler.
+        // This legacy block-based system is now reserved for Purifying Light effects such as Candeliere.
+        // Lumapier uses DynamicLightManager instead, so it never mutates world block states.
         if (!player.hasEffect(ModMobEffects.PURIFYING_LIGHT.get())) {
             clearTracked(id);
             return;

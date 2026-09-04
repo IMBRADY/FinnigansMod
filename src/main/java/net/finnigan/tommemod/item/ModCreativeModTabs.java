@@ -99,8 +99,10 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.IXE.get());
                         pOutput.accept(ModItems.WAR_FLAMMER.get());
                         pOutput.accept(ModItems.END_SCYTHE.get());
+                        pOutput.accept(ModItems.WITHERSPINE.get());
                         pOutput.accept(ModItems.COLLETIS.get());
                         pOutput.accept(ModItems.LUMAPIER.get());
+                        pOutput.accept(ModItems.LANTERNA.get());
                         pOutput.accept(ModItems.ECHOBLADE.get());
                         pOutput.accept(ModItems.UNHOISTED_TITAN.get());
                         pOutput.accept(ModItems.CANDELIERE.get());

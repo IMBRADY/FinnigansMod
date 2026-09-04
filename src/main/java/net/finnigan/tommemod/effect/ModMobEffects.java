@@ -16,4 +16,6 @@ public class ModMobEffects {
             MOB_EFFECTS.register("purifying_light", PurifyingLightEffect::new);
     public static final RegistryObject<MobEffect> WELL_FED =
             MOB_EFFECTS.register("well_fed", WellFedEffect::new);
+    public static final RegistryObject<MobEffect> ENCHAINED =
+            MOB_EFFECTS.register("enchained", EnchainedEffect::new);
 }

@@ -1,65 +1,76 @@
 package net.finnigan.tommemod.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.client.model.LumapierRodModel;
+import net.finnigan.tommemod.client.sound.LumapierRodSoundInstance;
 import net.finnigan.tommemod.entity.custom.LumapierHelpers.LightBoltProjectileEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
-import org.joml.Matrix4f;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 /**
- * Billboard-quad renderer for Lumapier's light bolts: same crossed-quad manual-VertexConsumer
- * technique as IxeProjectileRenderer/EndScytheProjectileRenderer, using the dedicated
- * lumapier_projectile.png entity texture rather than reusing the item icon.
+ * Untextured, fully white crossed quads make the charged projectile read as a huge rod of light.
  */
-public class LightBoltProjectileRenderer extends EntityRenderer<LightBoltProjectileEntity> {
-
-    private static final ResourceLocation TEXTURE = new ResourceLocation(TommeMod.MOD_ID, "textures/entity/lumapier_projectile.png");
-    private static final float SCALE = 0.4F;
+public class LightBoltProjectileRenderer extends GeoEntityRenderer<LightBoltProjectileEntity> {
 
     public LightBoltProjectileRenderer(EntityRendererProvider.Context context) {
-        super(context);
+        super(context, new LumapierRodModel());
     }
 
     @Override
-    public ResourceLocation getTextureLocation(LightBoltProjectileEntity entity) {
-        return TEXTURE;
+    protected int getBlockLightLevel(LightBoltProjectileEntity entity, BlockPos pos) {
+        return 15;
     }
 
     @Override
     public void render(LightBoltProjectileEntity entity, float entityYaw, float partialTicks, PoseStack poseStack,
                         MultiBufferSource buffer, int packedLight) {
-        poseStack.pushPose();
-
-        float spin = (entity.tickCount + partialTicks) * 36.0F; // fast little spin, reads as a zipping bolt of light
-        poseStack.mulPose(Axis.YP.rotationDegrees(spin));
-        poseStack.scale(SCALE, SCALE, SCALE);
-
-        VertexConsumer consumer = buffer.getBuffer(RenderType.entityCutout(TEXTURE));
-        Matrix4f matrix = poseStack.last().pose();
-
-        quad(consumer, matrix, packedLight, 0F);
-        quad(consumer, matrix, packedLight, 90F);
-
-        poseStack.popPose();
-        super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+        LumapierRodSoundInstance.ensurePlaying(entity);
+        super.render(entity, getRenderYaw(entity, entityYaw, partialTicks), partialTicks, poseStack, buffer, packedLight);
     }
 
-    private void quad(VertexConsumer consumer, Matrix4f matrix, int packedLight, float extraYaw) {
-        float s = 1.0F;
-        // two crossed quads to give the sprite volume from any viewing angle
-        float rad = (float) Math.toRadians(extraYaw);
-        float dx = (float) Math.sin(rad) * s;
-        float dz = (float) Math.cos(rad) * s;
+    @Override
+    public void preRender(PoseStack poseStack, LightBoltProjectileEntity entity, BakedGeoModel model,
+                          MultiBufferSource bufferSource, com.mojang.blaze3d.vertex.VertexConsumer buffer,
+                          boolean isReRender, float partialTick, int packedLight, int packedOverlay,
+                          float red, float green, float blue, float alpha) {
+        // Euler yaw/pitch keeps a fixed roll. Once launched, derive those angles from velocity so
+        // the model follows its real path even before a client receives the entity rotation update.
+        float yaw = getRenderYaw(entity, entity.getYRot(), partialTick);
+        float pitch = getRenderPitch(entity, partialTick);
+        if (entity.isLaunched()) {
+            Vec3 velocity = entity.getDeltaMovement();
+            if (velocity.lengthSqr() > 1.0E-6D) {
+                Vec3 direction = velocity.normalize();
+                yaw = (float) (Mth.atan2(-direction.x, direction.z) * Mth.RAD_TO_DEG);
+                pitch = (float) (-Math.asin(direction.y) * Mth.RAD_TO_DEG);
+            }
+        }
+        poseStack.mulPose(Axis.YP.rotationDegrees(-yaw));
+        poseStack.mulPose(Axis.XP.rotationDegrees(pitch));
+        super.preRender(poseStack, entity, model, bufferSource, buffer, isReRender, partialTick,
+                packedLight, packedOverlay, red, green, blue, alpha);
+    }
 
-        consumer.vertex(matrix, -dx, -s, -dz).color(255, 255, 255, 255).uv(0, 1).overlayCoords(0, 10).uv2(packedLight).normal(0, 1, 0).endVertex();
-        consumer.vertex(matrix, dx, -s, dz).color(255, 255, 255, 255).uv(1, 1).overlayCoords(0, 10).uv2(packedLight).normal(0, 1, 0).endVertex();
-        consumer.vertex(matrix, dx, s, dz).color(255, 255, 255, 255).uv(1, 0).overlayCoords(0, 10).uv2(packedLight).normal(0, 1, 0).endVertex();
-        consumer.vertex(matrix, -dx, s, -dz).color(255, 255, 255, 255).uv(0, 0).overlayCoords(0, 10).uv2(packedLight).normal(0, 1, 0).endVertex();
+    private static float getRenderYaw(LightBoltProjectileEntity entity, float fallbackYaw, float partialTick) {
+        if (!entity.isLaunched()) {
+            LivingEntity owner = entity.getLumapierOwner();
+            if (owner != null) return Mth.rotLerp(partialTick, owner.yRotO, owner.getYRot());
+        }
+        return entity.isStuck() ? entity.getImpactYaw() : fallbackYaw;
+    }
+
+    private static float getRenderPitch(LightBoltProjectileEntity entity, float partialTick) {
+        if (!entity.isLaunched()) {
+            LivingEntity owner = entity.getLumapierOwner();
+            if (owner != null) return Mth.lerp(partialTick, owner.xRotO, owner.getXRot());
+        }
+        return entity.isStuck() ? entity.getImpactPitch() : entity.getXRot();
     }
 }

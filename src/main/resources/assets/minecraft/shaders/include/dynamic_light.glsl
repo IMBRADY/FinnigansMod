@@ -1,0 +1,1 @@
+#define MAX_DYNAMIC_LIGHTS 20

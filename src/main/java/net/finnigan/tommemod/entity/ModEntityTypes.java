@@ -11,8 +11,12 @@ import net.finnigan.tommemod.entity.custom.IxeHelpers.IxeBoxEntity;
 import net.finnigan.tommemod.entity.custom.IxeHelpers.IxeProjectileEntity;
 import net.finnigan.tommemod.entity.custom.EndScytheHelpers.EndScytheProjectileEntity;
 import net.finnigan.tommemod.entity.custom.LumapierHelpers.LightBoltProjectileEntity;
+import net.finnigan.tommemod.entity.custom.LanternaHelpers.LanternaChainEntity;
+import net.finnigan.tommemod.entity.custom.LanternaHelpers.LanternaChainsEntity;
 import net.finnigan.tommemod.entity.custom.ShadowSwordHelpers.ShadowSoulEntity;
 import net.finnigan.tommemod.entity.custom.UnhoistedTitanHelpers.AnchorEntity;
+import net.finnigan.tommemod.entity.custom.WitherspineHelpers.WitherspineArrowEntity;
+import net.finnigan.tommemod.entity.custom.WitherspineHelpers.WitherspineSkullEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.registries.DeferredRegister;
@@ -75,6 +79,24 @@ public class ModEntityTypes {
                     .updateInterval(1)
                     .noSave()
                     .build("end_scythe_projectile"));
+
+    public static final RegistryObject<EntityType<WitherspineArrowEntity>> WITHERSPINE_ARROW =
+            ENTITY_TYPES.register("witherspine_arrow", () -> EntityType.Builder
+                    .<WitherspineArrowEntity>of(WitherspineArrowEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .noSave()
+                    .build("witherspine_arrow"));
+
+    public static final RegistryObject<EntityType<WitherspineSkullEntity>> WITHERSPINE_SKULL =
+            ENTITY_TYPES.register("witherspine_skull", () -> EntityType.Builder
+                    .<WitherspineSkullEntity>of(WitherspineSkullEntity::new, MobCategory.MISC)
+                    .sized(0.3125F, 0.3125F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .noSave()
+                    .build("witherspine_skull"));
 
     // Drawn entirely by its own particle trail (see ShadowSoulEntity#tick), so it gets a NoopRenderer.
     public static final RegistryObject<EntityType<ShadowSoulEntity>> SHADOW_SOUL =
@@ -169,6 +191,20 @@ public class ModEntityTypes {
                     .clientTrackingRange(64)
                     .updateInterval(10)
                     .build("colletis_vine"));
+    public static final RegistryObject<EntityType<LanternaChainEntity>> LANTERNA_CHAIN = ENTITY_TYPES.register("lanterna_chain",
+            () -> EntityType.Builder.<LanternaChainEntity>of(LanternaChainEntity::new, MobCategory.MISC)
+                    .sized(0.25F, 0.25F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .noSave()
+                    .build("lanterna_chain"));
+    public static final RegistryObject<EntityType<LanternaChainsEntity>> LANTERNA_CHAINS = ENTITY_TYPES.register("lanterna_chains",
+            () -> EntityType.Builder.<LanternaChainsEntity>of(LanternaChainsEntity::new, MobCategory.MISC)
+                    .sized(0.1F, 0.1F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .noSave()
+                    .build("lanterna_chains"));
     public static final RegistryObject<EntityType<AnchorEntity>> ANCHOR = ENTITY_TYPES.register("anchor",
             () -> EntityType.Builder.<AnchorEntity>of(AnchorEntity::new, MobCategory.MISC)
                     .sized(0.25F, 0.25F)

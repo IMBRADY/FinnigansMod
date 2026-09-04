@@ -46,6 +46,14 @@ public class ModItems {
                     -2.4F,
                     new Item.Properties()));
 
+    // 20 + Netherite's 4 + the player's base 1 = exactly 25 melee damage.
+    public static final RegistryObject<Item> WITHERSPINE = ITEMS.register("witherspine",
+            () -> new WitherspineItem(
+                    Tiers.NETHERITE,
+                    20,
+                    -2.4F,
+                    new Item.Properties()));
+
     public static final RegistryObject<Item> COLLETIS = ITEMS.register("colletis",
             () -> new ColletisItem(
                     Tiers.NETHERITE,
@@ -57,6 +65,13 @@ public class ModItems {
             () -> new LumapierItem(
                     Tiers.NETHERITE,
                     25,
+                    -2.4F,
+                    new Item.Properties()));
+
+    public static final RegistryObject<Item> LANTERNA = ITEMS.register("lanterna",
+            () -> new LanternaItem(
+                    Tiers.NETHERITE,
+                    20,
                     -2.4F,
                     new Item.Properties()));
 
