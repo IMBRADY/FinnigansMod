@@ -25,7 +25,8 @@
     "PoiTypesMixin",
     "EntityStepSoundMixin",
     "MeleeAttackGoalAccessor",
-    "RaidAccessor"
+    "RaidAccessor",
+    "RaidWallSpawnMixin"
   ],
   "client": [
     "InventoryScreenMixin",
@@ -34,8 +35,7 @@
     "AbstractContainerScreenAccessor",
     "MouseHandlerMixin",
     "MouseHandlerAccessor",
-    "ItemStackUniqueNameMixin",
-    "ItemStackReforgeNameMixin"
+    "ItemStackUniqueNameMixin"
   ],
   "server": [
   ],

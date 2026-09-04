@@ -4,7 +4,6 @@ import net.finnigan.tommemod.capability.reputation.ModReputationCapabilities;
 import net.finnigan.tommemod.capability.reputation.ReputationTier;
 import net.finnigan.tommemod.config.ModConfig;
 import net.finnigan.tommemod.village.VillageManager;
-import net.finnigan.tommemod.village.VillageRegion;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -238,18 +237,33 @@ public class ElderVillagerEntity extends PathfinderMob {
 
     /**
      * Keeps the Elder from wandering off the edge of the map: once it strays past the configured
-     * distance from its village's resolved anchor, snap it straight back rather than pathing home.
+     * distance from every one of its village's claimed POIs, snap it back to the nearest one rather
+     * than pathing home.
+     *
+     * <p>Measured against the nearest POI, deliberately, and not against {@code VillageRegion#anchor}.
+     * The anchor is whichever POI sorts lowest by Y (see {@code VillageManager#compareAnchor}) - an
+     * arbitrary corner of the village, routinely a bed in a basement or partway down a hillside, and
+     * up to {@code maxVillageRadiusBlocks} away from the far side of a sprawling one. Tethering to it
+     * teleported a freshly promoted Elder away from the Monolith it had just claimed, on its very
+     * first AI tick ({@code tetherCheckCooldown} starts at 0), whenever that Monolith sat more than
+     * {@code elderMaxWanderBlocks} from that single POI - which in game read as the Elder vanishing
+     * the instant the villager was promoted. The nearest POI is both the right thing to measure
+     * against and a destination guaranteed to be inside the village.
      */
     private void tetherToVillage(ServerLevel serverLevel) {
         UUID villageId = resolveOrGetVillageId();
         if (villageId == null) return;
 
-        VillageRegion region = VillageManager.get(serverLevel).resolveVillageRegion(serverLevel, villageId);
-        int maxWander = ModConfig.ELDER_MAX_WANDER_BLOCKS.get();
-        if (this.blockPosition().distSqr(region.anchor()) <= (double) maxWander * maxWander) return;
+        BlockPos self = this.blockPosition();
+        // Empty only if the village has no claimed POIs left, in which case there is nowhere sensible
+        // to send it - resolveVillageRegion would have answered BlockPos.ZERO, i.e. world origin.
+        BlockPos nearest = VillageManager.get(serverLevel).nearestPoi(villageId, self).orElse(null);
+        if (nearest == null) return;
 
-        BlockPos anchor = region.anchor();
-        this.teleportTo(anchor.getX() + 0.5, anchor.getY() + 1.0, anchor.getZ() + 0.5);
+        int maxWander = ModConfig.ELDER_MAX_WANDER_BLOCKS.get();
+        if (self.distSqr(nearest) <= (double) maxWander * maxWander) return;
+
+        this.teleportTo(nearest.getX() + 0.5, nearest.getY() + 1.0, nearest.getZ() + 0.5);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package net.finnigan.tommemod.network.packet;
 
 import net.finnigan.tommemod.block.entity.MonolithBlockEntity;
+import net.finnigan.tommemod.capability.reputation.ReputationTier;
 import net.finnigan.tommemod.village.VillageFunds;
 import net.finnigan.tommemod.village.VillageManager;
 import net.finnigan.tommemod.village.VillageUpgrade;
@@ -12,14 +13,16 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
  * Client -> server: Village Chief buying a level of one of their village's Chief Desk upgrades.
  *
- * Carries only which desk and which upgrade; the price is looked up server-side from
- * {@link VillageUpgrade} rather than sent, so a doctored packet can't name its own price.
+ * Carries only which desk and which upgrade; the price, the reputation requirement and any other
+ * condition are all looked up server-side from {@link VillageUpgrade} rather than sent, so a doctored
+ * packet can't name its own price or claim it has already met the bar.
  */
 public class MonolithUpgradePacket {
 
@@ -60,6 +63,24 @@ public class MonolithUpgradePacket {
             int currentLevel = upgrade.levelIn(manager, villageId);
             if (currentLevel >= upgrade.maxLevel()) return;
 
+            // Trust before goods: an upgrade the village won't entrust to this Chief yet shouldn't
+            // take their emeralds first and refuse afterwards.
+            ReputationTier required = upgrade.reputationRequiredFor(currentLevel + 1);
+            if (required != null && !VillageUpgrade.standingOf(player, villageId).isAtLeast(required)) {
+                player.displayClientMessage(
+                        Component.literal("The village will not trust this to anyone below "
+                                + required.name().charAt(0) + required.name().substring(1).toLowerCase(Locale.ROOT))
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return;
+            }
+
+            String blocker = upgrade.purchaseBlocker(level, player, manager, villageId, currentLevel);
+            if (blocker != null) {
+                player.displayClientMessage(Component.literal(blocker).withStyle(ChatFormatting.RED), true);
+                return;
+            }
+
             int cost = upgrade.costOfNextLevel(currentLevel);
             if (!VillageFunds.tryDeductItem(player, upgrade.costItem(), cost)) {
                 player.displayClientMessage(
@@ -70,6 +91,7 @@ public class MonolithUpgradePacket {
             }
 
             upgrade.setLevelIn(manager, villageId, currentLevel + 1);
+            upgrade.onPurchased(level, player, manager, villageId);
             monolith.refresh(level);
         });
         ctx.setPacketHandled(true);

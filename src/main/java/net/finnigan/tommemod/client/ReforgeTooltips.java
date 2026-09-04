@@ -11,12 +11,14 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 /**
- * Spells out what an item's reforge is actually doing.
+ * Says which reforge an item rolled and what that reforge is actually doing.
  *
- * <p>The reforge already shows in the item's name (see {@code ItemStackReforgeNameMixin}), but a name
- * only tells a player <em>which</em> reforge they have, not what it is worth. The line goes directly
- * under the name rather than at the end of the tooltip, where it would sit below the attribute block
- * whose numbers it explains.
+ * <p>This line is now the <em>only</em> place a reforge shows. A reforge used to also prefix the item's
+ * name ("Hasty Iron Sword"), which meant every rolled item read as a different item than the one the
+ * player crafted; that prefix is gone, so the name has to carry here instead of just the effect.
+ *
+ * <p>The line goes directly under the name rather than at the end of the tooltip, where it would sit
+ * below the attribute block whose numbers it explains.
  */
 @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public final class ReforgeTooltips {
@@ -29,7 +31,9 @@ public final class ReforgeTooltips {
         Reforge reforge = Reforges.get(event.getItemStack());
         if (reforge == null) return;
 
-        Component line = Component.translatable(reforge.descKey())
+        Component line = Component.translatable(reforge.nameKey())
+                .append(": ")
+                .append(Component.translatable(reforge.descKey()))
                 .withStyle(reforge.positive() ? ChatFormatting.GREEN : ChatFormatting.RED);
 
         // Index 0 is the item name, which is always present.

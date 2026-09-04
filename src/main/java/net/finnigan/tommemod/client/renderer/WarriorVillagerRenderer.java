@@ -1,14 +1,17 @@
 package net.finnigan.tommemod.client.renderer;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.client.ModModelLayers;
 import net.finnigan.tommemod.client.model.WarriorVillagerModel;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerEntity;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +51,21 @@ public class WarriorVillagerRenderer extends MobRenderer<WarriorVillagerEntity, 
                         new HumanoidModel<>(context.bakeLayer(ModModelLayers.VILLAGER_ARMOR_OUTER))),
                 context.getResourceManager()));
         this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
+    }
+
+    /**
+     * A helmet and the villager's own headwear cannot both be on. The headwear is the head's overlay
+     * layer, inflated 0.51 clear of a 10-tall skull; VillagerArmorModel's helmet is a shorter box
+     * inflated 0.75, which puts its crown 0.26 <em>inside</em> that - so drawing both leaves a
+     * Warrior wearing its hood over the top of its helmet. Taking the hood off to put the helmet on
+     * is the answer that needs no geometry to be fudged. ModelPart#copyFrom doesn't carry visibility,
+     * so setting it here survives setupAnim.
+     */
+    @Override
+    public void render(WarriorVillagerEntity entity, float entityYaw, float partialTick,
+                       PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        this.getModel().hat.visible = entity.getItemBySlot(EquipmentSlot.HEAD).isEmpty();
+        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override

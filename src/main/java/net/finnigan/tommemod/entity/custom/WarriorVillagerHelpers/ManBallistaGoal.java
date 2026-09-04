@@ -4,6 +4,7 @@ import net.finnigan.tommemod.entity.custom.BallistaEntity;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerEntity;
 import net.finnigan.tommemod.village.VillageManager;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.AABB;
@@ -62,6 +63,23 @@ public class ManBallistaGoal extends Goal {
 
     @Nullable
     private BallistaEntity ballista;
+    /**
+     * What this goal is shooting at, held separately from {@code warrior.getTarget()} on purpose.
+     *
+     * <p>Every one of the Warrior's target-selector goals inherits {@code TargetGoal.canContinueToUse},
+     * which drops its target the moment it is further away than FOLLOW_RANGE - 36 blocks - and calls
+     * {@code setTarget(null)} on the way out. A Ballista reaches {@link BallistaEntity#RANGE}, 64. So
+     * the weapon's whole reason to exist lies in a band the Warrior's own aggro range cannot hold a
+     * target across, and simply walking to an emplacement (up to {@link #SEARCH_RADIUS} blocks, quite
+     * possibly away from the mark) was enough to push the target past 36 and clear it. The goal then
+     * lost its target one tick after boarding, stood down, and stamped itself with the cooldown -
+     * which is the "hops in for a split second and leaves" behaviour.
+     *
+     * <p>Held here instead, the mark survives the target selector losing interest, and is validated
+     * against what the <em>Ballista</em> can reach rather than what the Warrior could have chased.
+     */
+    @Nullable
+    private LivingEntity mark;
     private int approachTicks;
     /**
      * Game time the stand-down expires at, rather than a counter ticked down in {@link #canUse()}.
@@ -91,20 +109,46 @@ public class ManBallistaGoal extends Goal {
         if (!isWorthABallista(target)) return false;
 
         this.ballista = findUsableBallista(target);
-        return this.ballista != null;
+        if (this.ballista == null) return false;
+
+        this.mark = target;
+        return true;
     }
 
     @Override
     public boolean canContinueToUse() {
         if (ballista == null || !ballista.isAlive()) return false;
+        if (resolveMark() == null) return false;
 
-        LivingEntity target = warrior.getTarget();
-        if (!isWorthABallista(target)) return false;
-
-        if (isAboard()) return canReachFrom(ballista, target);
+        if (isAboard()) return true;
 
         // Still walking to it. Somebody else's Warrior may have taken the seat in the meantime.
         return approachTicks < APPROACH_TIMEOUT_TICKS && !ballista.isVehicle();
+    }
+
+    /**
+     * The mark to lay the weapon on this tick: whatever the Warrior is currently angry at if the
+     * Ballista can service it, otherwise the one already being worked for as long as it stays
+     * serviceable. Returning null is what ends the goal.
+     *
+     * <p>Preferring {@code warrior.getTarget()} when it is usable is what keeps the original
+     * "stays aboard across targets rather than remounting per kill" behaviour; falling back to the
+     * held mark is what stops the 36-block follow range from cutting a 64-block weapon short.
+     */
+    @Nullable
+    private LivingEntity resolveMark() {
+        LivingEntity current = warrior.getTarget();
+        if (current != mark && isServiceable(current)) {
+            this.mark = current;
+        } else if (!isServiceable(this.mark)) {
+            this.mark = null;
+        }
+        return this.mark;
+    }
+
+    /** Whether this emplacement can usefully be worked against a given mark right now. */
+    private boolean isServiceable(@Nullable LivingEntity candidate) {
+        return ballista != null && isWorthABallista(candidate) && canReachFrom(ballista, candidate);
     }
 
     @Override
@@ -118,6 +162,7 @@ public class ManBallistaGoal extends Goal {
         if (isAboard()) warrior.stopRiding();
         warrior.getNavigation().stop();
         this.ballista = null;
+        this.mark = null;
         this.approachTicks = 0;
         this.standDownUntilTick = warrior.level().getGameTime() + STAND_DOWN_COOLDOWN_TICKS;
     }
@@ -126,7 +171,7 @@ public class ManBallistaGoal extends Goal {
     public void tick() {
         if (ballista == null) return;
 
-        LivingEntity target = warrior.getTarget();
+        LivingEntity target = resolveMark();
         if (target == null) return;
 
         if (!isAboard()) {
@@ -165,10 +210,18 @@ public class ManBallistaGoal extends Goal {
         return ballista != null && warrior.getVehicle() == ballista;
     }
 
-    /** Whether a target is the kind of problem a Ballista solves: real, alive, and out of arm's reach. */
+    /**
+     * Whether a target is the kind of problem a Ballista solves: real, alive, and out of arm's reach.
+     *
+     * <p>Range is measured from the emplacement once this goal has one, not from the Warrior. During
+     * the run-up the Warrior's own distance to the mark swings by however far it has to walk, and once
+     * it is aboard the only distance that decides whether the shot is worth taking is the weapon's.
+     */
     private boolean isWorthABallista(@Nullable LivingEntity target) {
-        return target != null && target.isAlive() && warrior.canAttack(target)
-                && warrior.distanceToSqr(target) >= MIN_ENGAGEMENT_DISTANCE_SQR;
+        if (target == null || !target.isAlive() || !warrior.canAttack(target)) return false;
+
+        Entity from = this.ballista != null ? this.ballista : this.warrior;
+        return from.distanceToSqr(target) >= MIN_ENGAGEMENT_DISTANCE_SQR;
     }
 
     /** Whether a given emplacement can actually put a bolt on this target from where it stands. */

@@ -3,6 +3,8 @@ package net.finnigan.tommemod.client.screen;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.block.entity.MonolithBlockEntity;
+import net.finnigan.tommemod.capability.reputation.ReputationTier;
+import net.finnigan.tommemod.client.ClientReputationHud;
 import net.finnigan.tommemod.config.ModConfig;
 import net.finnigan.tommemod.menu.MonolithMenu;
 import net.finnigan.tommemod.network.ModNetwork;
@@ -24,6 +26,7 @@ import net.minecraft.world.level.material.MapColor;
 
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -62,11 +65,12 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
     private static final float MAX_ZOOM = 3.0F;
     private static final float ZOOM_STEP = 0.2F;
 
-    /** Vertical room each upgrade's three lines of text and its button occupy. */
-    private static final int UPGRADE_ROW_HEIGHT = 58;
+    /** Vertical room each upgrade's three lines of text and its button occupy. Tight enough that
+     * four upgrades fit the panel without scrolling; adding a fifth means adding scrolling. */
+    private static final int UPGRADE_ROW_HEIGHT = 54;
     /** Button sits under its upgrade's text rather than beside it - an effect line like
      * "Warriors have 75% more health" is long enough to run underneath a button placed alongside. */
-    private static final int UPGRADE_BUTTON_OFFSET_Y = 38;
+    private static final int UPGRADE_BUTTON_OFFSET_Y = 34;
 
     private Tab activeTab = Tab.MINIMAP;
     private final Map<VillageUpgrade, Button> upgradeButtons = new EnumMap<>(VillageUpgrade.class);
@@ -79,7 +83,9 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
     public MonolithScreen(MonolithMenu menu, Inventory playerInv, Component title) {
         super(menu, playerInv, title);
         this.imageWidth = 200;
-        this.imageHeight = 210;
+        // Sized by the Upgrades tab, which is the taller of the two: four rows of UPGRADE_ROW_HEIGHT
+        // under a 30px header. The map tab has room to spare inside that.
+        this.imageHeight = 252;
     }
 
     @Override
@@ -146,10 +152,14 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         MonolithBlockEntity be = menu.getBlockEntity();
         upgradeButtons.forEach((upgrade, button) -> {
-            // Nothing left to buy reads better as no button at all than as one that does nothing.
+            // Nothing left to buy - or nothing this player is trusted with yet - reads better as no
+            // button at all than as one that does nothing.
+            int level = be.getUpgradeLevel(upgrade);
+            ReputationTier required = upgrade.reputationRequiredFor(level + 1);
             button.visible = activeTab == Tab.UPGRADES
                     && be.hasVillage()
-                    && be.getUpgradeLevel(upgrade) < upgrade.maxLevel();
+                    && level < upgrade.maxLevel()
+                    && (required == null || meetsStanding(required));
         });
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
@@ -375,21 +385,39 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
 
             guiGraphics.drawString(font, upgrade.displayName() + ": Lv. " + level + "/" + maxLevel,
                     x + 10, rowY + 2, 0xFFFFFFFF);
-            guiGraphics.drawString(font, upgrade.effectDescription(level), x + 10, rowY + 14, 0xFFAAAAAA);
+            guiGraphics.drawString(font, upgrade.effectDescription(level), x + 10, rowY + 13, 0xFFAAAAAA);
 
-            if (level < maxLevel) {
-                guiGraphics.drawString(font,
-                        "Next level: " + upgrade.costOfNextLevel(level) + " " + upgrade.costItemPlural(),
-                        x + 10, rowY + 26, 0xFF55FF55);
+            if (level >= maxLevel) {
+                guiGraphics.drawString(font, "Max level reached", x + 10, rowY + 23, 0xFFFFAA00);
             } else {
-                guiGraphics.drawString(font, "Max level reached", x + 10, rowY + 26, 0xFFFFAA00);
+                ReputationTier required = upgrade.reputationRequiredFor(level + 1);
+                // The requirement replaces the price rather than sitting beside it: until it is met
+                // the price is not the thing standing in the way, and there is one line of room.
+                if (required != null && !meetsStanding(required)) {
+                    guiGraphics.drawString(font, "Requires " + titleCase(required.name()) + " standing",
+                            x + 10, rowY + 23, 0xFFFF5555);
+                } else {
+                    guiGraphics.drawString(font,
+                            "Next level: " + upgrade.costOfNextLevel(level) + " " + upgrade.costItemPlural(),
+                            x + 10, rowY + 23, 0xFF55FF55);
+                }
             }
 
             rowY += UPGRADE_ROW_HEIGHT;
         }
+    }
 
-        // Still room for one more before the panel runs out - see VillageUpgrade to fill it.
-        guiGraphics.fill(x + 10, rowY + 6, x + 190, rowY + 30, 0x60404040);
-        guiGraphics.drawString(font, "Coming Soon", x + 16, rowY + 14, 0xFF808080);
+    /**
+     * Whether the local player is standing high enough with this village to buy an upgrade gated on
+     * {@code required}. Read from the reputation HUD mirror, which tracks the player's nearest
+     * village - and a player at this desk is inside the village the desk belongs to. The server
+     * checks this again for real in MonolithUpgradePacket; this is only about explaining the button.
+     */
+    private static boolean meetsStanding(ReputationTier required) {
+        return ClientReputationHud.hasVillage() && ClientReputationHud.tierOrdinal() >= required.ordinal();
+    }
+
+    private static String titleCase(String enumName) {
+        return enumName.charAt(0) + enumName.substring(1).toLowerCase(Locale.ROOT);
     }
 }

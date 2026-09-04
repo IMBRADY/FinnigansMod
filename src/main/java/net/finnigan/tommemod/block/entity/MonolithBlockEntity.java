@@ -8,6 +8,7 @@ import net.finnigan.tommemod.village.ElderPromotion;
 import net.finnigan.tommemod.village.VillageManager;
 import net.finnigan.tommemod.village.VillageRegion;
 import net.finnigan.tommemod.village.VillageUpgrade;
+import net.finnigan.tommemod.village.VillageWalls;
 import net.finnigan.tommemod.villager.ModPoiTypes;
 import net.finnigan.tommemod.villager.ModVillagers;
 import net.minecraft.core.BlockPos;
@@ -241,10 +242,15 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
             upgradeLevels.put(upgrade, upgrade.levelIn(manager, villageId));
         }
 
-        List<BlockPos> poiPositions = manager.getPoiPositions(villageId);
-        poiPoints = new ArrayList<>(poiPositions.size());
-        for (BlockPos poiPos : poiPositions) {
-            poiPoints.add(new PoiPoint(poiPos.getX() - self.getX(), poiPos.getZ() - self.getZ()));
+        // Once the village is walled the outline stops tracking its POIs and shows the wall instead -
+        // that is now where the village ends. The two are drawn by the same code because they are the
+        // same shape: VillageWallBuilder freezes the POI discs the outline was traced from, at the
+        // same radius, so handing the client those discs redraws the ring the wall stands on.
+        VillageWalls walls = manager.getWalls(villageId);
+        List<BlockPos> outlineDiscs = walls != null ? walls.discCentres() : manager.getPoiPositions(villageId);
+        poiPoints = new ArrayList<>(outlineDiscs.size());
+        for (BlockPos discPos : outlineDiscs) {
+            poiPoints.add(new PoiPoint(discPos.getX() - self.getX(), discPos.getZ() - self.getZ()));
         }
 
         AABB box = new AABB(region.anchor()).inflate(region.radius());

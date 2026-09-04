@@ -67,6 +67,20 @@ public class ModConfig {
     public static final ForgeConfigSpec.DoubleValue HEALTHY_WARRIORS_PERCENT_PER_LEVEL;
     public static final ForgeConfigSpec.IntValue HEALTHY_WARRIORS_MAX_LEVEL;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> HEALTHY_WARRIORS_UPGRADE_COST_COOKED_BEEF;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> VILLAGE_TIER_UPGRADE_COST_EMERALDS;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> VILLAGE_TIER_MAX_RANGE_BLOCKS;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> VILLAGE_TIER_BUFF_ATTRIBUTES;
+    public static final ForgeConfigSpec.DoubleValue VILLAGE_TIER_BUFF_AMOUNT;
+    public static final ForgeConfigSpec.IntValue VILLAGE_TIER_BUFF_MIN_TIER;
+    public static final ForgeConfigSpec.IntValue VILLAGE_WALLS_UPGRADE_COST_LOGS;
+    public static final ForgeConfigSpec.IntValue VILLAGE_WALLS_HEIGHT;
+    public static final ForgeConfigSpec.IntValue VILLAGE_WALLS_MAX_COLUMNS;
+    public static final ForgeConfigSpec.IntValue VILLAGE_WALLS_SPAWN_MARGIN_BLOCKS;
+
+    // squires
+    public static final ForgeConfigSpec.IntValue SQUIRE_TICK_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.IntValue SQUIRE_RANGE_BLOCKS;
+    public static final ForgeConfigSpec.DoubleValue SQUIRE_DIAMOND_ROLL_CHANCE;
 
     // builder hub
     // The four BUILDER_HUB_* lists below are indexed by BuildingType's enum ordinal
@@ -207,6 +221,52 @@ public class ModConfig {
         HEALTHY_WARRIORS_UPGRADE_COST_COOKED_BEEF = builder.comment("Cooked beef cost to reach each Healthy Warriors level (index 0 = cost of level 1, etc.)")
                 .defineList("healthyWarriorsUpgradeCostCookedBeef", List.of(20, 40, 60, 80, 100),
                         obj -> obj instanceof Integer i && i >= 0);
+
+        builder.comment("Village Tier is the upgrade the rest of a village's military hangs off: it is what decides",
+                "what the Armorer, Weaponsmith, Fletcher and Cleric squires are allowed to hand a Warrior.",
+                "Buying a level also needs the Chief's own reputation with the village to be high enough -",
+                "Journeyman for tier 1, Expert for tier 2, Master for tier 3 (see VillageUpgrade).");
+        VILLAGE_TIER_UPGRADE_COST_EMERALDS = builder.comment("Emerald cost to reach each Village Tier (index 0 = cost of tier 1, etc.)")
+                .defineList("villageTierUpgradeCostEmeralds", List.of(32, 96, 256), obj -> obj instanceof Integer i && i >= 0);
+        VILLAGE_TIER_MAX_RANGE_BLOCKS = builder.comment("PLACEHOLDER VALUES. Cap (blocks) on how far a village's region may reach, indexed by tier",
+                        "(index 0 = tier 0). Chosen well above the default poiLinkRadius so no existing village shrinks",
+                        "on upgrading - pick the real numbers here once they are decided.")
+                .defineList("villageTierMaxRangeBlocks", List.of(96, 128, 160, 192), obj -> obj instanceof Integer i && i > 0);
+        VILLAGE_TIER_BUFF_ATTRIBUTES = builder.comment("Attributes (registry ids) buffed for a village's own players while they stand inside it, once the village is tier 2+")
+                .defineListAllowEmpty(
+                        "villageTierBuffAttributes",
+                        List.of("minecraft:generic.movement_speed", "minecraft:generic.armor"),
+                        obj -> obj instanceof String
+                );
+        VILLAGE_TIER_BUFF_AMOUNT = builder.comment("Size of that buff, as a MULTIPLY_TOTAL fraction. Stacks with the separate Chief buff rather than replacing it")
+                .defineInRange("villageTierBuffAmount", 0.05, 0.0, 10.0);
+        VILLAGE_TIER_BUFF_MIN_TIER = builder.comment("Village Tier at which that buff starts applying")
+                .defineInRange("villageTierBuffMinTier", 2, 0, Integer.MAX_VALUE);
+
+        builder.comment("Village Walls is a one-shot upgrade: buying it traces the village's current perimeter - the same",
+                "outline the Chief Desk's map tab draws - and raises a wall along it. Once a village is walled,",
+                "the wall (and everything inside it) is what counts as the village, and every wave spawn is",
+                "pushed outside it. The 8-tall log column is a placeholder for a real wall design.");
+        VILLAGE_WALLS_UPGRADE_COST_LOGS = builder.comment("Oak log cost to raise a village's walls")
+                .defineInRange("villageWallsUpgradeCostLogs", 256, 0, Integer.MAX_VALUE);
+        VILLAGE_WALLS_HEIGHT = builder.comment("How tall (blocks) each column of the placeholder wall is")
+                .defineInRange("villageWallsHeight", 8, 1, 64);
+        VILLAGE_WALLS_MAX_COLUMNS = builder.comment("Safety cap: a perimeter longer than this many columns is refused rather than built")
+                .defineInRange("villageWallsMaxColumns", 4096, 16, Integer.MAX_VALUE);
+        VILLAGE_WALLS_SPAWN_MARGIN_BLOCKS = builder.comment("How far (blocks) beyond the wall a raid wave - or any future wave type - is pushed before it spawns")
+                .defineInRange("villageWallsSpawnMarginBlocks", 12, 1, 128);
+        builder.pop();
+
+        builder.push("squire");
+        builder.comment("Armorers, Weaponsmiths, Fletchers and Clerics equip their village's Warriors during working",
+                "hours. Each may hand out one piece per Minecraft day; the Cleric is the exception, throwing",
+                "potions as often as it has a Warrior that wants one.");
+        SQUIRE_TICK_INTERVAL_TICKS = builder.comment("How often (ticks) squires are given a chance to act. Doubles as the Cleric's throw cooldown")
+                .defineInRange("squireTickIntervalTicks", 100, 1, Integer.MAX_VALUE);
+        SQUIRE_RANGE_BLOCKS = builder.comment("How close (blocks) a Warrior must be for a squire to equip or heal it")
+                .defineInRange("squireRangeBlocks", 16, 1, 128);
+        SQUIRE_DIAMOND_ROLL_CHANCE = builder.comment("Chance a tier 3 Weaponsmith's work period rolls a diamond weapon instead of an iron one")
+                .defineInRange("squireDiamondRollChance", 0.10, 0.0, 1.0);
         builder.pop();
 
         builder.push("builderHub");

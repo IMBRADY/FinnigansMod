@@ -61,6 +61,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -68,6 +69,8 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -105,8 +108,37 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
      */
     private final SimpleContainer supply = new SimpleContainer(1);
 
+    /**
+     * What this Warrior's village issued it, per slot - the record that decides whether a squire may
+     * take a piece back off to upgrade it.
+     *
+     * <p>The item is stored rather than a "was issued" flag, and the check compares it against what
+     * is actually in the slot now. That makes provenance self-correcting: whether a piece was swapped
+     * out by the Chief through the Warrior's menu, picked up off the ground by SeekArmorGoal, or
+     * handed over some way that doesn't exist yet, the recorded item stops matching and the slot
+     * quietly stops counting as squire-issued. A boolean flag would have needed every one of those
+     * routes to remember to clear it, and would have been wrong the first time one forgot.
+     */
+    private final Map<EquipmentSlot, Item> squireIssued = new EnumMap<>(EquipmentSlot.class);
+
     public SimpleContainer getSupplyContainer() {
         return supply;
+    }
+
+    /** Whether what this Warrior is wearing in this slot is what its village put there. */
+    public boolean isSquireIssued(EquipmentSlot slot) {
+        Item issued = squireIssued.get(slot);
+        return issued != null && !getItemBySlot(slot).isEmpty() && getItemBySlot(slot).is(issued);
+    }
+
+    /** Records that a squire is the one who filled this slot. Call after setItemSlot, not before. */
+    public void markSquireIssued(EquipmentSlot slot) {
+        ItemStack stack = getItemBySlot(slot);
+        if (stack.isEmpty()) {
+            squireIssued.remove(slot);
+        } else {
+            squireIssued.put(slot, stack.getItem());
+        }
     }
 
     public WarriorVillagerEntity(EntityType<? extends WarriorVillagerEntity> type, Level level) {
@@ -121,8 +153,14 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
     // Spawns bare except for the Halberd - the whole point of the conscription mechanic (see
     // WarriorVillagerSpawnEvents) is that YOU arm it; armor comes from what it picks up or the
     // Chief equips afterward.
+    //
+    // The Halberd counts as village-issued rather than player-given, so a Weaponsmith may trade up
+    // from it later. It is conscription kit that the village handed out, not a weapon anybody chose
+    // for this Warrior - and treating it as the player's would leave every Warrior's weapon hand
+    // locked for life, with each day's forged sword dropped on the floor beside it.
     private void equipStartingGear() {
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.HALBERD.get()));
+        markSquireIssued(EquipmentSlot.MAINHAND);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -266,6 +304,13 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
         if (villageId != null) tag.putUUID("VillageId", villageId);
         tag.putString("VillagerType", getVillagerType());
         if (!supply.getItem(0).isEmpty()) tag.put("Supply", supply.getItem(0).save(new CompoundTag()));
+
+        CompoundTag issuedTag = new CompoundTag();
+        squireIssued.forEach((slot, item) -> {
+            ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+            if (id != null) issuedTag.putString(slot.getName(), id.toString());
+        });
+        tag.put("SquireIssued", issuedTag);
     }
 
     @Override
@@ -279,6 +324,22 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
         supply.setItem(0, tag.contains("Supply", CompoundTag.TAG_COMPOUND)
                 ? ItemStack.of(tag.getCompound("Supply"))
                 : ItemStack.EMPTY);
+
+        // Absent on Warriors saved before squires existed, and left alone rather than cleared in that
+        // case - the constructor's record of the conscription Halberd is the best guess available, and
+        // reading an absent tag as "nothing is village-issued" would only mean a squire leaves that
+        // Warrior's kit alone, which is the safe way to be wrong.
+        if (!tag.contains("SquireIssued", CompoundTag.TAG_COMPOUND)) return;
+
+        squireIssued.clear();
+        CompoundTag issuedTag = tag.getCompound("SquireIssued");
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (!issuedTag.contains(slot.getName(), CompoundTag.TAG_STRING)) continue;
+            ResourceLocation id = ResourceLocation.tryParse(issuedTag.getString(slot.getName()));
+            if (id == null) continue;
+            Item item = BuiltInRegistries.ITEM.get(id);
+            if (item != Items.AIR) squireIssued.put(slot, item);
+        }
     }
 
     @Override

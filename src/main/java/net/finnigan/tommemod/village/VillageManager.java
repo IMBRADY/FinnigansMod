@@ -44,6 +44,8 @@ public class VillageManager extends SavedData {
     private final Map<UUID, UUID> chiefByVillage = new HashMap<>();
     private final Map<UUID, Integer> farmEfficiencyLevelByVillage = new HashMap<>();
     private final Map<UUID, Integer> healthyWarriorsLevelByVillage = new HashMap<>();
+    private final Map<UUID, Integer> villageTierByVillage = new HashMap<>();
+    private final Map<UUID, VillageWalls> wallsByVillage = new HashMap<>();
     private final Map<BlockPos, CacheEntry> resolveCache = new HashMap<>();
 
     private record CacheEntry(Optional<UUID> villageId, long expiresAtTick) {
@@ -58,6 +60,15 @@ public class VillageManager extends SavedData {
         CacheEntry cached = resolveCache.get(pos);
         if (cached != null && cached.expiresAtTick() > now) {
             return cached.villageId();
+        }
+
+        // A walled village answers for its own ground before any POI is consulted. That is the whole
+        // meaning of the walls upgrade: inside them is the village, whether or not a bed happens to
+        // be near enough to cluster, and outside them is not, however many POIs sprawl past the gate.
+        Optional<UUID> walled = villageWalling(pos);
+        if (walled.isPresent()) {
+            cacheResult(pos, walled, now);
+            return walled;
         }
 
         int linkRadius = ModConfig.POI_LINK_RADIUS.get();
@@ -123,7 +134,34 @@ public class VillageManager extends SavedData {
         return Optional.of(villageId);
     }
 
+    /** The village whose walls enclose this position, if any encloses it. */
+    private Optional<UUID> villageWalling(BlockPos pos) {
+        for (Map.Entry<UUID, VillageWalls> entry : wallsByVillage.entrySet()) {
+            if (entry.getValue().contains(pos)) return Optional.of(entry.getKey());
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * The ring enclosing this position, if it is inside one. The question anything spawning a wave
+     * asks - "am I about to put this inside somebody's walls?" - and the shape it needs to get out of.
+     */
+    @javax.annotation.Nullable
+    public VillageWalls wallsContaining(BlockPos pos) {
+        for (VillageWalls walls : wallsByVillage.values()) {
+            if (walls.contains(pos)) return walls;
+        }
+        return null;
+    }
+
     public VillageRegion resolveVillageRegion(ServerLevel level, UUID villageId) {
+        // Once a village is walled its region is the ring, full stop - not a circle sized to POIs that
+        // may since have sprawled past the gate.
+        VillageWalls walls = wallsByVillage.get(villageId);
+        if (walls != null && !walls.discCentres().isEmpty()) {
+            return new VillageRegion(walls.centre(), walls.radiusFromCentre());
+        }
+
         BlockPos anchor = anchorIndex.entrySet().stream()
                 .filter(e -> e.getValue().equals(villageId))
                 .map(Map.Entry::getKey)
@@ -141,7 +179,19 @@ public class VillageManager extends SavedData {
                 if (d > farthest) farthest = d;
             }
         }
-        return new VillageRegion(anchor, farthest + ModConfig.POI_LINK_RADIUS.get());
+        double radius = farthest + ModConfig.POI_LINK_RADIUS.get();
+        return new VillageRegion(anchor, Math.min(radius, maxRangeForTier(getVillageTier(villageId))));
+    }
+
+    /**
+     * How far a village of this tier is allowed to reach. Placeholder numbers - the design has these
+     * as "tbd" per tier - so they are deliberately set well above the default POI link radius, where
+     * they raise the ceiling for a bigger village rather than clipping any village that exists today.
+     */
+    public static double maxRangeForTier(int tier) {
+        List<? extends Integer> ranges = ModConfig.VILLAGE_TIER_MAX_RANGE_BLOCKS.get();
+        if (ranges.isEmpty()) return Double.MAX_VALUE;
+        return ranges.get(Math.min(Math.max(tier, 0), ranges.size() - 1));
     }
 
     /**
@@ -166,6 +216,27 @@ public class VillageManager extends SavedData {
             if (entry.getValue().equals(villageId)) positions.add(entry.getKey());
         }
         return positions;
+    }
+
+    /**
+     * The claimed POI of this village nearest to {@code from}, or empty if the village has no claimed
+     * POIs at all. A village's real footprint is the union of its POIs' coverage radii rather than a
+     * circle around one point (see {@link #resolveVillage}), so "how far outside the village is this?"
+     * is a question about the nearest POI - {@link #resolveVillageRegion}'s anchor is only meant for
+     * sizing a scan box, and is a poor stand-in for the village's position.
+     */
+    public Optional<BlockPos> nearestPoi(UUID villageId, BlockPos from) {
+        BlockPos nearest = null;
+        double nearestSqr = Double.MAX_VALUE;
+        for (Map.Entry<BlockPos, UUID> entry : poiIndex.entrySet()) {
+            if (!entry.getValue().equals(villageId)) continue;
+            double d = entry.getKey().distSqr(from);
+            if (d < nearestSqr) {
+                nearestSqr = d;
+                nearest = entry.getKey();
+            }
+        }
+        return Optional.ofNullable(nearest);
     }
 
     public Optional<UUID> getElder(UUID villageId) {
@@ -230,6 +301,46 @@ public class VillageManager extends SavedData {
         setDirty();
     }
 
+    /**
+     * The village's military tier: what its Armorer, Weaponsmith, Fletcher and Cleric are allowed to
+     * arm its Warriors with, and how far it may reach. Every village starts at 0.
+     */
+    public int getVillageTier(UUID villageId) {
+        return villageTierByVillage.getOrDefault(villageId, 0);
+    }
+
+    public void setVillageTier(UUID villageId, int tier) {
+        villageTierByVillage.put(villageId, tier);
+        setDirty();
+    }
+
+    @javax.annotation.Nullable
+    public VillageWalls getWalls(UUID villageId) {
+        return wallsByVillage.get(villageId);
+    }
+
+    public boolean hasWalls(UUID villageId) {
+        return wallsByVillage.containsKey(villageId);
+    }
+
+    public void setWalls(UUID villageId, VillageWalls walls) {
+        wallsByVillage.put(villageId, walls);
+        // Every cached answer was given under the old boundary; the ring that just went up moves it.
+        resolveCache.clear();
+        setDirty();
+    }
+
+    /**
+     * Whether this position counts as part of the village. Walls are the authority once they exist -
+     * on the wall and inside it is in, and outside is out no matter what POIs sit there. Unwalled,
+     * this is the ordinary POI-cluster question.
+     */
+    public boolean isInsideVillage(ServerLevel level, UUID villageId, BlockPos pos) {
+        VillageWalls walls = wallsByVillage.get(villageId);
+        if (walls != null) return walls.contains(pos);
+        return resolveVillage(level, pos).filter(villageId::equals).isPresent();
+    }
+
     private UUID mergeVillages(Set<UUID> ids) {
         UUID keep = ids.stream().min(UUID::compareTo).orElseThrow();
         for (UUID discard : ids) {
@@ -255,9 +366,28 @@ public class VillageManager extends SavedData {
             if (discardHealthyWarriors != null) {
                 healthyWarriorsLevelByVillage.merge(keep, discardHealthyWarriors, Math::max);
             }
+
+            Integer discardTier = villageTierByVillage.remove(discard);
+            if (discardTier != null) {
+                villageTierByVillage.merge(keep, discardTier, Math::max);
+            }
+
+            // Two rings that grew into each other are now one village behind two walls. Both are real
+            // - they are standing in the world - so the merged village is enclosed by their union.
+            VillageWalls discardWalls = wallsByVillage.remove(discard);
+            if (discardWalls != null) {
+                wallsByVillage.merge(keep, discardWalls, VillageManager::unionWalls);
+            }
         }
         setDirty();
         return keep;
+    }
+
+    /** Both rings at once, at whichever disc radius was the wider of the two, so neither shrinks. */
+    private static VillageWalls unionWalls(VillageWalls a, VillageWalls b) {
+        List<BlockPos> centres = new ArrayList<>(a.discCentres());
+        centres.addAll(b.discCentres());
+        return new VillageWalls(centres, Math.max(a.discRadius(), b.discRadius()));
     }
 
     private void cacheResult(BlockPos pos, Optional<UUID> result, long now) {
@@ -319,6 +449,23 @@ public class VillageManager extends SavedData {
         });
         tag.put("HealthyWarriors", healthyWarriorsList);
 
+        ListTag tierList = new ListTag();
+        villageTierByVillage.forEach((village, tier) -> {
+            CompoundTag e = new CompoundTag();
+            e.putUUID("Village", village);
+            e.putInt("Tier", tier);
+            tierList.add(e);
+        });
+        tag.put("VillageTiers", tierList);
+
+        ListTag wallList = new ListTag();
+        wallsByVillage.forEach((village, walls) -> {
+            CompoundTag e = walls.save();
+            e.putUUID("Village", village);
+            wallList.add(e);
+        });
+        tag.put("Walls", wallList);
+
         return tag;
     }
 
@@ -361,6 +508,21 @@ public class VillageManager extends SavedData {
         for (int i = 0; i < healthyWarriorsList.size(); i++) {
             CompoundTag e = healthyWarriorsList.getCompound(i);
             mgr.healthyWarriorsLevelByVillage.put(e.getUUID("Village"), e.getInt("Level"));
+        }
+
+        // Both absent from saves made before tiers and walls existed, and both read as empty lists -
+        // so every village on an older save simply starts at tier 0 with no walls, which is where a
+        // village starts anyway.
+        ListTag tierList = tag.getList("VillageTiers", Tag.TAG_COMPOUND);
+        for (int i = 0; i < tierList.size(); i++) {
+            CompoundTag e = tierList.getCompound(i);
+            mgr.villageTierByVillage.put(e.getUUID("Village"), e.getInt("Tier"));
+        }
+
+        ListTag wallList = tag.getList("Walls", Tag.TAG_COMPOUND);
+        for (int i = 0; i < wallList.size(); i++) {
+            CompoundTag e = wallList.getCompound(i);
+            mgr.wallsByVillage.put(e.getUUID("Village"), VillageWalls.load(e));
         }
 
         return mgr;

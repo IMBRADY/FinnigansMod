@@ -19,7 +19,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 /**
- * Armour on newly spawned zombies and skeletons, with the table swapping once the ender dragon is down.
+ * Armor on newly spawned zombies and skeletons, with the table swapping once the ender dragon is down.
  *
  * <p>Hooked on {@link EntityJoinLevelEvent} rather than on Forge's FinalizeSpawn event because vanilla
  * populates equipment inside {@code Mob#finalizeSpawn}, which {@code NaturalSpawner} calls immediately
