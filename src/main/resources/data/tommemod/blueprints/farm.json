@@ -1,0 +1,75 @@
+{
+  "name": "Farm Plot",
+  "description": "An irrigated, fenced field of wheat, carrots, potatoes and beetroot, with a composter for a Farmer.",
+  "category": "Farming",
+  "icon": "minecraft:wheat",
+  "builders": 1,
+  "foundation": "minecraft:dirt",
+  "cost": {
+    "minecraft:emerald": 4,
+    "minecraft:oak_log": 20,
+    "minecraft:oak_planks": 19,
+    "minecraft:lantern": 4
+  },
+  "palette": {
+    "A": "minecraft:oak_log[axis=x]",
+    "B": "minecraft:oak_log[axis=z]",
+    "C": "minecraft:farmland[moisture=7]",
+    "D": "minecraft:water[level=0]",
+    "E": "minecraft:oak_fence",
+    "F": "minecraft:wheat[age=3]",
+    "G": "minecraft:wheat[age=2]",
+    "H": "minecraft:carrots[age=2]",
+    "I": "minecraft:carrots[age=1]",
+    "J": "minecraft:composter[level=0]",
+    "K": "minecraft:lily_pad",
+    "L": "minecraft:hay_block[axis=y]",
+    "M": "minecraft:potatoes[age=2]",
+    "N": "minecraft:potatoes[age=1]",
+    "O": "minecraft:beetroots[age=1]",
+    "P": "minecraft:beetroots[age=2]",
+    "Q": "minecraft:oak_fence_gate[facing=south,open=false,in_wall=false]",
+    "R": "minecraft:lantern[hanging=false]"
+  },
+  "layers": [
+    [
+      "AAAAAAAAAAA",
+      "BCCCCCCCCCB",
+      "BCCCCCCCCCB",
+      "BCCCCCCCCCB",
+      "BCCCCCCCCCB",
+      "BDDDDDDDDDB",
+      "BCCCCCCCCCB",
+      "BCCCCCCCCCB",
+      "BCCCCCCCCCB",
+      "BCCCCCCCCCB",
+      "AAAAAAAAAAA"
+    ],
+    [
+      "EEEEEEEEEEE",
+      "EFFFFFFFFFE",
+      "EGGGGGGGGGE",
+      "EHHHHHHHHHE",
+      "EIIIIIIIIIE",
+      "J..K...K..L",
+      "EMMMMMMMMME",
+      "ENNNNNNNNNE",
+      "EOOOOOOOOOE",
+      "EPPPPPPPPPE",
+      "EEEEEQEEEEE"
+    ],
+    [
+      "R.........R",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "R.........R"
+    ]
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PPP",
+    "###",
+    "S S"
+  ],
+  "key": {
+    "P": {
+      "item": "minecraft:paper"
+    },
+    "#": {
+      "tag": "minecraft:planks"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "tommemod:blueprint_stand",
+    "count": 1
+  }
+}

@@ -9,7 +9,7 @@ import net.minecraft.world.item.Items;
  * No Bank building exists yet for villages to draw shared funds/resources from - once one does,
  * callers should try deducting from the village's bank inventory before falling back to the
  * player's own inventory, as this does. Shared by anything that charges a village-scoped cost
- * (Monolith upgrades, Builder Hub construction) so that seam only needs to be filled in once.
+ * (Monolith upgrades, blueprint construction) so that seam only needs to be filled in once.
  */
 public class VillageFunds {
 

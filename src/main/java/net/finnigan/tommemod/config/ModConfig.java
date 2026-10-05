@@ -82,16 +82,15 @@ public class ModConfig {
     public static final ForgeConfigSpec.IntValue SQUIRE_RANGE_BLOCKS;
     public static final ForgeConfigSpec.DoubleValue SQUIRE_DIAMOND_ROLL_CHANCE;
 
-    // builder hub
-    // The four BUILDER_HUB_* lists below are indexed by BuildingType's enum ordinal
-    // (HOUSE, WALLS, BANK, OBSERVATORY, BARRACKS) - one entry per building type, in that order.
-    public static final ForgeConfigSpec.IntValue BUILDER_HUB_TICK_INTERVAL_TICKS;
-    public static final ForgeConfigSpec.IntValue BUILDER_HUB_MAX_FOOTPRINT_VARIANCE;
+    // builder villagers + blueprint mode (section keeps its old "builderHub" name so existing configs keep their values)
+    // Builder villagers + blueprint mode. What each building costs and needs lives in its own file
+    // under data/tommemod/blueprints, not here.
+    public static final ForgeConfigSpec.IntValue BUILDER_TICKS_PER_BLOCK;
+    public static final ForgeConfigSpec.IntValue BUILDER_SEARCH_RADIUS_BLOCKS;
+    public static final ForgeConfigSpec.IntValue BLUEPRINT_MAX_GROUND_GAP;
     public static final ForgeConfigSpec.IntValue BUILDER_HUB_REGION_PADDING_BLOCKS;
-    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> BUILDER_HUB_COST_EMERALDS;
-    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> BUILDER_HUB_RESOURCE_ITEM;
-    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> BUILDER_HUB_RESOURCE_COUNT;
-    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> BUILDER_HUB_REQUIRED_BUILDERS;
+    public static final ForgeConfigSpec.IntValue BLUEPRINT_MAX_ACTIVE_SITES;
+    public static final ForgeConfigSpec.IntValue BLUEPRINT_FLIGHT_MARGIN_BLOCKS;
 
     // quality of life
     public static final ForgeConfigSpec.BooleanValue SWING_THROUGH_PLANTS;
@@ -270,24 +269,18 @@ public class ModConfig {
         builder.pop();
 
         builder.push("builderHub");
-        BUILDER_HUB_TICK_INTERVAL_TICKS = builder.comment("Ticks between each block placed during construction (20 = one block per second)")
-                .defineInRange("builderHubTickIntervalTicks", 20, 1, Integer.MAX_VALUE);
-        BUILDER_HUB_MAX_FOOTPRINT_VARIANCE = builder.comment("Max allowed height difference (blocks) across a building's footprint; placement is refused above this")
-                .defineInRange("builderHubMaxFootprintVariance", 3, 0, Integer.MAX_VALUE);
-        BUILDER_HUB_REGION_PADDING_BLOCKS = builder.comment("Extra padding (blocks) added to a village's bounding region for where a construction banner may be placed")
+        BUILDER_TICKS_PER_BLOCK = builder.comment("Ticks each Builder Villager spends per block it places (20 = one block per second per builder). Clearing terrain takes half as long")
+                .defineInRange("builderTicksPerBlock", 4, 1, 200);
+        BUILDER_SEARCH_RADIUS_BLOCKS = builder.comment("How far (blocks, horizontally) from a construction site a Builder Villager will be called in from")
+                .defineInRange("builderSearchRadiusBlocks", 96, 8, 512);
+        BLUEPRINT_MAX_GROUND_GAP = builder.comment("Deepest drop (blocks) under a building's floor that builders will fill with foundation; deeper and placement is refused")
+                .defineInRange("blueprintMaxGroundGap", 6, 0, 64);
+        BUILDER_HUB_REGION_PADDING_BLOCKS = builder.comment("Extra padding (blocks) beyond the village's region where a blueprint may still be placed")
                 .defineInRange("builderHubRegionPaddingBlocks", 16, 0, Integer.MAX_VALUE);
-        builder.comment("The four lists below are indexed by BuildingType's ordinal (HOUSE, WALLS, BANK, OBSERVATORY, BARRACKS) - one entry per building type, in that order.",
-                "Bank/Observatory/Barracks aren't buildable yet regardless of these values (see BuildingType.implemented) - they're pre-configured for when they are.");
-        BUILDER_HUB_COST_EMERALDS = builder.comment("Emerald cost per building type")
-                .defineList("builderHubCostEmeralds", List.of(16, 8, 64, 96, 48), obj -> obj instanceof Integer i && i >= 0);
-        BUILDER_HUB_RESOURCE_ITEM = builder.comment("Resource item (registry id) required per building type")
-                .defineList("builderHubResourceItem", List.of(
-                        "minecraft:oak_planks", "minecraft:cobblestone", "minecraft:iron_block", "minecraft:glass", "minecraft:cobblestone"
-                ), obj -> obj instanceof String);
-        BUILDER_HUB_RESOURCE_COUNT = builder.comment("Resource item count required per building type")
-                .defineList("builderHubResourceCount", List.of(32, 48, 8, 24, 64), obj -> obj instanceof Integer i && i >= 0);
-        BUILDER_HUB_REQUIRED_BUILDERS = builder.comment("Minimum Builder Villagers the village must have to unlock each building type")
-                .defineList("builderHubRequiredBuilders", List.of(0, 1, 2, 3, 2), obj -> obj instanceof Integer i && i >= 0);
+        BLUEPRINT_MAX_ACTIVE_SITES = builder.comment("Most constructions one village may have under way at once")
+                .defineInRange("blueprintMaxActiveSites", 4, 1, 64);
+        BLUEPRINT_FLIGHT_MARGIN_BLOCKS = builder.comment("How far (blocks) past the village's region the blueprint camera may fly")
+                .defineInRange("blueprintFlightMarginBlocks", 48, 8, 512);
         builder.pop();
 
         builder.push("qualityOfLife");

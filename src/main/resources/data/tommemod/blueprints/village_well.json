@@ -1,0 +1,113 @@
+{
+  "name": "Village Well",
+  "description": "A covered well with the village bell - a gathering point that helps the village grow.",
+  "category": "Civic",
+  "icon": "minecraft:bell",
+  "builders": 1,
+  "foundation": "minecraft:cobblestone",
+  "cost": {
+    "minecraft:emerald": 10,
+    "minecraft:spruce_planks": 29,
+    "minecraft:stone_bricks": 14,
+    "minecraft:spruce_log": 10,
+    "minecraft:cobblestone": 9
+  },
+  "palette": {
+    "A": "minecraft:cobblestone",
+    "B": "minecraft:mossy_cobblestone",
+    "C": "minecraft:gravel",
+    "D": "minecraft:stone_bricks",
+    "E": "minecraft:water[level=0]",
+    "F": "minecraft:spruce_log[axis=y]",
+    "G": "minecraft:stone_brick_wall",
+    "H": "minecraft:spruce_stairs[facing=south,half=bottom]",
+    "I": "minecraft:spruce_stairs[facing=east,half=bottom]",
+    "J": "minecraft:spruce_stairs[facing=west,half=bottom]",
+    "K": "minecraft:bell[attachment=ceiling,facing=north]",
+    "L": "minecraft:spruce_stairs[facing=north,half=bottom]",
+    "M": "minecraft:spruce_planks"
+  },
+  "layers": [
+    [
+      "ABBBCAA",
+      "CDDDDDA",
+      "BDEEEDB",
+      "CDEEEDC",
+      "BDEEEDA",
+      "CDDDDDA",
+      "BCABBAB"
+    ],
+    [
+      ".......",
+      ".FGGGF.",
+      ".G...G.",
+      ".G...G.",
+      ".G...G.",
+      ".FGGGF.",
+      "......."
+    ],
+    [
+      ".......",
+      ".F...F.",
+      ".......",
+      ".......",
+      ".......",
+      ".F...F.",
+      "......."
+    ],
+    [
+      ".......",
+      ".F...F.",
+      ".......",
+      ".......",
+      ".......",
+      ".F...F.",
+      "......."
+    ],
+    [
+      ".......",
+      ".F...F.",
+      ".......",
+      ".......",
+      ".......",
+      ".F...F.",
+      "......."
+    ],
+    [
+      "HHHHHHH",
+      "IF...FJ",
+      "I.....J",
+      "I..K..J",
+      "I.....J",
+      "IF...FJ",
+      "LLLLLLL"
+    ],
+    [
+      ".......",
+      ".HHHHH.",
+      ".IMMMJ.",
+      ".IMMMJ.",
+      ".IMMMJ.",
+      ".LLLLL.",
+      "......."
+    ],
+    [
+      ".......",
+      ".......",
+      "..HHH..",
+      "..I.J..",
+      "..LLL..",
+      ".......",
+      "......."
+    ],
+    [
+      ".......",
+      ".......",
+      ".......",
+      "...M...",
+      ".......",
+      ".......",
+      "......."
+    ]
+  ]
+}

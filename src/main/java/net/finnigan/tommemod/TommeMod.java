@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.finnigan.tommemod.block.ModBlocks;
 import net.finnigan.tommemod.block.entity.ModBlockEntities;
 import net.finnigan.tommemod.config.ModConfig;
+import net.finnigan.tommemod.village.blueprint.Blueprints;
 import net.finnigan.tommemod.effect.ModMobEffects;
 import net.finnigan.tommemod.enchantment.ModEnchantments;
 import net.finnigan.tommemod.entity.ModEntityTypes;
@@ -79,7 +80,9 @@ public class TommeMod
 
     private void commonSetup(final FMLCommonSetupEvent event)
     {
-
+        // Read every blueprint now, so a broken design is reported in the startup log rather than
+        // the first time someone opens blueprint mode.
+        event.enqueueWork(Blueprints::all);
     }
 
     // Add the example block item to the building blocks tab

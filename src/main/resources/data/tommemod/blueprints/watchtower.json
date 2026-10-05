@@ -1,0 +1,209 @@
+{
+  "name": "Watchtower",
+  "description": "A tall lookout with a railed platform and a pyramid roof - see raids coming.",
+  "category": "Defense",
+  "icon": "minecraft:spyglass",
+  "builders": 2,
+  "foundation": "minecraft:cobblestone",
+  "cost": {
+    "minecraft:emerald": 12,
+    "minecraft:spruce_planks": 89,
+    "minecraft:cobblestone": 35,
+    "minecraft:spruce_log": 27,
+    "minecraft:glass": 3,
+    "minecraft:lantern": 2
+  },
+  "palette": {
+    "A": "minecraft:cobblestone",
+    "B": "minecraft:dirt_path",
+    "C": "minecraft:spruce_log[axis=y]",
+    "D": "minecraft:mossy_cobblestone",
+    "E": "minecraft:ladder[facing=south]",
+    "F": "minecraft:spruce_door[facing=north,half=lower,hinge=left,open=false]",
+    "G": "minecraft:spruce_door[facing=north,half=upper,hinge=left,open=false]",
+    "H": "minecraft:wall_torch[facing=south]",
+    "I": "minecraft:spruce_log[axis=x]",
+    "J": "minecraft:spruce_planks",
+    "K": "minecraft:glass_pane",
+    "L": "minecraft:spruce_fence",
+    "M": "minecraft:spruce_stairs[facing=south,half=bottom]",
+    "N": "minecraft:spruce_stairs[facing=east,half=bottom]",
+    "O": "minecraft:spruce_stairs[facing=west,half=bottom]",
+    "P": "minecraft:lantern[hanging=true]",
+    "Q": "minecraft:spruce_stairs[facing=north,half=bottom]",
+    "R": "minecraft:lantern[hanging=false]"
+  },
+  "layers": [
+    [
+      ".......",
+      ".AAAAA.",
+      ".AAAAA.",
+      ".AAAAA.",
+      ".AAAAA.",
+      ".AAAAA.",
+      "...BB.."
+    ],
+    [
+      ".......",
+      ".CADAC.",
+      ".A.E.A.",
+      ".D...A.",
+      ".D...D.",
+      ".CAFAC.",
+      "......."
+    ],
+    [
+      ".......",
+      ".CADAC.",
+      ".A.E.A.",
+      ".A...D.",
+      ".A...A.",
+      ".CDGDC.",
+      "......."
+    ],
+    [
+      ".......",
+      ".CDDDC.",
+      ".AHE.A.",
+      ".......",
+      ".A...A.",
+      ".CDAAC.",
+      "......."
+    ],
+    [
+      ".......",
+      ".CAAAC.",
+      ".A.E.A.",
+      ".A...D.",
+      ".A...A.",
+      ".CAAAC.",
+      "......."
+    ],
+    [
+      ".......",
+      ".IIIII.",
+      ".J.E.J.",
+      ".J...J.",
+      ".J...J.",
+      ".IIIII.",
+      "......."
+    ],
+    [
+      ".......",
+      ".CJJJC.",
+      ".J.E.J.",
+      ".J...J.",
+      ".J...J.",
+      ".CJJJC.",
+      "......."
+    ],
+    [
+      ".......",
+      ".CJKJC.",
+      ".J.E.J.",
+      ".K...K.",
+      ".J...J.",
+      ".CJJJC.",
+      "......."
+    ],
+    [
+      ".......",
+      ".CJJJC.",
+      ".J.E.J.",
+      ".J...J.",
+      ".J...J.",
+      ".CJJJC.",
+      "......."
+    ],
+    [
+      ".......",
+      ".CJJJC.",
+      ".J.E.J.",
+      ".J...J.",
+      ".J...J.",
+      ".CJJJC.",
+      "......."
+    ],
+    [
+      "JJJJJJJ",
+      "JJJJJJJ",
+      "JJJEJJJ",
+      "JJJJJJJ",
+      "JJJJJJJ",
+      "JJJJJJJ",
+      "JJJJJJJ"
+    ],
+    [
+      "CLLLLLC",
+      "L.....L",
+      "L.....L",
+      "L.....L",
+      "L.....L",
+      "L.....L",
+      "CLLLLLC"
+    ],
+    [
+      "C.....C",
+      ".......",
+      ".......",
+      ".......",
+      ".......",
+      ".......",
+      "C.....C"
+    ],
+    [
+      "C.....C",
+      ".......",
+      ".......",
+      ".......",
+      ".......",
+      ".......",
+      "C.....C"
+    ],
+    [
+      "MMMMMMM",
+      "N.....O",
+      "N.....O",
+      "N..P..O",
+      "N.....O",
+      "N.....O",
+      "QQQQQQQ"
+    ],
+    [
+      ".......",
+      ".MMMMM.",
+      ".NJJJO.",
+      ".NJJJO.",
+      ".NJJJO.",
+      ".QQQQQ.",
+      "......."
+    ],
+    [
+      ".......",
+      ".......",
+      "..MMM..",
+      "..N.O..",
+      "..QQQ..",
+      ".......",
+      "......."
+    ],
+    [
+      ".......",
+      ".......",
+      ".......",
+      "...J...",
+      ".......",
+      ".......",
+      "......."
+    ],
+    [
+      ".......",
+      ".......",
+      ".......",
+      "...R...",
+      ".......",
+      ".......",
+      "......."
+    ]
+  ]
+}

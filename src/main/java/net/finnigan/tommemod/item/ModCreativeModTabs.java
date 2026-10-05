@@ -75,7 +75,6 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModBlocks.MONOLITH.get());
                         pOutput.accept(ModBlocks.CHIEF_DESK.get());
                         pOutput.accept(ModBlocks.BLUEPRINT_STAND.get());
-                        pOutput.accept(ModBlocks.BUILDER_HUB.get());
                         pOutput.accept(ModBlocks.BUG_LAMP.get());
                         pOutput.accept(ModBlocks.GLOW_GOO.get());
                         for (net.minecraft.world.item.DyeColor color : net.minecraft.world.item.DyeColor.values()) {

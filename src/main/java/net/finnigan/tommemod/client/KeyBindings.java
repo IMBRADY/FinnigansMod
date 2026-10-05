@@ -43,10 +43,37 @@ public class KeyBindings {
             "key.categories.tommemod"
     );
 
+    // Blueprint mode. These only do anything while planning (see client.blueprint.BlueprintInput),
+    // so they are bound to keys that are otherwise idle while flying about as a spectator camera.
+    public static final KeyMapping BLUEPRINT_ROTATE = blueprintKey("blueprint_rotate", GLFW.GLFW_KEY_R);
+    public static final KeyMapping BLUEPRINT_CONFIRM = blueprintKey("blueprint_confirm", GLFW.GLFW_KEY_ENTER);
+    public static final KeyMapping BLUEPRINT_RAISE = blueprintKey("blueprint_raise", GLFW.GLFW_KEY_PAGE_UP);
+    public static final KeyMapping BLUEPRINT_LOWER = blueprintKey("blueprint_lower", GLFW.GLFW_KEY_PAGE_DOWN);
+    public static final KeyMapping BLUEPRINT_NUDGE_FORWARD = blueprintKey("blueprint_nudge_forward", GLFW.GLFW_KEY_UP);
+    public static final KeyMapping BLUEPRINT_NUDGE_BACK = blueprintKey("blueprint_nudge_back", GLFW.GLFW_KEY_DOWN);
+    public static final KeyMapping BLUEPRINT_NUDGE_LEFT = blueprintKey("blueprint_nudge_left", GLFW.GLFW_KEY_LEFT);
+    public static final KeyMapping BLUEPRINT_NUDGE_RIGHT = blueprintKey("blueprint_nudge_right", GLFW.GLFW_KEY_RIGHT);
+    public static final KeyMapping BLUEPRINT_CANCEL_SITE = blueprintKey("blueprint_cancel_site", GLFW.GLFW_KEY_X);
+    public static final KeyMapping BLUEPRINT_EXIT = blueprintKey("blueprint_exit", GLFW.GLFW_KEY_B);
+
+    private static KeyMapping blueprintKey(String name, int key) {
+        return new KeyMapping("key.tommemod." + name, InputConstants.Type.KEYSYM, key, "key.categories.tommemod.blueprint");
+    }
+
     @net.minecraftforge.eventbus.api.SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(RELEASE_SOULS_CONFIRM);
         event.register(SKILL_TREE);
         event.register(CLASS_ABILITY);
+        event.register(BLUEPRINT_ROTATE);
+        event.register(BLUEPRINT_CONFIRM);
+        event.register(BLUEPRINT_RAISE);
+        event.register(BLUEPRINT_LOWER);
+        event.register(BLUEPRINT_NUDGE_FORWARD);
+        event.register(BLUEPRINT_NUDGE_BACK);
+        event.register(BLUEPRINT_NUDGE_LEFT);
+        event.register(BLUEPRINT_NUDGE_RIGHT);
+        event.register(BLUEPRINT_CANCEL_SITE);
+        event.register(BLUEPRINT_EXIT);
     }
 }

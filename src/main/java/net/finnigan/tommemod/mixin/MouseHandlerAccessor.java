@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 /** Exposes MouseHandler's private raw-cursor-delta accumulators (neither field is final, so no
- * @Mutable is needed) so MouseHandlerMixin can read them for building rotation and zero them out
- * to avoid a leftover-delta camera jump once suppression ends. */
+ * @Mutable is needed) so MouseHandlerMixin can zero them out while the blueprint camera glides,
+ * avoiding a leftover-delta camera jump once the glide ends. */
 @Mixin(MouseHandler.class)
 public interface MouseHandlerAccessor {
 

@@ -2,8 +2,8 @@ package net.finnigan.tommemod.block;
 
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.block.custom.ArmageddonBlock;
+import net.finnigan.tommemod.block.custom.BlueprintStandBlock;
 import net.finnigan.tommemod.block.custom.BugLampBlock;
-import net.finnigan.tommemod.block.custom.BuilderHubBlock;
 import net.finnigan.tommemod.block.custom.ChiefDeskBlock;
 import net.finnigan.tommemod.block.custom.ConstructionBannerBlock;
 import net.finnigan.tommemod.block.custom.GlowGooBlock;
@@ -76,20 +76,13 @@ public class ModBlocks {
                     .requiresCorrectToolForDrops()),
             block -> new ChiefDeskBlockItem(block, new Item.Properties()));
 
-    // Job-site block for the Builder profession - deliberately a plain Block (no custom class, no
-    // BlockEntity/GUI needed; it only exists to be a claimable POI, see villager/ModPoiTypes.java).
+    // Job-site block for the Builder profession (a claimable POI, see villager/ModPoiTypes.java), and
+    // where the Chief enters blueprint mode. No block entity or state, so the POI stays simple.
     public static final RegistryObject<Block> BLUEPRINT_STAND = registerBlock("blueprint_stand",
-            () -> new Block(BlockBehaviour.Properties.of()
+            () -> new BlueprintStandBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.WOOD)
                     .strength(2.5F)
                     .sound(SoundType.WOOD)));
-
-    public static final RegistryObject<Block> BUILDER_HUB = registerBlock("builder_hub",
-            () -> new BuilderHubBlock(BlockBehaviour.Properties.of()
-                    .mapColor(MapColor.COLOR_ORANGE)
-                    .strength(10.0F)
-                    .sound(SoundType.STONE)
-                    .requiresCorrectToolForDrops()));
 
     public static final RegistryObject<Block> CONSTRUCTION_BANNER = registerBlock("construction_banner",
             () -> new ConstructionBannerBlock(BlockBehaviour.Properties.of()

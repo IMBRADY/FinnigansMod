@@ -3,11 +3,16 @@ package net.finnigan.tommemod.network;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.network.packet.AdjustRideDistancePacket;
 import net.finnigan.tommemod.network.packet.BallistaFirePacket;
+import net.finnigan.tommemod.network.packet.BlueprintModeStatePacket;
+import net.finnigan.tommemod.network.packet.CancelConstructionPacket;
+import net.finnigan.tommemod.network.packet.ExitBlueprintModePacket;
+import net.finnigan.tommemod.network.packet.BlueprintStandActionPacket;
+import net.finnigan.tommemod.network.packet.BlueprintStandStatusPacket;
+import net.finnigan.tommemod.network.packet.PlaceBlueprintPacket;
+import net.finnigan.tommemod.network.packet.SyncConstructionSitesPacket;
 import net.finnigan.tommemod.network.packet.ClassAbilityPacket;
 import net.finnigan.tommemod.network.packet.MonolithUpgradePacket;
-import net.finnigan.tommemod.network.packet.RequestBuildingBannerPacket;
 import net.finnigan.tommemod.network.packet.ResetClassPacket;
-import net.finnigan.tommemod.network.packet.RotateConstructionBannerPacket;
 import net.finnigan.tommemod.network.packet.SyncAccessoryPacket;
 import net.finnigan.tommemod.network.packet.SyncReputationHudPacket;
 import net.finnigan.tommemod.network.packet.SyncReputationPacket;
@@ -52,10 +57,20 @@ public class ModNetwork {
                 AdjustRideDistancePacket::encode, AdjustRideDistancePacket::decode, AdjustRideDistancePacket::handle);
         CHANNEL.registerMessage(id++, MonolithUpgradePacket.class,
                 MonolithUpgradePacket::encode, MonolithUpgradePacket::new, MonolithUpgradePacket::handle);
-        CHANNEL.registerMessage(id++, RequestBuildingBannerPacket.class,
-                RequestBuildingBannerPacket::encode, RequestBuildingBannerPacket::new, RequestBuildingBannerPacket::handle);
-        CHANNEL.registerMessage(id++, RotateConstructionBannerPacket.class,
-                RotateConstructionBannerPacket::encode, RotateConstructionBannerPacket::decode, RotateConstructionBannerPacket::handle);
+        CHANNEL.registerMessage(id++, BlueprintStandActionPacket.class,
+                BlueprintStandActionPacket::encode, BlueprintStandActionPacket::new, BlueprintStandActionPacket::handle);
+        CHANNEL.registerMessage(id++, BlueprintStandStatusPacket.class,
+                BlueprintStandStatusPacket::encode, BlueprintStandStatusPacket::new, BlueprintStandStatusPacket::handle);
+        CHANNEL.registerMessage(id++, BlueprintModeStatePacket.class,
+                BlueprintModeStatePacket::encode, BlueprintModeStatePacket::new, BlueprintModeStatePacket::handle);
+        CHANNEL.registerMessage(id++, SyncConstructionSitesPacket.class,
+                SyncConstructionSitesPacket::encode, SyncConstructionSitesPacket::new, SyncConstructionSitesPacket::handle);
+        CHANNEL.registerMessage(id++, PlaceBlueprintPacket.class,
+                PlaceBlueprintPacket::encode, PlaceBlueprintPacket::new, PlaceBlueprintPacket::handle);
+        CHANNEL.registerMessage(id++, ExitBlueprintModePacket.class,
+                ExitBlueprintModePacket::encode, ExitBlueprintModePacket::new, ExitBlueprintModePacket::handle);
+        CHANNEL.registerMessage(id++, CancelConstructionPacket.class,
+                CancelConstructionPacket::encode, CancelConstructionPacket::new, CancelConstructionPacket::handle);
         CHANNEL.registerMessage(id++, BallistaFirePacket.class,
                 BallistaFirePacket::encode, BallistaFirePacket::new, BallistaFirePacket::handle);
         CHANNEL.registerMessage(id++, SyncSkillDefinitionsPacket.class,

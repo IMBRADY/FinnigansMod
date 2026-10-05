@@ -1,0 +1,58 @@
+{
+  "name": "Fletcher's Stall",
+  "description": "A striped market stall with a fletching table - brings a Fletcher to arm your Warriors.",
+  "category": "Workshops",
+  "icon": "minecraft:fletching_table",
+  "builders": 1,
+  "foundation": "minecraft:spruce_planks",
+  "cost": {
+    "minecraft:emerald": 6,
+    "minecraft:white_wool": 15,
+    "minecraft:spruce_planks": 14,
+    "minecraft:lantern": 1
+  },
+  "palette": {
+    "A": "minecraft:spruce_planks",
+    "B": "minecraft:spruce_fence",
+    "C": "minecraft:hay_block[axis=y]",
+    "D": "minecraft:target",
+    "E": "minecraft:barrel[facing=up]",
+    "F": "minecraft:fletching_table",
+    "G": "minecraft:potted_dandelion",
+    "H": "minecraft:lantern[hanging=false]",
+    "I": "minecraft:red_wool",
+    "J": "minecraft:white_wool"
+  },
+  "layers": [
+    [
+      "AAAAA",
+      "AAAAA",
+      "AAAAA",
+      "AAAAA"
+    ],
+    [
+      "BC.DB",
+      ".....",
+      ".....",
+      "BEFEB"
+    ],
+    [
+      "B...B",
+      ".....",
+      ".....",
+      "BGH.B"
+    ],
+    [
+      "IJIJI",
+      "IJIJI",
+      "IJIJI",
+      "IJIJI"
+    ],
+    [
+      ".....",
+      "IJIJI",
+      "IJIJI",
+      "....."
+    ]
+  ]
+}

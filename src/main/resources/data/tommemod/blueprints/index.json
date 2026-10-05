@@ -1,0 +1,18 @@
+{
+  "blueprints": [
+    "cottage",
+    "family_house",
+    "stone_wall",
+    "gatehouse",
+    "watchtower",
+    "village_well",
+    "farm",
+    "fletcher_stall",
+    "smithy",
+    "library",
+    "chapel",
+    "bank",
+    "barracks",
+    "observatory"
+  ]
+}

@@ -23,7 +23,7 @@ public class ModPoiTypes {
     public static final RegistryObject<PoiType> MONOLITH_POI = POI_TYPES.register("monolith_poi",
             () -> new PoiType(Set.copyOf(ModBlocks.MONOLITH.get().getStateDefinition().getPossibleStates()), 1, 1));
 
-    // Job site for the Builder profession (Builder Hub construction).
+    // Job site for the Builder profession; also where the Chief opens blueprint mode.
     public static final RegistryObject<PoiType> BLUEPRINT_STAND_POI = POI_TYPES.register("blueprint_stand_poi",
             () -> new PoiType(Set.copyOf(ModBlocks.BLUEPRINT_STAND.get().getStateDefinition().getPossibleStates()), 1, 1));
 }

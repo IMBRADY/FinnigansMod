@@ -1,0 +1,111 @@
+{
+  "name": "Gatehouse",
+  "description": "Twin towers over an arched gate - the way in through your walls.",
+  "category": "Defense",
+  "icon": "minecraft:iron_bars",
+  "builders": 3,
+  "foundation": "minecraft:stone_bricks",
+  "cost": {
+    "minecraft:emerald": 24,
+    "minecraft:stone_bricks": 131,
+    "minecraft:cobblestone": 8,
+    "minecraft:torch": 4,
+    "minecraft:iron_ingot": 2,
+    "minecraft:lantern": 2
+  },
+  "palette": {
+    "A": "minecraft:stone_bricks",
+    "B": "minecraft:cobblestone",
+    "C": "minecraft:dirt_path",
+    "D": "minecraft:cracked_stone_bricks",
+    "E": "minecraft:ladder[facing=south]",
+    "F": "minecraft:mossy_stone_bricks",
+    "G": "minecraft:stone_brick_stairs[facing=west,half=top]",
+    "H": "minecraft:iron_bars",
+    "I": "minecraft:stone_brick_stairs[facing=east,half=top]",
+    "J": "minecraft:lantern[hanging=true]",
+    "K": "minecraft:wall_torch[facing=south]"
+  },
+  "layers": [
+    [
+      "AAABBBAAA",
+      "AAABBBAAA",
+      "AAABBBAAA",
+      "AAABBBAAA",
+      "AAABBBAAA",
+      "...CCC..."
+    ],
+    [
+      "ADA...ADA",
+      "AEF...AED",
+      "A.......D",
+      "F.A...F.F",
+      "ADD...ADA",
+      "........."
+    ],
+    [
+      "AAA...DFF",
+      "AEA...AEF",
+      "A.......A",
+      "F.A...A.F",
+      "AAA...AAA",
+      "........."
+    ],
+    [
+      "AAAGHIADA",
+      "AEAGJIAED",
+      "A.FG.IA.A",
+      "A.DGJIF.A",
+      "ADAGHIAAA",
+      "K.K...K.K"
+    ],
+    [
+      "AAAAAAADF",
+      "FEDAAADEA",
+      "A.AAAAA.A",
+      "A.FAAAA.A",
+      "AFAAAAAFA",
+      "........."
+    ],
+    [
+      "DAAAAAAAA",
+      "AEA...AEA",
+      "A.......D",
+      "F.F...A.D",
+      "A.FFAAA.D",
+      "........."
+    ],
+    [
+      "FAAD.AFAA",
+      "AEF...AEA",
+      "A.......A",
+      "A.F...A.A",
+      "D.DA.AA.F",
+      "........."
+    ],
+    [
+      "DAA...AAA",
+      "FEA...FEA",
+      "A.A...A.A",
+      "D.A...A.A",
+      "AFA...AAA",
+      "........."
+    ],
+    [
+      "AAA...AAA",
+      "AEA...AEA",
+      "AAA...AAA",
+      "AAA...AAA",
+      "AAA...AAA",
+      "........."
+    ],
+    [
+      "D.A...A.F",
+      ".........",
+      "A.A...A.D",
+      ".........",
+      "F.A...A.F",
+      "........."
+    ]
+  ]
+}

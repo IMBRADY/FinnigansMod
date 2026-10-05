@@ -1,0 +1,163 @@
+{
+  "name": "Library",
+  "description": "A tall reading hall lined with bookshelves, with a lectern for a Librarian.",
+  "category": "Civic",
+  "icon": "minecraft:lectern",
+  "builders": 2,
+  "foundation": "minecraft:cobblestone",
+  "cost": {
+    "minecraft:emerald": 20,
+    "minecraft:dark_oak_planks": 68,
+    "minecraft:birch_planks": 31,
+    "minecraft:dark_oak_log": 28,
+    "minecraft:stone_bricks": 25,
+    "minecraft:bookshelf": 13
+  },
+  "palette": {
+    "A": "minecraft:stone_bricks",
+    "B": "minecraft:dark_oak_planks",
+    "C": "minecraft:stone_brick_slab[type=bottom]",
+    "D": "minecraft:dirt_path",
+    "E": "minecraft:dark_oak_log[axis=y]",
+    "F": "minecraft:bookshelf",
+    "G": "minecraft:chiseled_stone_bricks",
+    "H": "minecraft:spruce_fence",
+    "I": "minecraft:lectern[facing=south,has_book=false,powered=false]",
+    "J": "minecraft:spruce_stairs[facing=south,half=bottom]",
+    "K": "minecraft:red_carpet",
+    "L": "minecraft:dark_oak_door[facing=north,half=lower,hinge=left,open=false]",
+    "M": "minecraft:birch_planks",
+    "N": "minecraft:glass_pane",
+    "O": "minecraft:lantern[hanging=false]",
+    "P": "minecraft:spruce_pressure_plate",
+    "Q": "minecraft:dark_oak_door[facing=north,half=upper,hinge=left,open=false]",
+    "R": "minecraft:lantern[hanging=true]",
+    "S": "minecraft:dark_oak_stairs[facing=south,half=bottom]",
+    "T": "minecraft:dark_oak_log[axis=x]",
+    "U": "minecraft:dark_oak_stairs[facing=north,half=bottom]",
+    "V": "minecraft:dark_oak_slab[type=bottom]"
+  },
+  "layers": [
+    [
+      "...........",
+      ".AAAAAAAAA.",
+      ".ABBBBBBBA.",
+      ".ABBBBBBBA.",
+      ".ABBBBBBBA.",
+      ".ABBBBBBBA.",
+      ".ABBBBBBBA.",
+      ".AAAAAAAAA.",
+      "....CDC...."
+    ],
+    [
+      "...........",
+      ".EAEAEAEAE.",
+      ".AFFFGFFFA.",
+      ".A.......A.",
+      ".E.H.I.H.E.",
+      ".AFJKKKJFA.",
+      ".AF.KKK.FA.",
+      ".EAAALAAAE.",
+      "..........."
+    ],
+    [
+      "...........",
+      ".EMEMEMEME.",
+      ".NFFFOFFFN.",
+      ".N.......N.",
+      ".E.P...P.E.",
+      ".NF.....FN.",
+      ".NF.....FN.",
+      ".ENNMQMNNE.",
+      "..........."
+    ],
+    [
+      "...........",
+      ".EMEMEMEME.",
+      ".NFFF.FFFN.",
+      ".N.......N.",
+      ".E.......E.",
+      ".N.......N.",
+      ".N.......N.",
+      ".ENNMMMNNE.",
+      "..........."
+    ],
+    [
+      "...........",
+      ".EMEMEMEME.",
+      ".M.......M.",
+      ".M.......M.",
+      ".E.R...R.E.",
+      ".M.......M.",
+      ".M.......M.",
+      ".EMMMMMMME.",
+      "..........."
+    ],
+    [
+      "SSSSSSSSSSS",
+      ".MTTTTTTTM.",
+      ".M.......M.",
+      ".M.......M.",
+      ".M.TTTTT.M.",
+      ".M.......M.",
+      ".M.......M.",
+      ".MTTTTTTTM.",
+      "UUUUUUUUUUU"
+    ],
+    [
+      "...........",
+      "SSSSSSSSSSS",
+      ".M.......M.",
+      ".M.......M.",
+      ".N.......N.",
+      ".M.......M.",
+      ".M.......M.",
+      "UUUUUUUUUUU",
+      "..........."
+    ],
+    [
+      "...........",
+      "...........",
+      "SSSSSSSSSSS",
+      ".M.......M.",
+      ".M.......M.",
+      ".M.......M.",
+      "UUUUUUUUUUU",
+      "...........",
+      "..........."
+    ],
+    [
+      "...........",
+      "...........",
+      "...........",
+      "SSSSSSSSSSS",
+      ".M.......M.",
+      "UUUUUUUUUUU",
+      "...........",
+      "...........",
+      "..........."
+    ],
+    [
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "VVVVVVVVVVV",
+      "...........",
+      "...........",
+      "...........",
+      "..........."
+    ],
+    [
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "..........."
+    ]
+  ]
+}

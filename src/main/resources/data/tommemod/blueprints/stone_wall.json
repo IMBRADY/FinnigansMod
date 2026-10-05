@@ -1,0 +1,65 @@
+{
+  "name": "Stone Wall",
+  "description": "A crenellated stone wall segment with a walkway and ladder. Place several end to end.",
+  "category": "Defense",
+  "icon": "minecraft:stone_bricks",
+  "builders": 1,
+  "foundation": "minecraft:stone_bricks",
+  "cost": {
+    "minecraft:emerald": 4,
+    "minecraft:stone_bricks": 61,
+    "minecraft:torch": 2,
+    "minecraft:lantern": 2
+  },
+  "palette": {
+    "A": "minecraft:stone_bricks",
+    "B": "minecraft:ladder[facing=north]",
+    "C": "minecraft:cracked_stone_bricks",
+    "D": "minecraft:mossy_stone_bricks",
+    "E": "minecraft:wall_torch[facing=north]",
+    "F": "minecraft:stone_brick_stairs[facing=south,half=top]",
+    "G": "minecraft:lantern[hanging=false]"
+  },
+  "layers": [
+    [
+      "AAAAAAAAA",
+      "AAAAAAAAA",
+      "AAAAAAAAA"
+    ],
+    [
+      "....B....",
+      "AAACAAAAA",
+      "DDAAACAAA"
+    ],
+    [
+      "....B....",
+      "ADADADAAC",
+      "AAAAAACCD"
+    ],
+    [
+      "..E.B.E..",
+      "ADAAAAAAA",
+      "AAADCDAAA"
+    ],
+    [
+      "FFFFBFFFF",
+      "DDAACAAAA",
+      "AACAAAAAA"
+    ],
+    [
+      ".........",
+      ".........",
+      "CDAAAADAA"
+    ],
+    [
+      ".........",
+      ".........",
+      "C.A.A.D.A"
+    ],
+    [
+      ".........",
+      ".........",
+      "G.......G"
+    ]
+  ]
+}

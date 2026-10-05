@@ -1,0 +1,151 @@
+{
+  "name": "Smithy",
+  "description": "An open forge with a blast furnace, grindstone and smithing table - brings Armorers and Weaponsmiths.",
+  "category": "Workshops",
+  "icon": "minecraft:anvil",
+  "builders": 2,
+  "foundation": "minecraft:cobblestone",
+  "cost": {
+    "minecraft:emerald": 18,
+    "minecraft:spruce_planks": 56,
+    "minecraft:cobblestone": 50,
+    "minecraft:spruce_log": 8,
+    "minecraft:andesite": 4,
+    "minecraft:stone": 7
+  },
+  "palette": {
+    "A": "minecraft:cobblestone",
+    "B": "minecraft:andesite",
+    "C": "minecraft:stone",
+    "D": "minecraft:gravel",
+    "E": "minecraft:lava_cauldron",
+    "F": "minecraft:blast_furnace[facing=south,lit=false]",
+    "G": "minecraft:water_cauldron[level=3]",
+    "H": "minecraft:smithing_table",
+    "I": "minecraft:grindstone[face=floor,facing=south]",
+    "J": "minecraft:anvil[facing=west]",
+    "K": "minecraft:barrel[facing=up]",
+    "L": "minecraft:chest[facing=west,type=single]",
+    "M": "minecraft:spruce_log[axis=y]",
+    "N": "minecraft:mossy_cobblestone",
+    "O": "minecraft:iron_bars",
+    "P": "minecraft:lantern[hanging=true]",
+    "Q": "minecraft:spruce_stairs[facing=south,half=bottom]",
+    "R": "minecraft:spruce_planks",
+    "S": "minecraft:spruce_log[axis=x]",
+    "T": "minecraft:spruce_stairs[facing=north,half=bottom]",
+    "U": "minecraft:campfire[facing=north,lit=true,signal_fire=false]"
+  },
+  "layers": [
+    [
+      "...........",
+      ".AAAABBAAC.",
+      ".AAAACABAA.",
+      ".BABAAAAAA.",
+      ".CACAAAAAC.",
+      ".AABCABABA.",
+      ".AAAACAAAA.",
+      "...DDDDD..."
+    ],
+    [
+      "...........",
+      ".AAAAAAAAA.",
+      ".AEFG..HIA.",
+      ".A...J...A.",
+      ".A......KA.",
+      ".AK.....LA.",
+      ".M...M...M.",
+      "..........."
+    ],
+    [
+      "...........",
+      ".AAAANAAAA.",
+      ".A.......A.",
+      ".O.......O.",
+      ".A.......A.",
+      ".A.......A.",
+      ".M...M...M.",
+      "..........."
+    ],
+    [
+      "...........",
+      ".AAAANAAAA.",
+      ".A.......A.",
+      ".A.......A.",
+      ".A.......A.",
+      ".A.......A.",
+      ".M.P.M.P.M.",
+      "..........."
+    ],
+    [
+      "QQQQQQQQQQQ",
+      ".RAAAAAAAR.",
+      ".R.......R.",
+      ".R.......R.",
+      ".R.......R.",
+      ".R.......R.",
+      ".RSSSSSSSR.",
+      "TTTTTTTTTTT"
+    ],
+    [
+      "...........",
+      "QQQAQQQQQQQ",
+      ".R.......R.",
+      ".R.......R.",
+      ".R.......R.",
+      ".R.......R.",
+      "TTTTTTTTTTT",
+      "..........."
+    ],
+    [
+      "...........",
+      "...A.......",
+      "QQQQQQQQQQQ",
+      ".R.......R.",
+      ".R.......R.",
+      "TTTTTTTTTTT",
+      "...........",
+      "..........."
+    ],
+    [
+      "...........",
+      "...A.......",
+      "...........",
+      "QQQQQQQQQQQ",
+      "TTTTTTTTTTT",
+      "...........",
+      "...........",
+      "..........."
+    ],
+    [
+      "...........",
+      "...A.......",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "..........."
+    ],
+    [
+      "...........",
+      "...A.......",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "..........."
+    ],
+    [
+      "...........",
+      "...U.......",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "..........."
+    ]
+  ]
+}
