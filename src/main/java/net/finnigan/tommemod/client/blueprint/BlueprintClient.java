@@ -3,13 +3,16 @@ package net.finnigan.tommemod.client.blueprint;
 import net.finnigan.tommemod.network.ModNetwork;
 import net.finnigan.tommemod.network.packet.BlueprintModeStatePacket;
 import net.finnigan.tommemod.network.packet.CancelConstructionPacket;
+import net.finnigan.tommemod.network.packet.DemolishBuildingPacket;
 import net.finnigan.tommemod.network.packet.ExitBlueprintModePacket;
 import net.finnigan.tommemod.network.packet.PlaceBlueprintPacket;
 import net.finnigan.tommemod.network.packet.SyncConstructionSitesPacket;
+import net.finnigan.tommemod.network.packet.SyncConstructionSitesPacket.BuildingInfo;
 import net.finnigan.tommemod.network.packet.SyncConstructionSitesPacket.SiteInfo;
 import net.finnigan.tommemod.village.blueprint.Blueprint;
 import net.finnigan.tommemod.village.blueprint.BlueprintPlanner;
 import net.finnigan.tommemod.village.blueprint.Blueprints;
+import net.finnigan.tommemod.village.blueprint.WallSnapping;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -47,6 +50,12 @@ import java.util.UUID;
  * and feels. Entering is a {@value #GLIDE_TICKS}-tick glide from the player's eyes up to a
  * bird's-eye view; leaving glides back down to exactly where they stood and only then asks the server
  * to put them back on their feet, so the hand-over is invisible.
+ *
+ * <p>Wall pieces place differently from other buildings. Near an open end of the village's wall
+ * (built or under way) a piece snaps on to it, turned to carry on the same way with the parapet on
+ * the same side; anywhere else it is placed as usual. Either way it sits at the height of the ground
+ * under it. Holding left click on a straight piece and dragging lays a whole run, one piece after
+ * another from where the press began towards the cursor, and letting go builds them all.
  */
 public final class BlueprintClient {
 
@@ -57,6 +66,10 @@ public final class BlueprintClient {
     private static final float FLY_SPEED = 0.1F;
     private static final int MIN_Y_OFFSET = -8;
     private static final int MAX_Y_OFFSET = 16;
+    /** How close (blocks) the cursor must be to where a snapped wall piece would go for it to snap there. */
+    private static final double SNAP_RANGE = 8.0;
+    /** Longest run one drag can lay. */
+    private static final int MAX_RUN = 24;
 
     private static Phase phase = Phase.INACTIVE;
     private static int phaseTicks;
@@ -71,8 +84,13 @@ public final class BlueprintClient {
     private static int maxGroundGap;
     private static boolean free;
     private static int maxSites;
+    private static int wallGroundGap;
+    private static int maxWallSites;
     private static int builderCount;
     private static List<SiteInfo> sites = List.of();
+    private static List<BuildingInfo> buildings = List.of();
+    private static boolean hasBank;
+    private static Map<String, Long> bank = Map.of();
 
     // Glide
     private static Vec3 glideFrom = Vec3.ZERO;
@@ -90,6 +108,15 @@ public final class BlueprintClient {
     private static BlockPos lockedGround;
     @Nullable
     private static BlueprintPlanner.Plan plan;
+    /** Everything being placed: just {@link #plan}, or a whole run of wall while dragging. */
+    private static List<BlueprintPlanner.Plan> chain = List.of();
+    private static boolean snapped;
+    private static boolean dragging;
+    @Nullable
+    private static BlueprintPlanner.Plan dragFirst;
+    private static boolean dragFirstSnapped;
+    @Nullable
+    private static BlockPos dragStartGround;
     @Nullable
     private static Component extraProblem;
     private static String planKey = "";
@@ -97,6 +124,8 @@ public final class BlueprintClient {
     private static int confirmCooldown;
     @Nullable
     private static SiteInfo hoveredSite;
+    @Nullable
+    private static BuildingInfo hoveredBuilding;
     @Nullable
     private static UUID cancelArmed;
     private static int cancelArmedTicks;
@@ -148,10 +177,25 @@ public final class BlueprintClient {
         return plan;
     }
 
+    public static List<BlueprintPlanner.Plan> chain() {
+        return chain;
+    }
+
+    public static boolean isSnapped() {
+        return snapped && !dragging;
+    }
+
+    public static boolean isDragging() {
+        return dragging;
+    }
+
     /** Why the current placement cannot be confirmed, or null if it can. */
     @Nullable
     public static Component problem() {
         if (plan == null) return Component.literal("Point at the ground to place");
+        for (BlueprintPlanner.Plan p : chain) {
+            if (p.problem() != null) return p.problem();
+        }
         if (plan.problem() != null) return plan.problem();
         return extraProblem;
     }
@@ -189,6 +233,11 @@ public final class BlueprintClient {
         return hoveredSite;
     }
 
+    @Nullable
+    public static BuildingInfo hoveredBuilding() {
+        return hoveredBuilding;
+    }
+
     public static boolean isCancelArmed(UUID site) {
         return site.equals(cancelArmed) && cancelArmedTicks > 0;
     }
@@ -218,10 +267,25 @@ public final class BlueprintClient {
         return true;
     }
 
+    public static boolean hasBank() {
+        return hasBank;
+    }
+
+    /** The village's emeralds in the bank. */
+    public static long wealth() {
+        return bank.getOrDefault("minecraft:emerald", 0L);
+    }
+
+    /** What the player can put towards a cost: their inventory, plus the bank when the village has one. */
     public static int countInInventory(Blueprint.Cost cost) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return 0;
-        int n = 0;
+        long banked = 0;
+        if (hasBank) {
+            net.minecraft.resources.ResourceLocation key = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(cost.item());
+            if (key != null) banked = bank.getOrDefault(key.toString(), 0L);
+        }
+        int n = (int) Math.min(Integer.MAX_VALUE / 2, banked);
         for (ItemStack stack : player.getInventory().items) {
             if (stack.is(cost.item())) n += stack.getCount();
         }
@@ -229,9 +293,17 @@ public final class BlueprintClient {
     }
 
     public static BoundingBox boundsOf(SiteInfo site) {
-        Blueprint bp = Blueprints.get(site.blueprintId());
-        if (bp == null) return new BoundingBox(site.origin());
-        return BlueprintPlanner.boundsFor(bp, site.rotation(), site.origin());
+        return boundsOf(site.blueprintId(), site.rotation(), site.origin());
+    }
+
+    public static BoundingBox boundsOf(BuildingInfo building) {
+        return boundsOf(building.blueprintId(), building.rotation(), building.origin());
+    }
+
+    private static BoundingBox boundsOf(String blueprintId, Rotation rotation, BlockPos origin) {
+        Blueprint bp = Blueprints.get(blueprintId);
+        if (bp == null) return new BoundingBox(origin);
+        return BlueprintPlanner.boundsFor(bp, rotation, origin);
     }
 
     // ---- Server messages ----
@@ -253,6 +325,9 @@ public final class BlueprintClient {
         maxGroundGap = msg.maxGroundGap;
         free = msg.free;
         maxSites = msg.maxSites;
+        wallGroundGap = msg.wallGroundGap;
+        maxWallSites = msg.maxWallSites;
+        dragging = false;
         int initial = Blueprints.indexOf(msg.initialBlueprint);
         if (initial >= 0) selected = initial;
         lockedGround = null;
@@ -277,6 +352,9 @@ public final class BlueprintClient {
     public static void onSites(SyncConstructionSitesPacket msg) {
         builderCount = msg.builderCount;
         sites = List.copyOf(msg.sites);
+        buildings = List.copyOf(msg.buildings);
+        hasBank = msg.hasBank;
+        bank = Map.copyOf(msg.bank);
         refreshSiteGhosts();
     }
 
@@ -285,9 +363,13 @@ public final class BlueprintClient {
         phase = Phase.INACTIVE;
         phaseTicks = 0;
         plan = null;
+        chain = List.of();
+        dragging = false;
         lockedGround = null;
         hoveredSite = null;
+        hoveredBuilding = null;
         sites = List.of();
+        buildings = List.of();
         siteRemaining.clear();
         flashTicks = 0;
         cancelArmed = null;
@@ -323,6 +405,7 @@ public final class BlueprintClient {
                 keepInsideFlightArea(player);
                 updatePlan(mc, player);
                 hoveredSite = siteUnderCursor(player);
+                hoveredBuilding = hoveredSite == null ? buildingUnderCursor(player) : null;
                 if (mc.level.getGameTime() % 20 == 0) refreshSiteGhosts();
             }
             case EXITING -> {
@@ -382,40 +465,201 @@ public final class BlueprintClient {
 
     private static void updatePlan(Minecraft mc, LocalPlayer player) {
         Blueprint bp = selectedBlueprint();
+        if (dragging && dragFirst != null && bp != null && bp.id().equals(dragFirst.blueprint().id())) {
+            updateRun(mc, player, bp);
+            return;
+        }
+        dragging = false;
         BlockPos ground = lockedGround != null ? lockedGround : cursorGround(mc, player);
         if (bp == null || ground == null) {
             plan = null;
+            chain = List.of();
             planKey = "";
+            snapped = false;
             return;
         }
-        BlockPos origin = BlueprintPlanner.originFor(bp, rotation, ground, yOffset);
-        String key = bp.id() + '|' + rotation + '|' + origin.asLong();
+        Rotation rot = rotation;
+        BlockPos origin;
+        snapped = false;
+        if (bp.isWallPiece()) {
+            WallSnapping.Snap snap = snapNear(bp, ground);
+            int y;
+            if (snap != null) {
+                rot = snap.rotation();
+                origin = snap.origin();
+                snapped = true;
+                // Stays within a block of the piece it joins; builders fill the ground in under it.
+                y = WallSnapping.fitY(mc.level, bp, rot, origin, snap.origin().getY(), wallGroundGap);
+            } else {
+                origin = BlueprintPlanner.originFor(bp, rot, ground, 0);
+                y = WallSnapping.groundY(mc.level, bp, rot, origin, ground.getY());
+            }
+            origin = new BlockPos(origin.getX(), y + yOffset, origin.getZ());
+        } else {
+            origin = BlueprintPlanner.originFor(bp, rot, ground, yOffset);
+        }
+        String key = bp.id() + '|' + rot + '|' + origin.asLong();
         // Re-plan when the ghost moves, and every half second regardless so it notices the world changing.
         if (!key.equals(planKey) || ++planAge > 10 || plan == null) {
-            plan = BlueprintPlanner.plan(mc.level, bp, rotation, origin, maxGroundGap);
+            plan = planPiece(mc, bp, rot, origin, wallPieces());
             planKey = key;
             planAge = 0;
         }
-        extraProblem = villageProblem(bp, plan.bounds());
+        chain = List.of(plan);
+        extraProblem = villageProblem(bp, chain);
+    }
+
+    /** Plans one piece - with, for a wall piece, the stairs joining its walkway to any neighbour's. */
+    private static BlueprintPlanner.Plan planPiece(Minecraft mc, Blueprint bp, Rotation rot, BlockPos origin, List<WallSnapping.Piece> neighbours) {
+        BlueprintPlanner.Plan p = BlueprintPlanner.plan(mc.level, bp, rot, origin, groundGapFor(bp));
+        if (!bp.isWallPiece()) return p;
+        return BlueprintPlanner.withExtras(mc.level, p, WallSnapping.connectors(bp, rot, origin, neighbours));
+    }
+
+    private static int groundGapFor(Blueprint bp) {
+        return bp.isWallPiece() ? wallGroundGap : maxGroundGap;
+    }
+
+    /** Every wall piece of the village, built or under way - what a new piece may snap onto. */
+    private static List<WallSnapping.Piece> wallPieces() {
+        List<WallSnapping.Piece> out = new ArrayList<>();
+        for (SiteInfo s : sites) {
+            Blueprint bp = Blueprints.get(s.blueprintId());
+            if (bp != null && bp.isWallPiece()) out.add(new WallSnapping.Piece(bp, s.rotation(), s.origin()));
+        }
+        for (BuildingInfo b : buildings) {
+            Blueprint bp = Blueprints.get(b.blueprintId());
+            if (bp != null && bp.isWallPiece()) out.add(new WallSnapping.Piece(bp, b.rotation(), b.origin()));
+        }
+        return out;
+    }
+
+    /** The open wall end nearest the cursor that this piece can join, if the cursor is close enough to it. */
+    @Nullable
+    private static WallSnapping.Snap snapNear(Blueprint bp, BlockPos ground) {
+        WallSnapping.Snap best = null;
+        double bestDist = SNAP_RANGE * SNAP_RANGE;
+        for (WallSnapping.WorldPort port : WallSnapping.openPorts(wallPieces())) {
+            WallSnapping.Snap snap = WallSnapping.snap(bp, port);
+            if (snap == null) continue;
+            double cx = snap.origin().getX() + bp.width(snap.rotation()) / 2.0;
+            double cz = snap.origin().getZ() + bp.depth(snap.rotation()) / 2.0;
+            double d = Mth.square(cx - (ground.getX() + 0.5)) + Mth.square(cz - (ground.getZ() + 0.5));
+            if (d < bestDist) {
+                bestDist = d;
+                best = snap;
+            }
+        }
+        return best;
+    }
+
+    /**
+     * A run of wall being dragged out: the piece where the press began, then piece after piece joined
+     * onto its far end towards the cursor. A run started away from any wall turns to lie along the
+     * drag, parapet facing away from the middle of the village; one started on a wall end carries on
+     * from it the way that wall faces.
+     */
+    private static void updateRun(Minecraft mc, LocalPlayer player, Blueprint bp) {
+        BlockPos ground = cursorGround(mc, player);
+        if (ground == null) return;
+        BlueprintPlanner.Plan first = dragFirst;
+        double fcx = first.bounds().getCenter().getX() + 0.5;
+        double fcz = first.bounds().getCenter().getZ() + 0.5;
+        double vx = ground.getX() + 0.5 - fcx;
+        double vz = ground.getZ() + 0.5 - fcz;
+
+        if (!dragFirstSnapped && dragStartGround != null && Math.max(Math.abs(vx), Math.abs(vz)) > 2) {
+            Direction.Axis axis = Math.abs(vx) >= Math.abs(vz) ? Direction.Axis.X : Direction.Axis.Z;
+            Direction outside = axis == Direction.Axis.X
+                    ? (dragStartGround.getZ() >= regionCentre.getZ() ? Direction.SOUTH : Direction.NORTH)
+                    : (dragStartGround.getX() >= regionCentre.getX() ? Direction.EAST : Direction.WEST);
+            Rotation turned = WallSnapping.rotationFor(bp, axis, outside);
+            if (turned != null && turned != first.rotation()) {
+                BlockPos o = BlueprintPlanner.originFor(bp, turned, dragStartGround, 0);
+                int y = WallSnapping.groundY(mc.level, bp, turned, o, dragStartGround.getY());
+                first = planPiece(mc, bp, turned, new BlockPos(o.getX(), y + yOffset, o.getZ()), wallPieces());
+                dragFirst = first;
+                fcx = first.bounds().getCenter().getX() + 0.5;
+                fcz = first.bounds().getCenter().getZ() + 0.5;
+                vx = ground.getX() + 0.5 - fcx;
+                vz = ground.getZ() + 0.5 - fcz;
+            }
+        }
+
+        List<BlueprintPlanner.Plan> run = new ArrayList<>();
+        run.add(first);
+        // Grow from whichever end points most nearly at the cursor.
+        WallSnapping.WorldPort lead = null;
+        double along = 0;
+        for (WallSnapping.WorldPort p : WallSnapping.ports(bp, first.rotation(), first.origin())) {
+            double d = p.facing().getStepX() * vx + p.facing().getStepZ() * vz;
+            if (d > along) {
+                along = d;
+                lead = p;
+            }
+        }
+        WallSnapping.WorldPort port = lead;
+        BlueprintPlanner.Plan prev = first;
+        List<WallSnapping.Piece> neighbours = new ArrayList<>(wallPieces());
+        neighbours.add(new WallSnapping.Piece(bp, first.rotation(), first.origin()));
+        for (int i = 0; port != null && i < MAX_RUN; i++) {
+            WallSnapping.Snap snap = WallSnapping.snap(bp, port);
+            if (snap == null) break;
+            double cx = snap.origin().getX() + bp.width(snap.rotation()) / 2.0 - fcx;
+            double cz = snap.origin().getZ() + bp.depth(snap.rotation()) / 2.0 - fcz;
+            double length = port.facing().getAxis() == Direction.Axis.X ? bp.width(snap.rotation()) : bp.depth(snap.rotation());
+            double reach = port.facing().getStepX() * cx + port.facing().getStepZ() * cz;
+            if (reach - length / 2.0 >= along) break;
+            int y = WallSnapping.fitY(mc.level, bp, snap.rotation(), snap.origin(), prev.origin().getY() - yOffset, wallGroundGap);
+            BlockPos at = new BlockPos(snap.origin().getX(), y + yOffset, snap.origin().getZ());
+            prev = planPiece(mc, bp, snap.rotation(), at, neighbours);
+            neighbours.add(new WallSnapping.Piece(bp, snap.rotation(), at));
+            run.add(prev);
+            WallSnapping.WorldPort next = null;
+            for (WallSnapping.WorldPort p : snap.ports()) {
+                if (p.facing() == port.facing()) next = p;
+            }
+            port = next;
+        }
+        plan = first;
+        chain = List.copyOf(run);
+        extraProblem = villageProblem(bp, chain);
     }
 
     /** The checks the planner cannot make - they need village knowledge the server sent us. */
     @Nullable
-    private static Component villageProblem(Blueprint bp, BoundingBox box) {
-        double dx = box.getCenter().getX() - regionCentre.getX();
-        double dz = box.getCenter().getZ() - regionCentre.getZ();
-        if (dx * dx + dz * dz > placeRadius * placeRadius) return Component.literal("Too far from the village");
-        for (SiteInfo s : sites) {
-            if (boundsOf(s).intersects(box)) return Component.literal("Overlaps another construction");
+    private static Component villageProblem(Blueprint bp, List<BlueprintPlanner.Plan> placing) {
+        int n = placing.size();
+        for (int i = 0; i < n; i++) {
+            BoundingBox box = placing.get(i).bounds();
+            double dx = box.getCenter().getX() - regionCentre.getX();
+            double dz = box.getCenter().getZ() - regionCentre.getZ();
+            if (dx * dx + dz * dz > placeRadius * placeRadius) return Component.literal("Too far from the village");
+            for (SiteInfo s : sites) {
+                if (boundsOf(s).intersects(box)) return Component.literal("Overlaps another construction");
+            }
+            for (int j = 0; j < i; j++) {
+                if (placing.get(j).bounds().intersects(box)) return Component.literal("The run overlaps itself");
+            }
         }
-        if (sites.size() >= maxSites) return Component.literal(maxSites + " buildings already under way - wait for one to finish");
+        boolean wall = bp.isWallPiece();
+        int cap = wall ? maxWallSites : maxSites;
+        long under = sites.stream().filter(s -> {
+            Blueprint sb = Blueprints.get(s.blueprintId());
+            return sb != null && sb.isWallPiece() == wall;
+        }).count();
+        if (under + n > cap) {
+            return Component.literal(wall ? "Too many wall pieces under way (" + under + "/" + cap + ")"
+                    : cap + " buildings already under way - wait for one to finish");
+        }
         if (builderCount < bp.requiredBuilders()) {
             return Component.literal("Needs " + bp.requiredBuilders() + " Builder" + (bp.requiredBuilders() == 1 ? "" : "s") + " (village has " + builderCount + ")");
         }
-        if (!canAfford(bp)) {
+        if (!free) {
             for (Blueprint.Cost c : bp.cost()) {
-                if (countInInventory(c) < c.count()) {
-                    return Component.literal("Not enough ").append(c.item().getDescription()).append(" (" + countInInventory(c) + "/" + c.count() + ")");
+                int have = countInInventory(c);
+                if (have < c.count() * n) {
+                    return Component.literal("Not enough ").append(c.item().getDescription()).append(" (" + have + "/" + c.count() * n + ")");
                 }
             }
         }
@@ -447,6 +691,23 @@ public final class BlueprintClient {
             if (at.isPresent() && at.get().distanceToSqr(eye) < bestDist) {
                 bestDist = at.get().distanceToSqr(eye);
                 best = s;
+            }
+        }
+        return best;
+    }
+
+    @Nullable
+    private static BuildingInfo buildingUnderCursor(LocalPlayer player) {
+        Vec3 eye = player.getEyePosition(1.0F);
+        Vec3 end = eye.add(player.getViewVector(1.0F).scale(CURSOR_RANGE));
+        BuildingInfo best = null;
+        double bestDist = Double.MAX_VALUE;
+        for (BuildingInfo b : buildings) {
+            AABB box = AABB.of(boundsOf(b));
+            Optional<Vec3> at = box.contains(eye) ? Optional.of(eye) : box.clip(eye, end);
+            if (at.isPresent() && at.get().distanceToSqr(eye) < bestDist) {
+                bestDist = at.get().distanceToSqr(eye);
+                best = b;
             }
         }
         return best;
@@ -531,6 +792,44 @@ public final class BlueprintClient {
         play(SoundEvents.UI_BUTTON_CLICK.value(), 1.8F);
     }
 
+    /**
+     * Left click pressed. A straight wall piece starts a run, laid when the button comes up; anything
+     * else is built straight away.
+     */
+    public static void pressPrimary() {
+        if (!isPlanning()) return;
+        Blueprint bp = selectedBlueprint();
+        if (bp != null && plan != null && bp.isWallPiece() && WallSnapping.runsStraight(bp) && confirmCooldown <= 0) {
+            dragging = true;
+            dragFirst = plan;
+            dragFirstSnapped = snapped;
+            Minecraft mc = Minecraft.getInstance();
+            dragStartGround = lockedGround != null ? lockedGround : mc.player != null ? cursorGround(mc, mc.player) : null;
+            return;
+        }
+        confirm();
+    }
+
+    /** Left click released: lays the run being dragged, if there is one. */
+    public static void releasePrimary() {
+        if (!dragging) return;
+        dragging = false;
+        if (confirmCooldown > 0 || !isPlanning()) return;
+        Component problem = problem();
+        if (problem != null || chain.isEmpty()) {
+            showFlash(problem != null ? problem : Component.literal("Nothing to place"), true);
+            play(SoundEvents.VILLAGER_NO, 1.0F);
+            return;
+        }
+        for (BlueprintPlanner.Plan p : chain) {
+            ModNetwork.CHANNEL.sendToServer(new PlaceBlueprintPacket(p.blueprint().id(), p.rotation(), p.origin()));
+        }
+        if (chain.size() > 1) showFlash(Component.literal("Laying " + chain.size() + " pieces of wall"), false);
+        confirmCooldown = 10;
+        lockedGround = null;
+        play(SoundEvents.VILLAGER_WORK_CARTOGRAPHER, 1.0F);
+    }
+
     public static void confirm() {
         if (confirmCooldown > 0 || !isPlanning()) return;
         Component problem = problem();
@@ -545,11 +844,14 @@ public final class BlueprintClient {
         play(SoundEvents.VILLAGER_WORK_CARTOGRAPHER, 1.0F);
     }
 
-    /** First press arms, second press (within three seconds, on the same site) cancels it. */
+    /**
+     * First press arms, second press (within three seconds, on the same one) cancels the construction
+     * looked at - or, looking at a finished building, demolishes it. Either way the materials come back.
+     */
     public static void cancelHoveredSite() {
         SiteInfo site = hoveredSite;
         if (site == null) {
-            showFlash(Component.literal("Look at a construction to cancel it"), true);
+            demolishHoveredBuilding();
             return;
         }
         if (isCancelArmed(site.id())) {
@@ -563,6 +865,26 @@ public final class BlueprintClient {
         cancelArmed = site.id();
         cancelArmedTicks = 60;
         showFlash(Component.literal("Press again to cancel the " + (bp != null ? bp.name() : "construction") + " (materials refunded)"), true);
+        play(SoundEvents.NOTE_BLOCK_PLING.value(), 0.6F);
+    }
+
+    private static void demolishHoveredBuilding() {
+        BuildingInfo building = hoveredBuilding;
+        if (building == null) {
+            showFlash(Component.literal("Look at a construction to cancel it, or a building to demolish it"), true);
+            return;
+        }
+        if (isCancelArmed(building.id())) {
+            ModNetwork.CHANNEL.sendToServer(new DemolishBuildingPacket(building.id()));
+            cancelArmed = null;
+            cancelArmedTicks = 0;
+            play(SoundEvents.VILLAGER_NO, 0.9F);
+            return;
+        }
+        Blueprint bp = Blueprints.get(building.blueprintId());
+        cancelArmed = building.id();
+        cancelArmedTicks = 60;
+        showFlash(Component.literal("Press again to demolish the " + (bp != null ? bp.name() : "building") + " (materials refunded)"), true);
         play(SoundEvents.NOTE_BLOCK_PLING.value(), 0.6F);
     }
 
@@ -587,6 +909,8 @@ public final class BlueprintClient {
         phase = Phase.EXITING;
         phaseTicks = 0;
         plan = null;
+        chain = List.of();
+        dragging = false;
         play(SoundEvents.BOOK_PAGE_TURN, 0.8F);
     }
 

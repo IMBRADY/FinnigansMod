@@ -228,7 +228,6 @@
   "effect.tommemod.enchained": "Enchained",
   "key.categories.tommemod.blueprint": "Finnigan's Mod - Blueprint Mode",
   "key.tommemod.blueprint_rotate": "Rotate Building",
-  "key.tommemod.blueprint_confirm": "Confirm Building",
   "key.tommemod.blueprint_raise": "Raise Building",
   "key.tommemod.blueprint_lower": "Lower Building",
   "key.tommemod.blueprint_nudge_forward": "Nudge Building Forward",
@@ -236,5 +235,7 @@
   "key.tommemod.blueprint_nudge_left": "Nudge Building Left",
   "key.tommemod.blueprint_nudge_right": "Nudge Building Right",
   "key.tommemod.blueprint_cancel_site": "Cancel Construction (press twice)",
-  "key.tommemod.blueprint_exit": "Leave Blueprint Mode"
+  "key.tommemod.blueprint_exit": "Leave Blueprint Mode",
+  "block.tommemod.village_vault": "Village Vault",
+  "item.tommemod.village_vault": "Village Vault"
 }

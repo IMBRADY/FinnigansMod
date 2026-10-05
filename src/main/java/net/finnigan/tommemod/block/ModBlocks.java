@@ -3,6 +3,7 @@ package net.finnigan.tommemod.block;
 import net.finnigan.tommemod.TommeMod;
 import net.finnigan.tommemod.block.custom.ArmageddonBlock;
 import net.finnigan.tommemod.block.custom.BlueprintStandBlock;
+import net.finnigan.tommemod.block.custom.VillageVaultBlock;
 import net.finnigan.tommemod.block.custom.BugLampBlock;
 import net.finnigan.tommemod.block.custom.ChiefDeskBlock;
 import net.finnigan.tommemod.block.custom.ConstructionBannerBlock;
@@ -83,6 +84,14 @@ public class ModBlocks {
                     .mapColor(MapColor.WOOD)
                     .strength(2.5F)
                     .sound(SoundType.WOOD)));
+
+    // The Bank's vault: opens the village's bank (see village.buildings.VaultService).
+    public static final RegistryObject<Block> VILLAGE_VAULT = registerBlock("village_vault",
+            () -> new VillageVaultBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(5.0F, 1200.0F)
+                    .sound(SoundType.METAL)
+                    .requiresCorrectToolForDrops()));
 
     public static final RegistryObject<Block> CONSTRUCTION_BANNER = registerBlock("construction_banner",
             () -> new ConstructionBannerBlock(BlockBehaviour.Properties.of()

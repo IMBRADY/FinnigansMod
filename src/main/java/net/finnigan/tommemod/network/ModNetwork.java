@@ -5,9 +5,13 @@ import net.finnigan.tommemod.network.packet.AdjustRideDistancePacket;
 import net.finnigan.tommemod.network.packet.BallistaFirePacket;
 import net.finnigan.tommemod.network.packet.BlueprintModeStatePacket;
 import net.finnigan.tommemod.network.packet.CancelConstructionPacket;
+import net.finnigan.tommemod.network.packet.DemolishBuildingPacket;
+import net.finnigan.tommemod.network.packet.SurveyBuildingsPacket;
 import net.finnigan.tommemod.network.packet.ExitBlueprintModePacket;
 import net.finnigan.tommemod.network.packet.BlueprintStandActionPacket;
 import net.finnigan.tommemod.network.packet.BlueprintStandStatusPacket;
+import net.finnigan.tommemod.network.packet.VaultActionPacket;
+import net.finnigan.tommemod.network.packet.VaultStatusPacket;
 import net.finnigan.tommemod.network.packet.PlaceBlueprintPacket;
 import net.finnigan.tommemod.network.packet.SyncConstructionSitesPacket;
 import net.finnigan.tommemod.network.packet.ClassAbilityPacket;
@@ -59,6 +63,10 @@ public class ModNetwork {
                 MonolithUpgradePacket::encode, MonolithUpgradePacket::new, MonolithUpgradePacket::handle);
         CHANNEL.registerMessage(id++, BlueprintStandActionPacket.class,
                 BlueprintStandActionPacket::encode, BlueprintStandActionPacket::new, BlueprintStandActionPacket::handle);
+        CHANNEL.registerMessage(id++, VaultActionPacket.class,
+                VaultActionPacket::encode, VaultActionPacket::new, VaultActionPacket::handle);
+        CHANNEL.registerMessage(id++, VaultStatusPacket.class,
+                VaultStatusPacket::encode, VaultStatusPacket::new, VaultStatusPacket::handle);
         CHANNEL.registerMessage(id++, BlueprintStandStatusPacket.class,
                 BlueprintStandStatusPacket::encode, BlueprintStandStatusPacket::new, BlueprintStandStatusPacket::handle);
         CHANNEL.registerMessage(id++, BlueprintModeStatePacket.class,
@@ -99,5 +107,9 @@ public class ModNetwork {
                 GrappleSwingInputPacket::encode,
                 GrappleSwingInputPacket::new,
                 GrappleSwingInputPacket::handle);
+        CHANNEL.registerMessage(id++, SurveyBuildingsPacket.class,
+                SurveyBuildingsPacket::encode, SurveyBuildingsPacket::new, SurveyBuildingsPacket::handle);
+        CHANNEL.registerMessage(id++, DemolishBuildingPacket.class,
+                DemolishBuildingPacket::encode, DemolishBuildingPacket::new, DemolishBuildingPacket::handle);
     }
 }

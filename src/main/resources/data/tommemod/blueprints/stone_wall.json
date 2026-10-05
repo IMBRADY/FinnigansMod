@@ -1,7 +1,12 @@
 {
   "name": "Stone Wall",
-  "description": "A crenellated stone wall segment with a walkway and ladder. Place several end to end.",
+  "description": "A crenellated stone wall segment with a walkway and ladder. Snaps onto the end of another wall; hold left click and drag to lay a run.",
   "category": "Defense",
+  "purpose": "wall",
+  "purpose_text": "Part of the village wall. Once walls, corners and gatehouses close a loop, everything inside is the village.",
+  "ports": [{"x": 0, "z": 1, "facing": "west", "outside": "south"}, {"x": 8, "z": 1, "facing": "east", "outside": "south"}],
+  "runs": true,
+  "walkway": 5,
   "icon": "minecraft:stone_bricks",
   "builders": 1,
   "foundation": "minecraft:stone_bricks",

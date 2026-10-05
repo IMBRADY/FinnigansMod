@@ -123,6 +123,31 @@ public final class BlueprintPlanner {
         return new Plan(bp, rotation, origin, bounds, out, problem);
     }
 
+    /**
+     * The plan with some extra block changes worked in - the ramps that join wall pieces sitting at
+     * different heights (see {@link WallSnapping#connectors}). An extra replaces whatever the plan had
+     * for that block, so a ramp can be cut into a wall as well as built onto one. Blocks holding a
+     * block entity are left alone, and changes the world already has are dropped.
+     */
+    public static Plan withExtras(Level level, Plan plan, List<Placement> extras) {
+        if (extras.isEmpty()) return plan;
+        java.util.Map<BlockPos, Placement> byPos = new java.util.LinkedHashMap<>();
+        for (Placement p : plan.placements()) byPos.put(p.pos(), p);
+        for (Placement extra : extras) {
+            BlockPos pos = extra.pos();
+            if (!level.hasChunkAt(pos) || level.getBlockEntity(pos) != null) continue;
+            byPos.remove(pos);
+            if (!level.getBlockState(pos).equals(extra.state())) byPos.put(pos, new Placement(pos, extra.state(), phaseFor(extra.state())));
+        }
+        List<Placement> out = new ArrayList<>(byPos.values());
+        out.sort(BUILD_ORDER);
+        return new Plan(plan.blueprint(), plan.rotation(), plan.origin(), plan.bounds(), out, plan.problem());
+    }
+
+    private static int phaseFor(BlockState target) {
+        return target.isAir() ? PHASE_CLEAR : isStructural(target) ? PHASE_STRUCTURE : PHASE_DETAIL;
+    }
+
     /** What would make this block off limits to builders, or null if they may replace it. Chests,
      * beds, job sites and bedrock are never knocked down to make room - the player moves them. */
     @Nullable

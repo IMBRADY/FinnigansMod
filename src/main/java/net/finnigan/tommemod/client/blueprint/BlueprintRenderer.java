@@ -3,6 +3,7 @@ package net.finnigan.tommemod.client.blueprint;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.finnigan.tommemod.TommeMod;
+import net.finnigan.tommemod.network.packet.SyncConstructionSitesPacket;
 import net.finnigan.tommemod.network.packet.SyncConstructionSitesPacket.SiteInfo;
 import net.finnigan.tommemod.village.blueprint.Blueprint;
 import net.finnigan.tommemod.village.blueprint.BlueprintPlanner;
@@ -29,7 +30,8 @@ import net.minecraftforge.fml.common.Mod;
 /**
  * Draws blueprint mode in the world: the building being placed as see-through copies of its real
  * blocks (blue when it can go there, red when it cannot), and every construction site's unbuilt
- * remainder as a fainter amber ghost, each boxed in an outline.
+ * remainder as a fainter amber ghost, each boxed in an outline. A finished building under the cursor
+ * gets a faint white box (red once the cancel key has been pressed once on it, to demolish it).
  *
  * <p>Ghost blocks are the real block models, just pushed through a translucent render type with
  * their colour and alpha scaled on the way into the buffer - see {@link TintedConsumer}.
@@ -73,22 +75,29 @@ public final class BlueprintRenderer {
             outline(pose, cam, buffers, BlueprintClient.boundsOf(site), c[0], c[1], c[2], isHovered ? 1F : 0.7F);
         }
 
-        // The building being placed.
-        BlueprintPlanner.Plan plan = BlueprintClient.plan();
-        if (plan != null) {
-            boolean ok = BlueprintClient.problem() == null;
-            float pulse = 0.5F + 0.5F * (float) Math.sin(time * 4.0);
-            float r = ok ? 0.55F : 1.0F;
-            float g = ok ? 0.85F : 0.35F;
-            float b = ok ? 1.0F : 0.35F;
-            float a = 0.42F + 0.12F * pulse;
-            int drawn = 0;
+        // A finished building being looked at - the one the cancel key would demolish.
+        SyncConstructionSitesPacket.BuildingInfo building = BlueprintClient.hoveredBuilding();
+        if (building != null) {
+            boolean armed = BlueprintClient.isCancelArmed(building.id());
+            outline(pose, cam, buffers, BlueprintClient.boundsOf(building), 1F, armed ? 0.25F : 1F, armed ? 0.2F : 1F, armed ? 1F : 0.35F);
+        }
+
+        // The building being placed - or every piece of a run of wall being dragged out.
+        boolean ok = BlueprintClient.problem() == null;
+        float pulse = 0.5F + 0.5F * (float) Math.sin(time * 4.0);
+        float r = ok ? 0.55F : 1.0F;
+        float g = ok ? 0.85F : 0.35F;
+        float b = ok ? 1.0F : 0.35F;
+        float a = 0.42F + 0.12F * pulse;
+        int drawn = 0;
+        for (BlueprintPlanner.Plan plan : BlueprintClient.chain()) {
             for (BlueprintPlanner.Placement p : plan.placements()) {
                 if (p.state().isAir()) continue;
                 if (drawn++ >= MAX_GHOST_BLOCKS) break;
                 ghost(pose, cam, buffers, dispatcher, ghostType, p.pos(), p.state(), r, g, b, a);
             }
-            outline(pose, cam, buffers, plan.bounds(), r, g, b, BlueprintClient.isLocked() ? 1F : 0.6F);
+            boolean bright = BlueprintClient.isLocked() || BlueprintClient.isSnapped() || BlueprintClient.isDragging();
+            outline(pose, cam, buffers, plan.bounds(), r, g, b, bright ? 1F : 0.6F);
         }
 
         buffers.endBatch(ghostType);

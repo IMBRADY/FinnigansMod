@@ -26,7 +26,8 @@
     "EntityStepSoundMixin",
     "MeleeAttackGoalAccessor",
     "RaidAccessor",
-    "RaidWallSpawnMixin"
+    "RaidWallSpawnMixin",
+    "MerchantMenuBankMixin"
   ],
   "client": [
     "InventoryScreenMixin",

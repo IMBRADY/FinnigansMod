@@ -22,7 +22,8 @@ import org.lwjgl.glfw.GLFW;
  * vanilla sees them, so planning never accidentally hijacks the camera onto a cow.
  *
  * <pre>
- *  Left click / Enter      confirm placement      Right click      lock / unlock in place
+ *  Left click              confirm placement      Right click      lock / unlock in place
+ *  Left drag (walls)       lay a run of wall      X on a building  demolish it (twice), refunded
  *  Scroll / 1-9            choose building        Shift + scroll   rotate      Ctrl + scroll  raise/lower
  *  R                       rotate                 PgUp / PgDn      raise / lower
  *  Arrow keys              nudge (locks it)       X (twice)        cancel the site you are looking at
@@ -33,7 +34,7 @@ import org.lwjgl.glfw.GLFW;
 public final class BlueprintInput {
 
     private static final KeyMapping[] BLUEPRINT_KEYS = {
-            KeyBindings.BLUEPRINT_ROTATE, KeyBindings.BLUEPRINT_CONFIRM, KeyBindings.BLUEPRINT_RAISE, KeyBindings.BLUEPRINT_LOWER,
+            KeyBindings.BLUEPRINT_ROTATE, KeyBindings.BLUEPRINT_RAISE, KeyBindings.BLUEPRINT_LOWER,
             KeyBindings.BLUEPRINT_NUDGE_FORWARD, KeyBindings.BLUEPRINT_NUDGE_BACK, KeyBindings.BLUEPRINT_NUDGE_LEFT,
             KeyBindings.BLUEPRINT_NUDGE_RIGHT, KeyBindings.BLUEPRINT_CANCEL_SITE, KeyBindings.BLUEPRINT_EXIT
     };
@@ -74,7 +75,6 @@ public final class BlueprintInput {
         while (KeyBindings.BLUEPRINT_NUDGE_BACK.consumeClick()) if (planning) nudgeOrRaise(-1, 0);
         while (KeyBindings.BLUEPRINT_NUDGE_LEFT.consumeClick()) if (planning) BlueprintClient.nudge(0, -1);
         while (KeyBindings.BLUEPRINT_NUDGE_RIGHT.consumeClick()) if (planning) BlueprintClient.nudge(0, 1);
-        while (KeyBindings.BLUEPRINT_CONFIRM.consumeClick()) if (planning) BlueprintClient.confirm();
         while (KeyBindings.BLUEPRINT_CANCEL_SITE.consumeClick()) if (planning) BlueprintClient.cancelHoveredSite();
         while (KeyBindings.BLUEPRINT_EXIT.consumeClick()) if (planning) BlueprintClient.beginExit();
     }
@@ -101,10 +101,14 @@ public final class BlueprintInput {
         // Releases always go through. The right click that opened blueprint mode was pressed before
         // it started and is released after; swallowing that release left vanilla thinking the button
         // was still held, and its auto-repeat then "used" whatever the player looked at on the way out.
-        if (event.getAction() != GLFW.GLFW_PRESS) return;
+        // Left releases are still noticed, though: letting go is what lays a dragged run of wall.
+        if (event.getAction() != GLFW.GLFW_PRESS) {
+            if (event.getAction() == GLFW.GLFW_RELEASE && button == GLFW.GLFW_MOUSE_BUTTON_LEFT) BlueprintClient.releasePrimary();
+            return;
+        }
         event.setCanceled(true);
         if (!BlueprintClient.isPlanning()) return;
-        if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) BlueprintClient.confirm();
+        if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) BlueprintClient.pressPrimary();
         else if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) BlueprintClient.toggleLock();
     }
 

@@ -5,10 +5,15 @@ import net.finnigan.tommemod.entity.custom.ElderVillagerEntity;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerEntity;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.VillageAlarm;
 import net.finnigan.tommemod.village.VillageManager;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.schedule.Activity;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,9 +26,15 @@ import java.util.UUID;
  * Raises the alarm when something attacks one of a village's own, so that Warriors too far away to
  * have witnessed it still come running. What they do about it is
  * entity.custom.WarriorVillagerHelpers.AnswerDistressCallGoal and AidAllyTargetGoal.
+ *
+ * <p>A villager doesn't have to be hit to call for help: one in vanilla's panic - running from a
+ * zombie or a raider it has spotted - calls out about whatever it is running from, every second
+ * for as long as the chase lasts.
  */
 @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID)
 public class WarriorVillagerAlarmEvents {
+
+    private static final int PANIC_CALL_INTERVAL_TICKS = 20;
 
     @SubscribeEvent
     public static void onVillageMemberHurt(LivingHurtEvent event) {
@@ -39,6 +50,26 @@ public class WarriorVillagerAlarmEvents {
         if (villageId == null) return; // hurt out in the wilds - there is no village to call to
 
         VillageAlarm.raise(villageId, attacker, victim.blockPosition(), level.getGameTime());
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        MinecraftServer server = event.getServer();
+        if (server == null || server.getTickCount() % PANIC_CALL_INTERVAL_TICKS != 0) return;
+
+        for (ServerLevel level : server.getAllLevels()) {
+            for (Villager villager : level.getEntities(EntityTypeTest.forClass(Villager.class),
+                    v -> v.isAlive() && v.getBrain().isActive(Activity.PANIC))) {
+                LivingEntity chaser = villager.getBrain().getMemory(MemoryModuleType.NEAREST_HOSTILE)
+                        .or(() -> villager.getBrain().getMemory(MemoryModuleType.HURT_BY_ENTITY))
+                        .orElse(null);
+                if (chaser == null || !chaser.isAlive() || isVillageMember(chaser) || chaser instanceof IronGolem) continue;
+
+                UUID villageId = villageOf(level, villager);
+                if (villageId != null) VillageAlarm.raise(villageId, chaser, villager.blockPosition(), level.getGameTime());
+            }
+        }
     }
 
     @SubscribeEvent

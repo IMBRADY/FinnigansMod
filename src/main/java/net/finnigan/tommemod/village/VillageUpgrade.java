@@ -117,51 +117,6 @@ public enum VillageUpgrade {
         protected List<? extends Integer> costTable() {
             return ModConfig.HEALTHY_WARRIORS_UPGRADE_COST_COOKED_BEEF.get();
         }
-    },
-
-    /**
-     * One level and no more: a village either has walls or it does not. Buying it is the only upgrade
-     * here that changes the world rather than a number - see {@link #onPurchased}.
-     */
-    VILLAGE_WALLS("Village Walls", Items.OAK_LOG, "oak logs") {
-        @Override
-        public int maxLevel() {
-            return 1;
-        }
-
-        @Override
-        public int levelIn(VillageManager manager, UUID villageId) {
-            return manager.hasWalls(villageId) ? 1 : 0;
-        }
-
-        @Override
-        public void setLevelIn(VillageManager manager, UUID villageId, int level) {
-            // Nothing: the walls themselves are the level, and onPurchased is what raises them.
-        }
-
-        @Override
-        public String effectDescription(int level) {
-            return level > 0
-                    ? "Walled - attacks must come in from outside"
-                    : "Unwalled - the village is wherever its POIs reach";
-        }
-
-        @Override
-        protected List<? extends Integer> costTable() {
-            return List.of(ModConfig.VILLAGE_WALLS_UPGRADE_COST_LOGS.get());
-        }
-
-        @Override
-        @Nullable
-        public String purchaseBlocker(ServerLevel level, ServerPlayer player, VillageManager manager,
-                                      UUID villageId, int currentLevel) {
-            return VillageWallBuilder.blockerFor(level, manager, villageId);
-        }
-
-        @Override
-        public void onPurchased(ServerLevel level, ServerPlayer player, VillageManager manager, UUID villageId) {
-            VillageWallBuilder.raise(level, manager, villageId);
-        }
     };
 
     private final String displayName;

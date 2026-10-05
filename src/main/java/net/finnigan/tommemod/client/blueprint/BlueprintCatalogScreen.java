@@ -157,7 +157,8 @@ public class BlueprintCatalogScreen extends Screen {
             else if (hovered) g.fill(left + 2, y, left + listWidth - 2, y + ROW - 1, 0x40FFFFFF);
             g.renderItem(new ItemStack(bp.icon()), left + 5, y + 1);
             boolean usable = BlueprintClient.builderCount() >= bp.requiredBuilders() && BlueprintClient.canAfford(bp);
-            g.drawString(font, font.plainSubstrByWidth(bp.name(), listWidth - 30), left + 25, y + 3, usable ? 0xFFFFFFFF : MUTED);
+            int nameColor = bp.hasPurpose() ? (usable ? GOOD : 0xFF4F9E5A) : usable ? 0xFFFFFFFF : MUTED;
+            g.drawString(font, font.plainSubstrByWidth(bp.name(), listWidth - 30), left + 25, y + 3, nameColor);
             g.drawString(font, bp.category(), left + 25, y + 11, 0xFF6C7A88);
         }
 
@@ -174,7 +175,7 @@ public class BlueprintCatalogScreen extends Screen {
     }
 
     private void renderDetail(GuiGraphics g, Blueprint bp, int dx, float partialTick) {
-        g.drawString(font, bp.name(), dx + 8, top + 6, GOLD);
+        g.drawString(font, bp.name(), dx + 8, top + 6, bp.hasPurpose() ? GOOD : GOLD);
         String size = bp.width(Rotation.NONE) + "×" + bp.depth(Rotation.NONE) + "×" + bp.height();
         g.drawString(font, size, dx + detailWidth - 8 - font.width(size), top + 6, MUTED);
 
@@ -186,9 +187,11 @@ public class BlueprintCatalogScreen extends Screen {
         g.disableScissor();
 
         int y = previewTop + previewHeight + 6;
-        List<FormattedCharSequence> lines = font.split(Component.literal(bp.description()), detailWidth - 16);
+        // A building with a job says what it does instead of what it looks like.
+        String text = bp.hasPurpose() ? bp.purposeText() : bp.description();
+        List<FormattedCharSequence> lines = font.split(Component.literal(text), detailWidth - 16);
         for (int i = 0; i < Math.min(3, lines.size()); i++) {
-            g.drawString(font, lines.get(i), dx + 8, y + i * 10, 0xFFC4CED8);
+            g.drawString(font, lines.get(i), dx + 8, y + i * 10, bp.hasPurpose() ? GOOD : 0xFFC4CED8);
         }
         y += 34;
 

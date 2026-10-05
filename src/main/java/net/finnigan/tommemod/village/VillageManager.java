@@ -12,6 +12,10 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -46,6 +50,9 @@ public class VillageManager extends SavedData {
     private final Map<UUID, Integer> healthyWarriorsLevelByVillage = new HashMap<>();
     private final Map<UUID, Integer> villageTierByVillage = new HashMap<>();
     private final Map<UUID, VillageWalls> wallsByVillage = new HashMap<>();
+    /** What each village's bank holds, by item. Only usable while the village has a Bank standing
+     * (see VillageFunds); the goods themselves are kept here so a rebuilt bank finds them again. */
+    private final Map<UUID, Map<Item, Long>> bankByVillage = new HashMap<>();
     private final Map<BlockPos, CacheEntry> resolveCache = new HashMap<>();
 
     private record CacheEntry(Optional<UUID> villageId, long expiresAtTick) {
@@ -158,7 +165,7 @@ public class VillageManager extends SavedData {
         // Once a village is walled its region is the ring, full stop - not a circle sized to POIs that
         // may since have sprawled past the gate.
         VillageWalls walls = wallsByVillage.get(villageId);
-        if (walls != null && !walls.discCentres().isEmpty()) {
+        if (walls != null && !walls.isEmpty()) {
             return new VillageRegion(walls.centre(), walls.radiusFromCentre());
         }
 
@@ -319,6 +326,42 @@ public class VillageManager extends SavedData {
         return wallsByVillage.get(villageId);
     }
 
+    // ---- Bank ----
+
+    public long bankCount(UUID villageId, Item item) {
+        Map<Item, Long> bank = bankByVillage.get(villageId);
+        return bank == null ? 0 : bank.getOrDefault(item, 0L);
+    }
+
+    /** Emeralds in the bank - what the village shows as its wealth. */
+    public long wealth(UUID villageId) {
+        return bankCount(villageId, Items.EMERALD);
+    }
+
+    public Map<Item, Long> bankContents(UUID villageId) {
+        Map<Item, Long> bank = bankByVillage.get(villageId);
+        return bank == null ? Map.of() : java.util.Collections.unmodifiableMap(bank);
+    }
+
+    public void bankDeposit(UUID villageId, Item item, long count) {
+        if (count <= 0 || item == Items.AIR) return;
+        bankByVillage.computeIfAbsent(villageId, k -> new java.util.LinkedHashMap<>()).merge(item, count, Long::sum);
+        setDirty();
+    }
+
+    /** Takes up to {@code count} of an item out of the bank; returns how many it actually took. */
+    public long bankWithdraw(UUID villageId, Item item, long count) {
+        Map<Item, Long> bank = bankByVillage.get(villageId);
+        if (bank == null || count <= 0) return 0;
+        long have = bank.getOrDefault(item, 0L);
+        long taken = Math.min(have, count);
+        if (taken <= 0) return 0;
+        if (have - taken == 0) bank.remove(item);
+        else bank.put(item, have - taken);
+        setDirty();
+        return taken;
+    }
+
     public boolean hasWalls(UUID villageId) {
         return wallsByVillage.containsKey(villageId);
     }
@@ -328,6 +371,14 @@ public class VillageManager extends SavedData {
         // Every cached answer was given under the old boundary; the ring that just went up moves it.
         resolveCache.clear();
         setDirty();
+    }
+
+    /** The village goes back to being wherever its POIs reach - its loop of walls was broken. */
+    public void removeWalls(UUID villageId) {
+        if (wallsByVillage.remove(villageId) != null) {
+            resolveCache.clear();
+            setDirty();
+        }
     }
 
     /**
@@ -374,20 +425,16 @@ public class VillageManager extends SavedData {
 
             // Two rings that grew into each other are now one village behind two walls. Both are real
             // - they are standing in the world - so the merged village is enclosed by their union.
+            Map<Item, Long> discardBank = bankByVillage.remove(discard);
+            if (discardBank != null) discardBank.forEach((item, count) -> bankDeposit(keep, item, count));
+
             VillageWalls discardWalls = wallsByVillage.remove(discard);
             if (discardWalls != null) {
-                wallsByVillage.merge(keep, discardWalls, VillageManager::unionWalls);
+                wallsByVillage.merge(keep, discardWalls, VillageWalls::union);
             }
         }
         setDirty();
         return keep;
-    }
-
-    /** Both rings at once, at whichever disc radius was the wider of the two, so neither shrinks. */
-    private static VillageWalls unionWalls(VillageWalls a, VillageWalls b) {
-        List<BlockPos> centres = new ArrayList<>(a.discCentres());
-        centres.addAll(b.discCentres());
-        return new VillageWalls(centres, Math.max(a.discRadius(), b.discRadius()));
     }
 
     private void cacheResult(BlockPos pos, Optional<UUID> result, long now) {
@@ -466,6 +513,20 @@ public class VillageManager extends SavedData {
         });
         tag.put("Walls", wallList);
 
+        ListTag bankList = new ListTag();
+        bankByVillage.forEach((village, bank) -> {
+            CompoundTag e = new CompoundTag();
+            e.putUUID("Village", village);
+            CompoundTag items = new CompoundTag();
+            bank.forEach((item, count) -> {
+                ResourceLocation key = ForgeRegistries.ITEMS.getKey(item);
+                if (key != null) items.putLong(key.toString(), count);
+            });
+            e.put("Items", items);
+            bankList.add(e);
+        });
+        tag.put("Banks", bankList);
+
         return tag;
     }
 
@@ -523,6 +584,19 @@ public class VillageManager extends SavedData {
         for (int i = 0; i < wallList.size(); i++) {
             CompoundTag e = wallList.getCompound(i);
             mgr.wallsByVillage.put(e.getUUID("Village"), VillageWalls.load(e));
+        }
+
+        ListTag bankList = tag.getList("Banks", Tag.TAG_COMPOUND);
+        for (int i = 0; i < bankList.size(); i++) {
+            CompoundTag e = bankList.getCompound(i);
+            CompoundTag items = e.getCompound("Items");
+            Map<Item, Long> bank = new java.util.LinkedHashMap<>();
+            for (String key : items.getAllKeys()) {
+                ResourceLocation id = ResourceLocation.tryParse(key);
+                Item item = id != null ? ForgeRegistries.ITEMS.getValue(id) : null;
+                if (item != null && item != Items.AIR) bank.put(item, items.getLong(key));
+            }
+            mgr.bankByVillage.put(e.getUUID("Village"), bank);
         }
 
         return mgr;

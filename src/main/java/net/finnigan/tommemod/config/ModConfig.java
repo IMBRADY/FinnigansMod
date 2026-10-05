@@ -72,9 +72,6 @@ public class ModConfig {
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> VILLAGE_TIER_BUFF_ATTRIBUTES;
     public static final ForgeConfigSpec.DoubleValue VILLAGE_TIER_BUFF_AMOUNT;
     public static final ForgeConfigSpec.IntValue VILLAGE_TIER_BUFF_MIN_TIER;
-    public static final ForgeConfigSpec.IntValue VILLAGE_WALLS_UPGRADE_COST_LOGS;
-    public static final ForgeConfigSpec.IntValue VILLAGE_WALLS_HEIGHT;
-    public static final ForgeConfigSpec.IntValue VILLAGE_WALLS_MAX_COLUMNS;
     public static final ForgeConfigSpec.IntValue VILLAGE_WALLS_SPAWN_MARGIN_BLOCKS;
 
     // squires
@@ -91,6 +88,16 @@ public class ModConfig {
     public static final ForgeConfigSpec.IntValue BUILDER_HUB_REGION_PADDING_BLOCKS;
     public static final ForgeConfigSpec.IntValue BLUEPRINT_MAX_ACTIVE_SITES;
     public static final ForgeConfigSpec.IntValue BLUEPRINT_FLIGHT_MARGIN_BLOCKS;
+    public static final ForgeConfigSpec.IntValue BLUEPRINT_MAX_WALL_SITES;
+    public static final ForgeConfigSpec.IntValue WALL_MAX_GROUND_GAP;
+
+    // what finished buildings do for their village
+    public static final ForgeConfigSpec.IntValue WARRIOR_SLEEP_TICKS;
+    public static final ForgeConfigSpec.IntValue WARRIOR_RESPAWN_TICKS;
+    public static final ForgeConfigSpec.IntValue WARRIOR_SLEEP_HEAL_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.IntValue OBSERVATORY_MAP_BONUS_BLOCKS;
+    public static final ForgeConfigSpec.IntValue FARM_REPLANTS_PER_EMERALD;
+    public static final ForgeConfigSpec.IntValue FARMER_WORK_RADIUS_BLOCKS;
 
     // quality of life
     public static final ForgeConfigSpec.BooleanValue SWING_THROUGH_PLANTS;
@@ -242,16 +249,9 @@ public class ModConfig {
         VILLAGE_TIER_BUFF_MIN_TIER = builder.comment("Village Tier at which that buff starts applying")
                 .defineInRange("villageTierBuffMinTier", 2, 0, Integer.MAX_VALUE);
 
-        builder.comment("Village Walls is a one-shot upgrade: buying it traces the village's current perimeter - the same",
-                "outline the Chief Desk's map tab draws - and raises a wall along it. Once a village is walled,",
-                "the wall (and everything inside it) is what counts as the village, and every wave spawn is",
-                "pushed outside it. The 8-tall log column is a placeholder for a real wall design.");
-        VILLAGE_WALLS_UPGRADE_COST_LOGS = builder.comment("Oak log cost to raise a village's walls")
-                .defineInRange("villageWallsUpgradeCostLogs", 256, 0, Integer.MAX_VALUE);
-        VILLAGE_WALLS_HEIGHT = builder.comment("How tall (blocks) each column of the placeholder wall is")
-                .defineInRange("villageWallsHeight", 8, 1, 64);
-        VILLAGE_WALLS_MAX_COLUMNS = builder.comment("Safety cap: a perimeter longer than this many columns is refused rather than built")
-                .defineInRange("villageWallsMaxColumns", 4096, 16, Integer.MAX_VALUE);
+        builder.comment("Village walls are built in blueprint mode from Stone Walls, wall corners and Gatehouses. Once",
+                "they close a loop, the ring (and everything inside it) is what counts as the village, and every",
+                "wave spawn is pushed outside it.");
         VILLAGE_WALLS_SPAWN_MARGIN_BLOCKS = builder.comment("How far (blocks) beyond the wall a raid wave - or any future wave type - is pushed before it spawns")
                 .defineInRange("villageWallsSpawnMarginBlocks", 12, 1, 128);
         builder.pop();
@@ -281,6 +281,25 @@ public class ModConfig {
                 .defineInRange("blueprintMaxActiveSites", 4, 1, 64);
         BLUEPRINT_FLIGHT_MARGIN_BLOCKS = builder.comment("How far (blocks) past the village's region the blueprint camera may fly")
                 .defineInRange("blueprintFlightMarginBlocks", 48, 8, 512);
+        BLUEPRINT_MAX_WALL_SITES = builder.comment("Most wall pieces (walls, corners, gatehouses) one village may have under way at once. Counted separately from blueprintMaxActiveSites, so a long wall doesn't hold up everything else")
+                .defineInRange("blueprintMaxWallSites", 48, 1, 512);
+        WALL_MAX_GROUND_GAP = builder.comment("Deepest drop (blocks) under a wall piece that builders will fill with foundation, so walls never float over a valley")
+                .defineInRange("wallMaxGroundGap", 24, 0, 128);
+        builder.pop();
+
+        builder.push("buildings");
+        WARRIOR_SLEEP_TICKS = builder.comment("How long each Barracks Warrior sleeps per day, in ticks (an ordinary villager sleeps about 12000). Shifts are staggered so the rest stay on guard")
+                .defineInRange("warriorSleepTicks", 12000, 0, 24000);
+        WARRIOR_RESPAWN_TICKS = builder.comment("How long after a Barracks Warrior dies before a replacement turns up at its bunk (24000 = one Minecraft day)")
+                .defineInRange("warriorRespawnTicks", 24000, 20, Integer.MAX_VALUE);
+        WARRIOR_SLEEP_HEAL_INTERVAL_TICKS = builder.comment("A sleeping Warrior heals one health point every this many ticks")
+                .defineInRange("warriorSleepHealIntervalTicks", 40, 1, 72000);
+        OBSERVATORY_MAP_BONUS_BLOCKS = builder.comment("How many blocks each standing Observatory adds to the Chief Desk map's radius")
+                .defineInRange("observatoryMapBonusBlocks", 64, 0, 512);
+        FARM_REPLANTS_PER_EMERALD = builder.comment("While the village has a Bank, every this many crops a Farmer replants on a Farm Plot adds one emerald to the village's wealth")
+                .defineInRange("farmReplantsPerEmerald", 4, 1, 1000);
+        FARMER_WORK_RADIUS_BLOCKS = builder.comment("How far (blocks) from its composter a Farmer looks for ripe crops to harvest and replant. Farm Plots in the village are always worked")
+                .defineInRange("farmerWorkRadiusBlocks", 24, 4, 96);
         builder.pop();
 
         builder.push("qualityOfLife");

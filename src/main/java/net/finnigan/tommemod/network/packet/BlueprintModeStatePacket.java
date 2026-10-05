@@ -28,10 +28,14 @@ public class BlueprintModeStatePacket {
     public final int maxGroundGap;
     public final boolean free;
     public final int maxSites;
+    /** The same two limits for wall pieces, which follow the ground further down and have their own cap. */
+    public final int wallGroundGap;
+    public final int maxWallSites;
 
     public BlueprintModeStatePacket(boolean active, UUID villageId, BlockPos regionCentre, double placeRadius, double flightRadius,
                                     double returnX, double returnY, double returnZ, float returnYaw, float returnPitch,
-                                    String initialBlueprint, int maxGroundGap, boolean free, int maxSites) {
+                                    String initialBlueprint, int maxGroundGap, boolean free, int maxSites,
+                                    int wallGroundGap, int maxWallSites) {
         this.active = active;
         this.villageId = villageId;
         this.regionCentre = regionCentre;
@@ -46,10 +50,12 @@ public class BlueprintModeStatePacket {
         this.maxGroundGap = maxGroundGap;
         this.free = free;
         this.maxSites = maxSites;
+        this.wallGroundGap = wallGroundGap;
+        this.maxWallSites = maxWallSites;
     }
 
     public static BlueprintModeStatePacket inactive() {
-        return new BlueprintModeStatePacket(false, new UUID(0, 0), BlockPos.ZERO, 0, 0, 0, 0, 0, 0, 0, "", 0, false, 0);
+        return new BlueprintModeStatePacket(false, new UUID(0, 0), BlockPos.ZERO, 0, 0, 0, 0, 0, 0, 0, "", 0, false, 0, 0, 0);
     }
 
     public BlueprintModeStatePacket(FriendlyByteBuf buf) {
@@ -67,6 +73,8 @@ public class BlueprintModeStatePacket {
         this.maxGroundGap = buf.readVarInt();
         this.free = buf.readBoolean();
         this.maxSites = buf.readVarInt();
+        this.wallGroundGap = buf.readVarInt();
+        this.maxWallSites = buf.readVarInt();
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -84,6 +92,8 @@ public class BlueprintModeStatePacket {
         buf.writeVarInt(maxGroundGap);
         buf.writeBoolean(free);
         buf.writeVarInt(maxSites);
+        buf.writeVarInt(wallGroundGap);
+        buf.writeVarInt(maxWallSites);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctxSupplier) {

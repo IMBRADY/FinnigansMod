@@ -77,6 +77,8 @@ public class BuilderGameTests {
             return;
         }
         clearLeftovers(helper);
+        // Gravel left over from a previous batch at this spot only starts falling a couple of ticks in.
+        helper.runAfterDelay(4, () -> sweepFallingBlocks(helper));
         for (int i = 0; i < 3; i++) spawnBuilder(helper, new BlockPos(1 + i, 2, 1));
         ConstructionSite site = ConstructionService.start(level, UUID.randomUUID(), null, plan, List.of());
 
@@ -190,6 +192,11 @@ public class BuilderGameTests {
         for (Entity e : helper.getLevel().getEntitiesOfClass(Entity.class, area, en -> !(en instanceof Player))) {
             e.discard();
         }
+    }
+
+    private static void sweepFallingBlocks(GameTestHelper helper) {
+        AABB area = new AABB(helper.absolutePos(BlockPos.ZERO)).inflate(48);
+        for (Entity e : helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.FallingBlockEntity.class, area)) e.discard();
     }
 
     private static void spawnBuilder(GameTestHelper helper, BlockPos rel) {

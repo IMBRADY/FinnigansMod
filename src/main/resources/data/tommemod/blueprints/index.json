@@ -4,6 +4,8 @@
     "family_house",
     "stone_wall",
     "gatehouse",
+    "wall_corner_convex",
+    "wall_corner_concave",
     "watchtower",
     "village_well",
     "farm",

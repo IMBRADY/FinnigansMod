@@ -8,6 +8,10 @@ import net.finnigan.tommemod.village.blueprint.Blueprint;
 import net.finnigan.tommemod.village.blueprint.BlueprintModeManager;
 import net.finnigan.tommemod.village.blueprint.BlueprintPlanner;
 import net.finnigan.tommemod.village.blueprint.Blueprints;
+import net.finnigan.tommemod.village.blueprint.WallSnapping;
+import net.finnigan.tommemod.village.buildings.VillageBuildings;
+import net.finnigan.tommemod.village.construction.ConstructionSite;
+import java.util.ArrayList;
 import net.finnigan.tommemod.village.construction.BuilderWorkHandler;
 import net.finnigan.tommemod.village.construction.ConstructionManager;
 import net.finnigan.tommemod.village.construction.ConstructionService;
@@ -87,10 +91,14 @@ public class PlaceBlueprintPacket {
             return;
         }
 
+        // Wall pieces have their own, larger allowance: a wall is many small pieces, and laying one
+        // shouldn't stop the village building anything else.
         ConstructionManager sites = ConstructionManager.get(level);
-        int maxSites = ModConfig.BLUEPRINT_MAX_ACTIVE_SITES.get();
-        if (sites.inVillage(village).size() >= maxSites) {
-            fail(player, "Your builders already have " + maxSites + " buildings under way");
+        boolean wall = bp.isWallPiece();
+        int maxSites = wall ? ModConfig.BLUEPRINT_MAX_WALL_SITES.get() : ModConfig.BLUEPRINT_MAX_ACTIVE_SITES.get();
+        long under = sites.inVillage(village).stream().filter(s -> s.blueprint() != null && s.blueprint().isWallPiece() == wall).count();
+        if (under >= maxSites) {
+            fail(player, "Your builders already have " + maxSites + (wall ? " wall pieces" : " buildings") + " under way");
             return;
         }
         if (sites.overlaps(box)) {
@@ -104,7 +112,11 @@ public class PlaceBlueprintPacket {
             return;
         }
 
-        BlueprintPlanner.Plan plan = BlueprintPlanner.plan(level, bp, rotation, origin, ModConfig.BLUEPRINT_MAX_GROUND_GAP.get());
+        int gap = wall ? ModConfig.WALL_MAX_GROUND_GAP.get() : ModConfig.BLUEPRINT_MAX_GROUND_GAP.get();
+        BlueprintPlanner.Plan plan = BlueprintPlanner.plan(level, bp, rotation, origin, gap);
+        // The stairs joining this piece's walkway to its neighbours', worked out the same way the
+        // client drew them - against every wall piece built or going up, including the rest of a run.
+        if (wall) plan = BlueprintPlanner.withExtras(level, plan, WallSnapping.connectors(bp, rotation, origin, wallPieces(level, village)));
         if (!plan.valid()) {
             player.displayClientMessage(plan.problem().copy().withStyle(ChatFormatting.RED), true);
             return;
@@ -112,17 +124,30 @@ public class PlaceBlueprintPacket {
 
         List<Blueprint.Cost> paid = free ? List.of() : bp.cost();
         for (Blueprint.Cost c : paid) {
-            if (!VillageFunds.hasEnough(player, c.item(), c.count())) {
+            if (!VillageFunds.hasEnough(player, village, c.item(), c.count())) {
                 fail(player, "Not enough " + c.item().getDescription().getString() + " (" + c.count() + " needed)");
                 return;
             }
         }
-        for (Blueprint.Cost c : paid) VillageFunds.tryDeductItem(player, c.item(), c.count());
+        for (Blueprint.Cost c : paid) VillageFunds.tryDeductItem(player, village, c.item(), c.count());
 
         ConstructionService.start(level, village, player.getUUID(), plan, paid);
         String crew = builders == 0 ? " - no Builders yet, it will wait for one" : " - your builders are on their way";
         player.displayClientMessage(Component.literal("Construction of the " + bp.name() + " has begun" + crew)
                 .withStyle(builders == 0 ? ChatFormatting.GOLD : ChatFormatting.GREEN), true);
+    }
+
+    private static List<WallSnapping.Piece> wallPieces(ServerLevel level, UUID village) {
+        List<WallSnapping.Piece> out = new ArrayList<>();
+        for (ConstructionSite s : ConstructionManager.get(level).inVillage(village)) {
+            Blueprint sb = s.blueprint();
+            if (sb != null && sb.isWallPiece()) out.add(new WallSnapping.Piece(sb, s.rotation(), s.origin()));
+        }
+        for (VillageBuildings.Building b : VillageBuildings.get(level).inVillage(level, village)) {
+            Blueprint bb = b.blueprint();
+            if (bb != null && bb.isWallPiece()) out.add(new WallSnapping.Piece(bb, b.rotation, b.origin));
+        }
+        return out;
     }
 
     private static void fail(ServerPlayer player, String message) {

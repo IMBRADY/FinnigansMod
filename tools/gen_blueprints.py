@@ -25,11 +25,11 @@ warnings = []
 
 
 def validate(state):
-    m = re.fullmatch(r"(?:minecraft:)?([a-z0-9_]+)(?:\[(.*)\])?", state)
+    m = re.fullmatch(r"(?:([a-z0-9_]+):)?([a-z0-9_]+)(?:\[(.*)\])?", state)
     if not m:
         raise ValueError("bad state " + state)
-    block, props = m.group(1), m.group(2)
-    if ASSETS is None:
+    namespace, block, props = m.group(1), m.group(2), m.group(3)
+    if ASSETS is None or (namespace and namespace != "minecraft"):
         return
     path = os.path.join(ASSETS, block + ".json")
     if not os.path.exists(path):
@@ -44,8 +44,18 @@ def validate(state):
 
 
 class Design:
-    def __init__(self, id, name, W, H, D, desc, category, icon, builders, emeralds, foundation="minecraft:cobblestone"):
+    def __init__(self, id, name, W, H, D, desc, category, icon, builders, emeralds, foundation="minecraft:cobblestone",
+                 purpose="", purpose_text="", ports=None, runs=False, walkway=None):
         self.id, self.name, self.W, self.H, self.D = id, name, W, H, D
+        self.purpose, self.purpose_text = purpose, purpose_text
+        # Wall pieces only: where another piece may join on, as {x, z, facing, outside} - the edge
+        # cell at the middle of the joint, which way the joint faces, and which side is outside.
+        self.ports = ports or []
+        # Whether blueprint mode lays it in runs when the player drags (straight wall only).
+        self.runs = runs
+        # Wall pieces with a walk along the top: the layer you stand in up there. Pieces joined at
+        # different heights get stairs between their walkways.
+        self.walkway = walkway
         self.desc, self.category, self.icon, self.builders, self.emeralds = desc, category, icon, builders, emeralds
         self.foundation = foundation
         self.g = [[[CLEAR for _ in range(W)] for _ in range(D)] for _ in range(H)]
@@ -53,7 +63,7 @@ class Design:
     def set(self, x, y, z, st):
         if not (0 <= x < self.W and 0 <= y < self.H and 0 <= z < self.D):
             raise IndexError(f"{self.id}: ({x},{y},{z}) outside {self.W}x{self.H}x{self.D}")
-        if st not in (CLEAR, KEEP) and not st.startswith("minecraft:"):
+        if st not in (CLEAR, KEEP) and ":" not in st.split("[")[0]:
             st = "minecraft:" + st
         self.g[y][z][x] = st
 
@@ -185,6 +195,10 @@ class Design:
             "name": self.name,
             "description": self.desc,
             "category": self.category,
+            **({"purpose": self.purpose, "purpose_text": self.purpose_text} if self.purpose else {}),
+            **({"ports": self.ports} if self.ports else {}),
+            **({"runs": True} if self.runs else {}),
+            **({"walkway": self.walkway} if self.walkway is not None else {}),
             "icon": self.icon,
             "builders": self.builders,
             "foundation": self.foundation,
@@ -417,9 +431,13 @@ designs.append(d)
 # Stone Wall - a fortification segment. Thick weathered stone bricks, corbelled walkway on the
 # inside, crenellated parapet, a ladder up, lanterns. Tiles end to end.
 # =====================================================================================
+WALL_TEXT = "Part of the village wall. Once walls, corners and gatehouses close a loop, everything inside is the village."
 d = Design("stone_wall", "Stone Wall", 9, 8, 3,
-           "A crenellated stone wall segment with a walkway and ladder. Place several end to end.",
-           "Defense", "minecraft:stone_bricks", 1, 4, foundation="minecraft:stone_bricks")
+           "A crenellated stone wall segment with a walkway and ladder. Snaps onto the end of another wall; hold left click and drag to lay a run.",
+           "Defense", "minecraft:stone_bricks", 1, 4, foundation="minecraft:stone_bricks",
+           purpose="wall", purpose_text=WALL_TEXT,
+           ports=[{"x": 0, "z": 1, "facing": "west", "outside": "south"},
+                  {"x": 8, "z": 1, "facing": "east", "outside": "south"}], runs=True, walkway=5)
 stone = weathered("minecraft:stone_bricks", "minecraft:mossy_stone_bricks", "minecraft:cracked_stone_bricks", salt=1)
 d.fill(0, 0, 0, 8, 0, 2, "stone_bricks")
 d.fill(0, 1, 1, 8, 5, 2, stone)
@@ -442,7 +460,10 @@ designs.append(d)
 # =====================================================================================
 d = Design("gatehouse", "Gatehouse", 9, 10, 6,
            "Twin towers over an arched gate - the way in through your walls.",
-           "Defense", "minecraft:iron_bars", 3, 24, foundation="minecraft:stone_bricks")
+           "Defense", "minecraft:iron_bars", 3, 24, foundation="minecraft:stone_bricks",
+           purpose="wall", purpose_text=WALL_TEXT,
+           ports=[{"x": 0, "z": 2, "facing": "west", "outside": "south"},
+                  {"x": 8, "z": 2, "facing": "east", "outside": "south"}])
 stone = weathered("minecraft:stone_bricks", "minecraft:mossy_stone_bricks", "minecraft:cracked_stone_bricks", salt=2)
 d.fill(0, 0, 0, 8, 0, 4, "stone_bricks")
 d.fill(3, 0, 0, 5, 0, 5, "cobblestone")
@@ -481,6 +502,64 @@ for tx in (0, 8):
 d.set(2, 3, 5, "wall_torch[facing=south]"); d.set(6, 3, 5, "wall_torch[facing=south]")
 d.fill(3, 0, 5, 5, 0, 5, "dirt_path")
 designs.append(d)
+
+# =====================================================================================
+# Wall corners - a quarter turn of Stone Wall, the same three bands deep (walkway, body, parapet),
+# curving round a point just off the south-east corner. Joins a wall running east and one running
+# south. Convex puts the parapet on the outside of the curve (a rounded outer corner of the
+# village); concave puts it on the inside (a corner that turns in towards the village).
+# =====================================================================================
+def wall_corner(id, name, desc, convex):
+    d = Design(id, name, 7, 8, 7, desc, "Defense", "minecraft:stone_brick_wall", 1, 3,
+               foundation="minecraft:stone_bricks", purpose="wall", purpose_text=WALL_TEXT,
+               ports=[{"x": 6, "z": 1, "facing": "east", "outside": "north" if convex else "south"},
+                      {"x": 1, "z": 6, "facing": "south", "outside": "west" if convex else "east"}], walkway=5)
+    stone = weathered("minecraft:stone_bricks", "minecraft:mossy_stone_bricks", "minecraft:cracked_stone_bricks", salt=7)
+
+    def band(x, z):
+        r = math.hypot(x + 0.5 - 7, z + 0.5 - 7)
+        return 2 if 6 <= r < 7 else 1 if 5 <= r < 6 else 0 if 4 <= r < 5 else None
+
+    parapet, walkway = (2, 0) if convex else (0, 2)
+    for z in range(7):
+        for x in range(7):
+            b = band(x, z)
+            if b is None:
+                for y in range(8):
+                    d.set(x, y, z, KEEP)
+                continue
+            d.set(x, 0, z, "stone_bricks")
+            if b == walkway:
+                d.fill(x, 1, z, x, 3, z, CLEAR)
+                d.set(x, 4, z, "stone_brick_slab[type=top]")
+            else:
+                d.fill(x, 1, z, x, 5, z, stone)
+                if b == 1:
+                    d.set(x, 5, z, CLEAR)
+                elif (x + z) % 2 == 0:
+                    d.set(x, 6, z, stone(x, 6, z))
+    # A lantern on the parapet where the curve is widest, and a torch lighting the walkway.
+    for x, z in ((3, 3), (2, 2), (4, 4), (1, 1), (5, 5), (0, 0)):
+        if band(x, z) == parapet and (x + z) % 2 == 0:
+            d.set(x, 7, z, "lantern[hanging=false]")
+            break
+    lit = False
+    for x, z in ((3, 3), (2, 2), (4, 4), (3, 2), (2, 3), (4, 3), (3, 4), (1, 1), (5, 5)):
+        if lit or band(x, z) != walkway:
+            continue
+        for dx, dz, facing in ((0, -1, "south"), (0, 1, "north"), (-1, 0, "east"), (1, 0, "west")):
+            nx, nz = x + dx, z + dz
+            if 0 <= nx < 7 and 0 <= nz < 7 and band(nx, nz) == 1:
+                d.set(x, 3, z, f"wall_torch[facing={facing}]")
+                lit = True
+                break
+    return d
+
+
+designs.append(wall_corner("wall_corner_convex", "Wall Corner (Convex)",
+                           "A rounded outer corner for your walls, parapet on the outside of the curve. Snaps onto wall ends.", True))
+designs.append(wall_corner("wall_corner_concave", "Wall Corner (Concave)",
+                           "An inward-turning corner for your walls, parapet on the inside of the curve. Snaps onto wall ends.", False))
 
 # =====================================================================================
 # Watchtower - stone and timber tower, ladder to a railed lookout with a hip roof.
@@ -535,7 +614,9 @@ designs.append(d)
 # =====================================================================================
 d = Design("farm", "Farm Plot", 11, 3, 11,
            "An irrigated, fenced field of wheat, carrots, potatoes and beetroot, with a composter for a Farmer.",
-           "Farming", "minecraft:wheat", 1, 4, foundation="minecraft:dirt")
+           "Farming", "minecraft:wheat", 1, 4, foundation="minecraft:dirt",
+           purpose="farm",
+           purpose_text="Farmers work Farm Plots first. With a Bank standing, the crops they replant here add to the village's wealth.")
 for x in range(11):
     d.set(x, 0, 0, "oak_log[axis=x]"); d.set(x, 0, 10, "oak_log[axis=x]")
 for z in range(1, 10):
@@ -551,7 +632,11 @@ for z in range(1, 10):
             d.set(x, 1, z, crops[z])
 d.set(3, 1, 5, "lily_pad"); d.set(7, 1, 5, "lily_pad")
 d.ring(0, 0, 10, 10, 1, 1, "oak_fence")
-d.set(5, 1, 10, "oak_fence_gate[facing=south,open=false,in_wall=false]")
+# Open at both ends with a path straight through - villagers can't work fence gates, so a gated
+# field is one a Farmer can never get into.
+for z in range(0, 11):
+    d.set(5, 0, z, "dirt_path")
+    d.set(5, 1, z, CLEAR)
 d.set(0, 1, 5, "composter[level=0]")
 for (x, z) in ((0, 0), (10, 0), (0, 10), (10, 10)):
     d.set(x, 2, z, "lantern[hanging=false]")
@@ -724,7 +809,9 @@ designs.append(d)
 # =====================================================================================
 d = Design("bank", "Bank", 11, 10, 10,
            "A columned stone bank on a raised plinth, with a teller's counter and a barred vault.",
-           "Civic", "minecraft:gold_ingot", 3, 40, foundation="minecraft:stone_bricks")
+           "Civic", "minecraft:gold_ingot", 3, 40, foundation="minecraft:stone_bricks",
+           purpose="bank",
+           purpose_text="Holds the village's wealth in its vault. While a Bank stands, blueprints, Chief Desk upgrades and the Chief's trades are paid from it first.")
 d.fill(0, 0, 0, 10, 0, 8, "stone_bricks")
 d.fill(0, 1, 0, 10, 1, 8, "polished_andesite")
 for x in range(2, 9):
@@ -765,7 +852,7 @@ for x in (3, 4, 6, 7):
 for x in (2, 3, 7, 8):
     d.set(x, 2, 2, "chest[facing=south,type=single]")
 d.set(4, 2, 2, "barrel[facing=up]"); d.set(6, 2, 2, "barrel[facing=up]")
-d.set(5, 2, 2, "emerald_block")
+d.set(5, 2, 2, "tommemod:village_vault")
 d.set(3, 5, 5, "lantern[hanging=true]"); d.set(7, 5, 5, "lantern[hanging=true]")
 d.set(5, 5, 3, "lantern[hanging=true]")
 d.fill(4, 2, 5, 6, 2, 5, "red_carpet")
@@ -778,7 +865,9 @@ designs.append(d)
 # =====================================================================================
 d = Design("barracks", "Barracks", 15, 9, 12,
            "A long hall with four bunks, a weapon rack and a training yard - houses your village's defenders.",
-           "Defense", "minecraft:iron_sword", 3, 28)
+           "Defense", "minecraft:iron_sword", 3, 28,
+           purpose="barracks",
+           purpose_text="Musters a Warrior for each bunk. They sleep here in shifts, heal as they rest, take the squires' kit from the chest by their bed, and return a day after falling.")
 X0, X1, Z0, Z1 = 1, 13, 1, 7
 d.fill(X0, 0, Z0, X1, 0, Z1, "cobblestone")
 d.fill(X0 + 1, 0, Z0 + 1, X1 - 1, 0, Z1 - 1, "spruce_planks")
@@ -832,7 +921,9 @@ designs.append(d)
 # =====================================================================================
 d = Design("observatory", "Observatory", 9, 16, 9,
            "An octagonal tower crowned with a glass dome and telescope, with a cartography table for a Cartographer.",
-           "Civic", "minecraft:spyglass", 3, 32, foundation="minecraft:stone_bricks")
+           "Civic", "minecraft:spyglass", 3, 32, foundation="minecraft:stone_bricks",
+           purpose="observatory",
+           purpose_text="Each standing Observatory widens the Chief Desk map.")
 oct7 = [(2, 4), (1, 5), (0, 6), (0, 6), (0, 6), (1, 5), (2, 4)]
 
 

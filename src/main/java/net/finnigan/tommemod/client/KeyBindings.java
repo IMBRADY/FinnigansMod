@@ -46,7 +46,6 @@ public class KeyBindings {
     // Blueprint mode. These only do anything while planning (see client.blueprint.BlueprintInput),
     // so they are bound to keys that are otherwise idle while flying about as a spectator camera.
     public static final KeyMapping BLUEPRINT_ROTATE = blueprintKey("blueprint_rotate", GLFW.GLFW_KEY_R);
-    public static final KeyMapping BLUEPRINT_CONFIRM = blueprintKey("blueprint_confirm", GLFW.GLFW_KEY_ENTER);
     public static final KeyMapping BLUEPRINT_RAISE = blueprintKey("blueprint_raise", GLFW.GLFW_KEY_PAGE_UP);
     public static final KeyMapping BLUEPRINT_LOWER = blueprintKey("blueprint_lower", GLFW.GLFW_KEY_PAGE_DOWN);
     public static final KeyMapping BLUEPRINT_NUDGE_FORWARD = blueprintKey("blueprint_nudge_forward", GLFW.GLFW_KEY_UP);
@@ -66,7 +65,6 @@ public class KeyBindings {
         event.register(SKILL_TREE);
         event.register(CLASS_ABILITY);
         event.register(BLUEPRINT_ROTATE);
-        event.register(BLUEPRINT_CONFIRM);
         event.register(BLUEPRINT_RAISE);
         event.register(BLUEPRINT_LOWER);
         event.register(BLUEPRINT_NUDGE_FORWARD);

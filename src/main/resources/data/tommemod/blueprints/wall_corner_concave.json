@@ -1,0 +1,100 @@
+{
+  "name": "Wall Corner (Concave)",
+  "description": "An inward-turning corner for your walls, parapet on the inside of the curve. Snaps onto wall ends.",
+  "category": "Defense",
+  "purpose": "wall",
+  "purpose_text": "Part of the village wall. Once walls, corners and gatehouses close a loop, everything inside is the village.",
+  "ports": [{"x": 6, "z": 1, "facing": "east", "outside": "south"}, {"x": 1, "z": 6, "facing": "south", "outside": "east"}],
+  "walkway": 5,
+  "icon": "minecraft:stone_brick_wall",
+  "builders": 1,
+  "foundation": "minecraft:stone_bricks",
+  "cost": {
+    "minecraft:emerald": 3,
+    "minecraft:stone_bricks": 54,
+    "minecraft:torch": 1,
+    "minecraft:lantern": 1
+  },
+  "palette": {
+    "A": "minecraft:stone_bricks",
+    "B": "minecraft:cracked_stone_bricks",
+    "C": "minecraft:mossy_stone_bricks",
+    "D": "minecraft:wall_torch[facing=north]",
+    "E": "minecraft:stone_brick_slab[type=top]",
+    "F": "minecraft:lantern[hanging=false]"
+  },
+  "layers": [
+    [
+      "~~~~AAA",
+      "~~~AAAA",
+      "~~AAAAA",
+      "~AAAA~~",
+      "AAAA~~~",
+      "AAA~~~~",
+      "AAA~~~~"
+    ],
+    [
+      "~~~~...",
+      "~~~..BA",
+      "~~.AABA",
+      "~.AAA~~",
+      "..AA~~~",
+      ".AA~~~~",
+      ".AA~~~~"
+    ],
+    [
+      "~~~~...",
+      "~~~..AB",
+      "~~.AAAA",
+      "~.CAC~~",
+      "..CA~~~",
+      ".AA~~~~",
+      ".AA~~~~"
+    ],
+    [
+      "~~~~...",
+      "~~~..BC",
+      "~~DBBCC",
+      "~.ACA~~",
+      "..CC~~~",
+      ".CA~~~~",
+      ".AB~~~~"
+    ],
+    [
+      "~~~~EEE",
+      "~~~EECC",
+      "~~EAAAA",
+      "~EACA~~",
+      "EEAA~~~",
+      "EAA~~~~",
+      "EAC~~~~"
+    ],
+    [
+      "~~~~...",
+      "~~~....",
+      "~~...AA",
+      "~..CA~~",
+      "...C~~~",
+      "..B~~~~",
+      "..A~~~~"
+    ],
+    [
+      "~~~~...",
+      "~~~....",
+      "~~....A",
+      "~..A.~~",
+      "....~~~",
+      "...~~~~",
+      "..A~~~~"
+    ],
+    [
+      "~~~~...",
+      "~~~....",
+      "~~.....",
+      "~..F.~~",
+      "....~~~",
+      "...~~~~",
+      "...~~~~"
+    ]
+  ]
+}

@@ -9,6 +9,8 @@ import net.finnigan.tommemod.village.VillageManager;
 import net.finnigan.tommemod.village.VillageRegion;
 import net.finnigan.tommemod.village.VillageUpgrade;
 import net.finnigan.tommemod.village.VillageWalls;
+import net.finnigan.tommemod.village.buildings.BuildingPurpose;
+import net.finnigan.tommemod.village.buildings.VillageBuildings;
 import net.finnigan.tommemod.villager.ModPoiTypes;
 import net.finnigan.tommemod.villager.ModVillagers;
 import net.minecraft.core.BlockPos;
@@ -60,6 +62,10 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
     public record PoiPoint(int dx, int dz) {
     }
 
+    /** One of the village's finished buildings, for the Buildings tab. */
+    public record BuildingEntry(String name, String purposeText, boolean hasPurpose, boolean standing) {
+    }
+
     /** How often the job site's availability is re-evaluated. Cheap, but not free - it counts the
      * village's Villagers - so it runs on its own slow cadence rather than every tick. */
     private static final int RECRUIT_INTERVAL_TICKS = 100;
@@ -82,10 +88,18 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
     private int ironGolemCount = 0;
     private int activeWarriorCount = 0;
     private int totalPopulation = 0;
+    /** How far the map tab reaches: the configured radius, widened by each standing Observatory. */
+    private int mapRadius = 0;
+    private int observatories = 0;
     /** Every Chief Desk upgrade's current level, mirrored from VillageManager for the screen. */
     private final Map<VillageUpgrade, Integer> upgradeLevels = new EnumMap<>(VillageUpgrade.class);
     private List<Marker> markers = new ArrayList<>();
     private List<PoiPoint> poiPoints = new ArrayList<>();
+    /** Once the village's walls close a loop: the edge of the enclosed ground, and the wall itself,
+     * each column packed as (dx << 16 | dz & 0xFFFF) relative to this desk. Empty while unwalled. */
+    private int[] outlineColumns = new int[0];
+    private int[] wallColumns = new int[0];
+    private List<BuildingEntry> buildings = new ArrayList<>();
 
     public MonolithBlockEntity(BlockPos pos, BlockState state) {
         this(ModBlockEntities.MONOLITH.get(), pos, state);
@@ -231,6 +245,9 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
             upgradeLevels.clear();
             markers.clear();
             poiPoints.clear();
+            outlineColumns = new int[0];
+            wallColumns = new int[0];
+            buildings.clear();
             setChanged();
             return;
         }
@@ -238,19 +255,33 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
         villageId = resolved.get();
         VillageRegion region = manager.resolveVillageRegion(level, villageId);
         BlockPos self = this.getBlockPos();
+        observatories = VillageBuildings.get(level).countStanding(level, villageId, BuildingPurpose.OBSERVATORY);
+        mapRadius = ModConfig.MONOLITH_MINIMAP_RADIUS_BLOCKS.get() + observatories * ModConfig.OBSERVATORY_MAP_BONUS_BLOCKS.get();
         for (VillageUpgrade upgrade : VillageUpgrade.values()) {
             upgradeLevels.put(upgrade, upgrade.levelIn(manager, villageId));
         }
 
-        // Once the village is walled the outline stops tracking its POIs and shows the wall instead -
-        // that is now where the village ends. The two are drawn by the same code because they are the
-        // same shape: VillageWallBuilder freezes the POI discs the outline was traced from, at the
-        // same radius, so handing the client those discs redraws the ring the wall stands on.
+        // Until its walls close a loop, a village is outlined by its POIs (beds, job sites). Once they
+        // do, the outline is the walls' - that is now where the village ends - and the walls are drawn.
         VillageWalls walls = manager.getWalls(villageId);
-        List<BlockPos> outlineDiscs = walls != null ? walls.discCentres() : manager.getPoiPositions(villageId);
-        poiPoints = new ArrayList<>(outlineDiscs.size());
-        for (BlockPos discPos : outlineDiscs) {
-            poiPoints.add(new PoiPoint(discPos.getX() - self.getX(), discPos.getZ() - self.getZ()));
+        poiPoints = new ArrayList<>();
+        if (walls != null && !walls.isEmpty()) {
+            outlineColumns = pack(walls.perimeterColumns(), self);
+            wallColumns = pack(walls.wallColumns(), self);
+        } else {
+            outlineColumns = new int[0];
+            wallColumns = new int[0];
+            for (BlockPos poi : manager.getPoiPositions(villageId)) {
+                poiPoints.add(new PoiPoint(poi.getX() - self.getX(), poi.getZ() - self.getZ()));
+            }
+        }
+
+        VillageBuildings buildingData = VillageBuildings.get(level);
+        buildings = new ArrayList<>();
+        for (VillageBuildings.Building b : buildingData.inVillage(level, villageId)) {
+            var bp = b.blueprint();
+            buildings.add(new BuildingEntry(b.displayName(), bp != null ? bp.purposeText() : "",
+                    !b.purpose.isEmpty(), buildingData.isStanding(level, b)));
         }
 
         AABB box = new AABB(region.anchor()).inflate(region.radius());
@@ -282,6 +313,36 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
         setChanged();
     }
 
+    private static int[] pack(List<BlockPos> columns, BlockPos self) {
+        int[] out = new int[columns.size()];
+        for (int i = 0; i < out.length; i++) {
+            BlockPos c = columns.get(i);
+            out[i] = (c.getX() - self.getX()) << 16 | ((c.getZ() - self.getZ()) & 0xFFFF);
+        }
+        return out;
+    }
+
+    /** Unpacks one column from {@link #getOutlineColumns()} or {@link #getWallColumns()}: {dx, dz}. */
+    public static int unpackDx(int packed) {
+        return packed >> 16;
+    }
+
+    public static int unpackDz(int packed) {
+        return (short) (packed & 0xFFFF);
+    }
+
+    public int[] getOutlineColumns() {
+        return outlineColumns;
+    }
+
+    public int[] getWallColumns() {
+        return wallColumns;
+    }
+
+    public List<BuildingEntry> getBuildings() {
+        return buildings;
+    }
+
     public boolean hasVillage() {
         return villageId != null;
     }
@@ -301,6 +362,14 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
 
     public int getTotalPopulation() {
         return totalPopulation;
+    }
+
+    public int getMapRadius() {
+        return mapRadius > 0 ? mapRadius : ModConfig.MONOLITH_MINIMAP_RADIUS_BLOCKS.get();
+    }
+
+    public int getObservatoryCount() {
+        return observatories;
     }
 
     public int getUpgradeLevel(VillageUpgrade upgrade) {
@@ -336,6 +405,8 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
         tag.putInt("IronGolemCount", ironGolemCount);
         tag.putInt("ActiveWarriorCount", activeWarriorCount);
         tag.putInt("TotalPopulation", totalPopulation);
+        tag.putInt("MapRadius", mapRadius);
+        tag.putInt("Observatories", observatories);
         // Keyed by name rather than ordinal so reordering the enum can't silently shuffle levels.
         CompoundTag upgradeTag = new CompoundTag();
         upgradeLevels.forEach((upgrade, level) -> upgradeTag.putInt(upgrade.name(), level));
@@ -359,6 +430,19 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
             poiList.add(p);
         }
         tag.put("PoiPoints", poiList);
+        tag.putIntArray("OutlineColumns", outlineColumns);
+        tag.putIntArray("WallColumns", wallColumns);
+
+        ListTag buildingList = new ListTag();
+        for (BuildingEntry b : buildings) {
+            CompoundTag t = new CompoundTag();
+            t.putString("Name", b.name());
+            t.putString("Purpose", b.purposeText());
+            t.putBoolean("HasPurpose", b.hasPurpose());
+            t.putBoolean("Standing", b.standing());
+            buildingList.add(t);
+        }
+        tag.put("Buildings", buildingList);
     }
 
     @Override
@@ -369,6 +453,8 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
         ironGolemCount = tag.getInt("IronGolemCount");
         activeWarriorCount = tag.getInt("ActiveWarriorCount");
         totalPopulation = tag.getInt("TotalPopulation");
+        mapRadius = tag.getInt("MapRadius");
+        observatories = tag.getInt("Observatories");
 
         upgradeLevels.clear();
         CompoundTag upgradeTag = tag.getCompound("UpgradeLevels");
@@ -388,6 +474,15 @@ public class MonolithBlockEntity extends BlockEntity implements MenuProvider {
         for (int i = 0; i < poiList.size(); i++) {
             CompoundTag p = poiList.getCompound(i);
             poiPoints.add(new PoiPoint(p.getInt("Dx"), p.getInt("Dz")));
+        }
+        outlineColumns = tag.getIntArray("OutlineColumns");
+        wallColumns = tag.getIntArray("WallColumns");
+
+        buildings = new ArrayList<>();
+        ListTag buildingList = tag.getList("Buildings", Tag.TAG_COMPOUND);
+        for (int i = 0; i < buildingList.size(); i++) {
+            CompoundTag t = buildingList.getCompound(i);
+            buildings.add(new BuildingEntry(t.getString("Name"), t.getString("Purpose"), t.getBoolean("HasPurpose"), t.getBoolean("Standing")));
         }
     }
 

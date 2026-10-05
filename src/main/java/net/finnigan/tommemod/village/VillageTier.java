@@ -49,6 +49,52 @@ public final class VillageTier {
         };
     }
 
+    /** One line of what a tier gives the village, with an item to show beside it. */
+    public record Perk(Item icon, String text) {
+    }
+
+    /**
+     * Everything this tier gives, one perk per line, for the Chief Desk's tier tab. Built from the
+     * same tables the squires read, so the screen can never promise something they don't hand out.
+     */
+    public static List<Perk> perks(int tier) {
+        if (tier <= 0) return List.of(new Perk(Items.BARRIER, "No militia - squires arm no one"));
+        java.util.ArrayList<Perk> perks = new java.util.ArrayList<>();
+
+        Item helmet = armorFor(tier, EquipmentSlot.HEAD);
+        Item boots = armorFor(tier, EquipmentSlot.FEET);
+        String armor;
+        if (helmet == Items.CHAINMAIL_HELMET && boots == Items.IRON_BOOTS) {
+            armor = "Armorers: chainmail helmet and chestplate, iron leggings and boots";
+        } else {
+            armor = boots == Items.IRON_BOOTS ? "Armorers: a full set of iron armor" : "Armorers: a full set of chainmail";
+        }
+        perks.add(new Perk(armorFor(tier, EquipmentSlot.CHEST), armor));
+
+        List<Item> weapons = weaponsFor(tier);
+        String weaponText = weapons.size() == 1 ? "Weaponsmiths: iron swords" : "Weaponsmiths: iron swords, spears and cleavers";
+        if (!diamondWeaponsFor(tier).isEmpty()) weaponText += ", with a chance of diamond";
+        perks.add(new Perk(diamondWeaponsFor(tier).isEmpty() ? weapons.get(weapons.size() - 1) : Items.DIAMOND_SWORD, weaponText));
+
+        Potion healing = healingFor(tier);
+        Potion strength = strengthFor(tier);
+        String cleric = "Clerics: Instant Health " + (healing == Potions.STRONG_HEALING ? "II" : "I");
+        if (strength != null) cleric += " and Strength " + (strength == Potions.STRONG_STRENGTH ? "II" : "I");
+        perks.add(new Perk(Items.POTION, cleric));
+
+        perks.add(new Perk(Items.BOW, "Fletchers: bows and arrows"));
+
+        if (tier >= net.finnigan.tommemod.config.ModConfig.VILLAGE_TIER_BUFF_MIN_TIER.get()) {
+            perks.add(new Perk(Items.GOLDEN_APPLE, "Friends of the village get small stat buffs inside it"));
+        }
+
+        List<? extends Integer> ranges = net.finnigan.tommemod.config.ModConfig.VILLAGE_TIER_MAX_RANGE_BLOCKS.get();
+        if (!ranges.isEmpty()) {
+            perks.add(new Perk(Items.MAP, "Village may reach up to " + ranges.get(Math.min(tier, ranges.size() - 1)) + " blocks"));
+        }
+        return perks;
+    }
+
     // ---- Armorer ----
 
     /**

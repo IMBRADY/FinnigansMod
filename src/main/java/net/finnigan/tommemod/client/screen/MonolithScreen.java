@@ -9,6 +9,8 @@ import net.finnigan.tommemod.config.ModConfig;
 import net.finnigan.tommemod.menu.MonolithMenu;
 import net.finnigan.tommemod.network.ModNetwork;
 import net.finnigan.tommemod.network.packet.MonolithUpgradePacket;
+import net.finnigan.tommemod.network.packet.SurveyBuildingsPacket;
+import net.finnigan.tommemod.village.VillageTier;
 import net.finnigan.tommemod.village.VillageUpgrade;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -52,14 +54,16 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
     private static final ResourceLocation TERRAIN_TEXTURE_LOCATION =
             new ResourceLocation(TommeMod.MOD_ID, "dynamic/monolith_minimap");
 
-    private enum Tab { MINIMAP, UPGRADES }
+    private enum Tab { MINIMAP, TIER, UPGRADES, BUILDINGS }
+
+    private static final int BUILDING_ROW_HEIGHT = 22;
 
     // Canvas stays a fixed pixel size regardless of zoom; zoom instead changes how many world
     // blocks that fixed canvas represents (see computePixelsPerBlock).
     private static final int CANVAS_RADIUS = 63;
     private static final int CANVAS_SIZE = CANVAS_RADIUS * 2 + 1;
     private static final int MIN_EFFECTIVE_RADIUS = 8;
-    private static final int MAX_EFFECTIVE_RADIUS = 256;
+    private static final int MAX_EFFECTIVE_RADIUS = 1024;
 
     private static final float MIN_ZOOM = 0.2F;
     private static final float MAX_ZOOM = 3.0F;
@@ -73,7 +77,13 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
     private static final int UPGRADE_BUTTON_OFFSET_Y = 34;
 
     private Tab activeTab = Tab.MINIMAP;
+    /** The tier the Tier tab is showing; -1 until first opened, when it jumps to the next tier to buy. */
+    private int viewedTier = -1;
+    private final Button[] tierButtons = new Button[VillageTier.MAX];
+    private Button tierUpgradeButton;
     private final Map<VillageUpgrade, Button> upgradeButtons = new EnumMap<>(VillageUpgrade.class);
+    private Button surveyButton;
+    private int buildingScroll;
     private float zoom = 1.0F;
 
     private DynamicTexture terrainTexture;
@@ -82,10 +92,10 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
 
     public MonolithScreen(MonolithMenu menu, Inventory playerInv, Component title) {
         super(menu, playerInv, title);
-        this.imageWidth = 200;
+        this.imageWidth = 240;
         // Sized by the Upgrades tab, which is the taller of the two: four rows of UPGRADE_ROW_HEIGHT
         // under a 30px header. The map tab has room to spare inside that.
-        this.imageHeight = 252;
+        this.imageHeight = 276;
     }
 
     @Override
@@ -101,12 +111,29 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
 
         this.addRenderableWidget(Button.builder(Component.literal("Map"), b -> activeTab = Tab.MINIMAP)
                 .bounds(x + 6, y + 6, 60, 16).build());
+        this.addRenderableWidget(Button.builder(Component.literal("Tier"), b -> activeTab = Tab.TIER)
+                .bounds(x + 68, y + 6, 48, 16).build());
         this.addRenderableWidget(Button.builder(Component.literal("Upgrades"), b -> activeTab = Tab.UPGRADES)
-                .bounds(x + 68, y + 6, 64, 16).build());
+                .bounds(x + 118, y + 6, 56, 16).build());
+        this.addRenderableWidget(Button.builder(Component.literal("Buildings"), b -> activeTab = Tab.BUILDINGS)
+                .bounds(x + 176, y + 6, 58, 16).build());
+        surveyButton = this.addRenderableWidget(Button.builder(Component.literal("Check buildings"),
+                        b -> ModNetwork.CHANNEL.sendToServer(new SurveyBuildingsPacket(menu.getBlockEntity().getBlockPos())))
+                .bounds(x + imageWidth - 110, y + imageHeight - 24, 100, 16).build());
+
+        for (int i = 0; i < VillageTier.MAX; i++) {
+            int tier = i + 1;
+            tierButtons[i] = this.addRenderableWidget(Button.builder(Component.literal("Tier " + roman(tier)), b -> viewedTier = tier)
+                    .bounds(x + 10 + i * 74, y + 46, 70, 16).build());
+        }
+        tierUpgradeButton = this.addRenderableWidget(Button.builder(Component.literal("Upgrade"), b -> onUpgradeClicked(VillageUpgrade.VILLAGE_TIER))
+                .bounds(x + imageWidth - 90, y + imageHeight - 24, 80, 16).build());
 
         upgradeButtons.clear();
         int rowY = y + 30;
         for (VillageUpgrade upgrade : VillageUpgrade.values()) {
+            // The tier has its own tab now.
+            if (upgrade == VillageUpgrade.VILLAGE_TIER) continue;
             upgradeButtons.put(upgrade, this.addRenderableWidget(
                     Button.builder(Component.literal("Upgrade"), b -> onUpgradeClicked(upgrade))
                             .bounds(x + 10, rowY + UPGRADE_BUTTON_OFFSET_Y, 64, 16).build()));
@@ -127,6 +154,10 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (activeTab == Tab.MINIMAP) {
             zoom = Mth.clamp((float) (zoom + delta * ZOOM_STEP), MIN_ZOOM, MAX_ZOOM);
+            return true;
+        }
+        if (activeTab == Tab.BUILDINGS) {
+            buildingScroll = Math.max(0, buildingScroll - (int) Math.signum(delta));
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
@@ -151,6 +182,17 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         MonolithBlockEntity be = menu.getBlockEntity();
+        int currentTier = be.getUpgradeLevel(VillageUpgrade.VILLAGE_TIER);
+        if (viewedTier < 1) viewedTier = Math.min(currentTier + 1, VillageTier.MAX);
+        for (int i = 0; i < tierButtons.length; i++) {
+            tierButtons[i].visible = activeTab == Tab.TIER && be.hasVillage();
+            tierButtons[i].active = viewedTier != i + 1;
+        }
+        ReputationTier tierRequired = VillageTier.reputationRequiredFor(viewedTier);
+        tierUpgradeButton.visible = activeTab == Tab.TIER && be.hasVillage() && viewedTier == currentTier + 1
+                && (tierRequired == null || meetsStanding(tierRequired));
+        tierUpgradeButton.setMessage(Component.literal("Unlock Tier " + roman(viewedTier)));
+
         upgradeButtons.forEach((upgrade, button) -> {
             // Nothing left to buy - or nothing this player is trusted with yet - reads better as no
             // button at all than as one that does nothing.
@@ -161,6 +203,7 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
                     && level < upgrade.maxLevel()
                     && (required == null || meetsStanding(required));
         });
+        surveyButton.visible = activeTab == Tab.BUILDINGS && be.hasVillage();
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         int x = leftPos;
@@ -175,7 +218,9 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
 
         switch (activeTab) {
             case MINIMAP -> renderMinimapTab(guiGraphics, be, x, y);
+            case TIER -> renderTierTab(guiGraphics, be, x, y);
             case UPGRADES -> renderUpgradesTab(guiGraphics, be, x, y);
+            case BUILDINGS -> renderBuildingsTab(guiGraphics, be, x, y);
         }
 
         this.renderTooltip(guiGraphics, mouseX, mouseY);
@@ -186,7 +231,8 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
     /** How many screen pixels one world block occupies at the current zoom - <1 when zoomed out
      * (each pixel covers multiple blocks), >1 when zoomed in. */
     private double computePixelsPerBlock() {
-        int baseRadius = Math.min(ModConfig.MONOLITH_MINIMAP_RADIUS_BLOCKS.get(), MAX_EFFECTIVE_RADIUS);
+        // Observatories widen the map (see MonolithBlockEntity#getMapRadius).
+        int baseRadius = Math.min(menu.getBlockEntity().getMapRadius(), MAX_EFFECTIVE_RADIUS);
         int effectiveRadius = Mth.clamp(Math.round(baseRadius / zoom), MIN_EFFECTIVE_RADIUS, MAX_EFFECTIVE_RADIUS);
         return (double) CANVAS_SIZE / (effectiveRadius * 2 + 1);
     }
@@ -227,6 +273,10 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
         guiGraphics.drawString(font, "Active Soldiers: " + be.getActiveWarriorCount(), textX, infoY + 12, 0xFFFFFFFF);
         guiGraphics.blit(VILLAGER_FACE, iconX, infoY + 23, 0, 0, 8, 8, 8, 8);
         guiGraphics.drawString(font, "Total Population: " + be.getTotalPopulation(), textX, infoY + 24, 0xFFFFFFFF);
+        if (be.getObservatoryCount() > 0) {
+            guiGraphics.drawString(font, "Observatories: " + be.getObservatoryCount() + " (map radius " + be.getMapRadius() + ")",
+                    textX, infoY + 36, 0xFF55FF55);
+        }
     }
 
     /**
@@ -313,6 +363,12 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
      * on and sized to the real village, and is irregular/non-circular for sprawling villages.
      */
     private void bakePoiBoundary(MonolithBlockEntity be, int[] colorsNative, double pixelsPerBlock) {
+        // Walled: the walls are drawn in stone grey, and the edge of the ground they enclose in green.
+        if (be.getOutlineColumns().length > 0) {
+            plotColumns(be.getWallColumns(), colorsNative, pixelsPerBlock, 0xFF8C8C8C);
+            plotColumns(be.getOutlineColumns(), colorsNative, pixelsPerBlock, 0xFF00FF00);
+            return;
+        }
         List<MonolithBlockEntity.PoiPoint> pois = be.getPoiPoints();
         if (pois.isEmpty()) return;
 
@@ -354,6 +410,15 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
         }
     }
 
+    private static void plotColumns(int[] columns, int[] colorsNative, double pixelsPerBlock, int color) {
+        for (int packed : columns) {
+            int px = CANVAS_RADIUS + (int) Math.round(MonolithBlockEntity.unpackDx(packed) * pixelsPerBlock);
+            int pz = CANVAS_RADIUS + (int) Math.round(MonolithBlockEntity.unpackDz(packed) * pixelsPerBlock);
+            if (px < 0 || pz < 0 || px >= CANVAS_SIZE || pz >= CANVAS_SIZE) continue;
+            colorsNative[px + pz * CANVAS_SIZE] = color;
+        }
+    }
+
     private void uploadTerrainTexture(int[] colorsNative) {
         if (terrainTexture == null) {
             terrainTexture = new DynamicTexture(new NativeImage(NativeImage.Format.RGBA, CANVAS_SIZE, CANVAS_SIZE, false));
@@ -375,11 +440,135 @@ public class MonolithScreen extends AbstractContainerScreen<MonolithMenu> {
         terrainTexture.upload();
     }
 
+    // ---- Village Tier ----
+
+    /**
+     * The tier ladder: current tier at the top, a button per tier, and the chosen tier's perks one per
+     * line. Whether it is already unlocked, the next to buy (with its price and standing requirement),
+     * or further off is shown beside its name.
+     */
+    private void renderTierTab(GuiGraphics g, MonolithBlockEntity be, int x, int y) {
+        int current = be.getUpgradeLevel(VillageUpgrade.VILLAGE_TIER);
+        g.drawString(font, "Village Tier", x + 10, y + 2, 0xFFFFD27F);
+        String now = current == 0 ? "None yet" : "Tier " + roman(current) + " of " + roman(VillageTier.MAX);
+        g.drawString(font, now, x + imageWidth - 10 - font.width(now), y + 2, 0xFFFFFFFF);
+
+        int tier = viewedTier;
+        int top = y + 38;
+        g.fill(x + 8, top, x + imageWidth - 8, y + imageHeight - 60, 0x40000000);
+        String status;
+        int statusColor;
+        if (tier <= current) {
+            status = "\u2714 Unlocked";
+            statusColor = 0xFF55FF55;
+        } else if (tier == current + 1) {
+            status = "Next";
+            statusColor = 0xFFFFAA00;
+        } else {
+            status = "Unlock Tier " + roman(tier - 1) + " first";
+            statusColor = 0xFF888888;
+        }
+        g.drawString(font, "Tier " + roman(tier), x + 14, top + 5, 0xFFFFFFFF);
+        g.drawString(font, status, x + imageWidth - 14 - font.width(status), top + 5, statusColor);
+
+        int lineY = top + 20;
+        int textX = x + 34;
+        int textWidth = imageWidth - 34 - 14;
+        boolean owned = tier <= current;
+        for (VillageTier.Perk perk : VillageTier.perks(tier)) {
+            List<net.minecraft.util.FormattedCharSequence> lines = font.split(Component.literal(perk.text()), textWidth);
+            int blockHeight = Math.max(18, lines.size() * 10 + 2);
+            g.renderItem(new net.minecraft.world.item.ItemStack(perk.icon()), x + 14, lineY + (blockHeight - 16) / 2);
+            for (int i = 0; i < lines.size(); i++) {
+                g.drawString(font, lines.get(i), textX, lineY + (blockHeight - lines.size() * 10) / 2 + i * 10 + 1,
+                        owned ? 0xFFE6F0E6 : 0xFFAAAAAA);
+            }
+            lineY += blockHeight + 2;
+        }
+
+        int footY = y + imageHeight - 54;
+        if (current >= VillageTier.MAX && tier == current) {
+            g.drawString(font, "Highest tier reached", x + 10, footY, 0xFFFFAA00);
+        } else if (tier == current + 1) {
+            ReputationTier required = VillageTier.reputationRequiredFor(tier);
+            if (required != null) {
+                boolean ok = meetsStanding(required);
+                g.drawString(font, (ok ? "\u2714 " : "\u2716 ") + "Requires " + titleCase(required.name()) + " standing",
+                        x + 10, footY, ok ? 0xFF55FF55 : 0xFFFF5555);
+            }
+            g.drawString(font, "Cost: " + VillageUpgrade.VILLAGE_TIER.costOfNextLevel(current) + " emeralds",
+                    x + 10, footY + 11, 0xFFFFFFFF);
+        }
+    }
+
+    private static String roman(int n) {
+        return switch (n) {
+            case 1 -> "I";
+            case 2 -> "II";
+            case 3 -> "III";
+            default -> String.valueOf(n);
+        };
+    }
+
+    // ---- Buildings ----
+
+    /**
+     * Every finished building in the village and whether it is doing its job - standing buildings
+     * with a purpose in green, ones knocked down below the line in red. "Check buildings" finds any
+     * standing building the village has no record of (one finished before buildings were tracked).
+     */
+    private void renderBuildingsTab(GuiGraphics g, MonolithBlockEntity be, int x, int y) {
+        List<MonolithBlockEntity.BuildingEntry> all = be.getBuildings();
+        g.drawString(font, "Buildings", x + 10, y + 2, 0xFFFFD27F);
+        long active = all.stream().filter(b -> b.hasPurpose() && b.standing()).count();
+        String summary = active + " giving buffs";
+        g.drawString(font, summary, x + imageWidth - 10 - font.width(summary), y + 2, 0xFF55FF55);
+
+        int top = y + 16;
+        int bottom = y + imageHeight - 64;
+        int rows = Math.max(1, (bottom - top) / BUILDING_ROW_HEIGHT);
+        buildingScroll = Math.min(buildingScroll, Math.max(0, all.size() - rows));
+        if (all.isEmpty()) {
+            g.drawString(font, "No finished buildings on record.", x + 10, top + 4, 0xFFAAAAAA);
+            g.drawString(font, "Built one before they were tracked?", x + 10, top + 16, 0xFFAAAAAA);
+            g.drawString(font, "Press Check buildings to find it.", x + 10, top + 28, 0xFFAAAAAA);
+            return;
+        }
+        for (int i = 0; i < rows && buildingScroll + i < all.size(); i++) {
+            MonolithBlockEntity.BuildingEntry b = all.get(buildingScroll + i);
+            int rowY = top + i * BUILDING_ROW_HEIGHT;
+            g.fill(x + 8, rowY, x + imageWidth - 8, rowY + BUILDING_ROW_HEIGHT - 2, 0x40000000);
+            String status;
+            int statusColor;
+            if (!b.standing()) {
+                status = "✖ Damaged";
+                statusColor = 0xFFFF5555;
+            } else if (b.hasPurpose()) {
+                status = "✔ Active";
+                statusColor = 0xFF55FF55;
+            } else {
+                status = "No buff";
+                statusColor = 0xFF888888;
+            }
+            g.drawString(font, font.plainSubstrByWidth(b.name(), imageWidth - 90), x + 12, rowY + 2, 0xFFFFFFFF);
+            g.drawString(font, status, x + imageWidth - 12 - font.width(status), rowY + 2, statusColor);
+            if (!b.purposeText().isEmpty()) {
+                g.drawString(font, font.plainSubstrByWidth(b.purposeText(), imageWidth - 24), x + 12, rowY + 11,
+                        b.standing() ? 0xFFAAAAAA : 0xFF666666);
+            }
+        }
+        if (all.size() > rows) {
+            String more = (buildingScroll + 1) + "-" + Math.min(all.size(), buildingScroll + rows) + " of " + all.size() + " (scroll)";
+            g.drawString(font, more, x + 10, bottom + 4, 0xFF888888);
+        }
+    }
+
     // ---- Village Upgrades ----
 
     private void renderUpgradesTab(GuiGraphics guiGraphics, MonolithBlockEntity be, int x, int y) {
         int rowY = y;
         for (VillageUpgrade upgrade : VillageUpgrade.values()) {
+            if (upgrade == VillageUpgrade.VILLAGE_TIER) continue;
             int level = be.getUpgradeLevel(upgrade);
             int maxLevel = upgrade.maxLevel();
 

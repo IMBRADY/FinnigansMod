@@ -82,7 +82,7 @@ public class MonolithUpgradePacket {
             }
 
             int cost = upgrade.costOfNextLevel(currentLevel);
-            if (!VillageFunds.tryDeductItem(player, upgrade.costItem(), cost)) {
+            if (!VillageFunds.tryDeductItem(player, villageId, upgrade.costItem(), cost)) {
                 player.displayClientMessage(
                         Component.literal("Not enough " + upgrade.costItemPlural() + " (" + cost + " needed)")
                                 .withStyle(ChatFormatting.RED),

@@ -32,6 +32,10 @@ import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import net.finnigan.tommemod.village.buildings.VillageBuildings;
+import net.minecraftforge.registries.ForgeRegistries;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -120,7 +124,8 @@ public final class BlueprintModeManager {
                 true, village.get(), region.anchor(), placeRadius, flightRadius,
                 t.getDouble("X"), t.getDouble("Y"), t.getDouble("Z"), t.getFloat("YRot"), t.getFloat("XRot"),
                 initialBlueprint != null ? initialBlueprint : "", ModConfig.BLUEPRINT_MAX_GROUND_GAP.get(),
-                previousMode(player) == GameType.CREATIVE, ModConfig.BLUEPRINT_MAX_ACTIVE_SITES.get()));
+                previousMode(player) == GameType.CREATIVE, ModConfig.BLUEPRINT_MAX_ACTIVE_SITES.get(),
+                ModConfig.WALL_MAX_GROUND_GAP.get(), ModConfig.BLUEPRINT_MAX_WALL_SITES.get()));
         syncSites(player);
     }
 
@@ -203,9 +208,22 @@ public final class BlueprintModeManager {
             infos.add(new SyncConstructionSitesPacket.SiteInfo(s.id(), s.blueprintId(), s.rotation(), s.origin(),
                     s.completedCount(), s.total(), BuilderWorkHandler.workersOn(level, s.id())));
         }
+        // Finished buildings too: walls snap onto them, and the planner can knock them down.
+        List<SyncConstructionSitesPacket.BuildingInfo> built = new ArrayList<>();
+        for (VillageBuildings.Building b : VillageBuildings.get(level).inVillage(level, village)) {
+            built.add(new SyncConstructionSitesPacket.BuildingInfo(b.id, b.blueprintId, b.rotation, b.origin));
+        }
         VillageRegion region = VillageManager.get(level).resolveVillageRegion(level, village);
         int builders = BuilderWorkHandler.countBuilders(level, region);
-        ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SyncConstructionSitesPacket(builders, infos));
+        boolean hasBank = VillageBuildings.get(level).hasBank(level, village);
+        Map<String, Long> bank = new HashMap<>();
+        if (hasBank) {
+            VillageManager.get(level).bankContents(village).forEach((item, count) -> {
+                ResourceLocation key = ForgeRegistries.ITEMS.getKey(item);
+                if (key != null) bank.put(key.toString(), count);
+            });
+        }
+        ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SyncConstructionSitesPacket(builders, infos, built, hasBank, bank));
     }
 
     // ---- Safety nets ----

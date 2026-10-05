@@ -9,7 +9,10 @@ import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.GenericRangedB
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.GenericRangedCrossbowAttackGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.MeleeUnlessRangedAttackGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.MusketAttackGoal;
+import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.ProtectThreatenedAlliesTargetGoal;
 import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.SeekArmorGoal;
+import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.CollectKitGoal;
+import net.finnigan.tommemod.entity.custom.WarriorVillagerHelpers.SleepInBunkGoal;
 import net.finnigan.tommemod.config.ModConfig;
 import net.finnigan.tommemod.item.ModItems;
 import net.finnigan.tommemod.menu.WarriorVillagerMenu;
@@ -77,8 +80,9 @@ import java.util.UUID;
 /**
  * A village's combat defender: holds a Halberd, wears armor, picks up better armor dropped nearby,
  * defends villagers like an Iron Golem, and attacks hostiles at night. Its equipment is editable
- * only by that village's Chief, through a custom menu. Never spawns naturally - only ever placed by
- * the Target-block job-site trigger in WarriorVillagerSpawnEvents.
+ * only by that village's Chief, through a custom menu. Never spawns naturally - a finished Barracks
+ * musters one per bed (see BarracksService), and that bunk is its home: it sleeps there in shifts,
+ * healing as it sleeps, and collects the kit its squires leave in the chest beside the bed.
  */
 public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider, RangedAttackMob, CrossbowAttackMob {
 
@@ -100,6 +104,42 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
     private static final int HEALTHY_WARRIORS_REFRESH_INTERVAL_TICKS = 40;
 
     private int healthyWarriorsCooldown = 0;
+
+    // The Barracks bunk this Warrior was mustered for, if any.
+    @Nullable
+    private UUID barracksId;
+    @Nullable
+    private BlockPos bunkBed;
+    @Nullable
+    private BlockPos bunkChest;
+    private int shiftStart;
+    private int sleepHealTicks;
+
+    public void assignBunk(UUID barracksId, BlockPos bed, @Nullable BlockPos chest, int shiftStart) {
+        this.barracksId = barracksId;
+        this.bunkBed = bed;
+        this.bunkChest = chest;
+        this.shiftStart = shiftStart;
+    }
+
+    @Nullable
+    public UUID getBarracksId() {
+        return barracksId;
+    }
+
+    @Nullable
+    public BlockPos getBunkBed() {
+        return bunkBed;
+    }
+
+    @Nullable
+    public BlockPos getBunkChest() {
+        return bunkChest;
+    }
+
+    public int getShiftStart() {
+        return shiftStart;
+    }
 
     /**
      * The Chief's stash slot for this Warrior - the one thing it carries that is neither worn nor
@@ -150,14 +190,13 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
         equipStartingGear();
     }
 
-    // Spawns bare except for the Halberd - the whole point of the conscription mechanic (see
-    // WarriorVillagerSpawnEvents) is that YOU arm it; armor comes from what it picks up or the
-    // Chief equips afterward.
+    // Musters bare except for the Halberd; armour and better weapons come from the squires (left in
+    // its bunk chest), from what it picks up, or from the Chief.
     //
     // The Halberd counts as village-issued rather than player-given, so a Weaponsmith may trade up
-    // from it later. It is conscription kit that the village handed out, not a weapon anybody chose
+    // from it later. It is muster kit that the village handed out, not a weapon anybody chose
     // for this Warrior - and treating it as the player's would leave every Warrior's weapon hand
-    // locked for life, with each day's forged sword dropped on the floor beside it.
+    // locked for life.
     private void equipStartingGear() {
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.HALBERD.get()));
         markSquireIssued(EquipmentSlot.MAINHAND);
@@ -252,6 +291,17 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
     protected void customServerAiStep() {
         super.customServerAiStep();
 
+        if (this.isSleeping()) {
+            // A target means trouble in the village: get up for it, whatever the shift says.
+            if (this.getTarget() != null) {
+                this.stopSleeping();
+            } else if (this.getHealth() < this.getMaxHealth()
+                    && ++sleepHealTicks >= ModConfig.WARRIOR_SLEEP_HEAL_INTERVAL_TICKS.get()) {
+                sleepHealTicks = 0;
+                this.heal(1.0F);
+            }
+        }
+
         if (--healthyWarriorsCooldown > 0) return;
         healthyWarriorsCooldown = HEALTHY_WARRIORS_REFRESH_INTERVAL_TICKS;
         refreshHealthyWarriorsBonus();
@@ -311,12 +361,23 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
             if (id != null) issuedTag.putString(slot.getName(), id.toString());
         });
         tag.put("SquireIssued", issuedTag);
+
+        if (barracksId != null && bunkBed != null) {
+            tag.putUUID("Barracks", barracksId);
+            tag.putLong("BunkBed", bunkBed.asLong());
+            if (bunkChest != null) tag.putLong("BunkChest", bunkChest.asLong());
+            tag.putInt("ShiftStart", shiftStart);
+        }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.hasUUID("VillageId")) setVillageId(tag.getUUID("VillageId"));
+        if (tag.hasUUID("Barracks") && tag.contains("BunkBed")) {
+            assignBunk(tag.getUUID("Barracks"), BlockPos.of(tag.getLong("BunkBed")),
+                    tag.contains("BunkChest") ? BlockPos.of(tag.getLong("BunkChest")) : null, tag.getInt("ShiftStart"));
+        }
         // Warriors saved before biome variants existed have no tag - they read as the default.
         if (tag.contains("VillagerType", CompoundTag.TAG_STRING)) {
             this.entityData.set(DATA_VILLAGER_TYPE, tag.getString("VillagerType"));
@@ -385,19 +446,25 @@ public class WarriorVillagerEntity extends PathfinderMob implements MenuProvider
         this.goalSelector.addGoal(2, new MeleeUnlessRangedAttackGoal(this, 1.0D, true)); // edit this num to change speed for which it sprints when attackGoal
         this.goalSelector.addGoal(3, new AnswerDistressCallGoal(this, 1.0D));
         this.goalSelector.addGoal(4, new HoldRaidLineGoal(this, 1.0D));
-        this.goalSelector.addGoal(5, new SeekArmorGoal(this));
-        this.goalSelector.addGoal(6, new RandomStrollGoal(this, 0.6D));
-        this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 8.0F));
-        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
+        // Below every fighting goal, so anything worth fighting gets it out of bed.
+        this.goalSelector.addGoal(5, new SleepInBunkGoal(this));
+        this.goalSelector.addGoal(6, new CollectKitGoal(this));
+        this.goalSelector.addGoal(7, new SeekArmorGoal(this));
+        this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.6D));
+        this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
 
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this,
                 Villager.class, ElderVillagerEntity.class, WarriorVillagerEntity.class, IronGolem.class));
-        this.targetSelector.addGoal(2, new AidAllyTargetGoal(this));
-        this.targetSelector.addGoal(3, new DefendVillagersTargetGoal(this));
+        // Protecting the village's own comes before any fight the Warrior picks for itself: a mob
+        // chasing or hitting a villager, an Elder or a Warrior pulls it off anything that threatens nobody.
+        this.targetSelector.addGoal(2, new ProtectThreatenedAlliesTargetGoal(this));
+        this.targetSelector.addGoal(3, new AidAllyTargetGoal(this));
+        this.targetSelector.addGoal(4, new DefendVillagersTargetGoal(this));
         // randomInterval 0 rather than vanilla's 10: at 10 a Warrior that has just killed something
         // only re-scans on about one goal tick in five, which on its own is most of a second of
         // standing about between fights. There are few enough Warriors to afford scanning every tick.
-        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Monster.class, 0, true, false, null));
+        this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Monster.class, 0, true, false, null));
     }
     @Override
     public ItemStack getProjectile(ItemStack weapon) {

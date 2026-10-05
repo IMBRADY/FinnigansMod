@@ -2,6 +2,8 @@
   "name": "Observatory",
   "description": "An octagonal tower crowned with a glass dome and telescope, with a cartography table for a Cartographer.",
   "category": "Civic",
+  "purpose": "observatory",
+  "purpose_text": "Each standing Observatory widens the Chief Desk map.",
   "icon": "minecraft:spyglass",
   "builders": 3,
   "foundation": "minecraft:stone_bricks",

@@ -2,6 +2,8 @@
   "name": "Barracks",
   "description": "A long hall with four bunks, a weapon rack and a training yard - houses your village's defenders.",
   "category": "Defense",
+  "purpose": "barracks",
+  "purpose_text": "Musters a Warrior for each bunk. They sleep here in shifts, heal as they rest, take the squires' kit from the chest by their bed, and return a day after falling.",
   "icon": "minecraft:iron_sword",
   "builders": 3,
   "foundation": "minecraft:cobblestone",

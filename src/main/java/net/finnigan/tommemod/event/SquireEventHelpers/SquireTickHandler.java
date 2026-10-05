@@ -31,7 +31,7 @@ import java.util.UUID;
  * rather than per player, so a village with four players standing in it does not get four times the
  * squire output.
  *
- * <p>What each squire actually hands over is in {@link SquireDuties}; this file is only about who gets
+ * <p>What each squire actually leaves for the Warriors is in {@link SquireDuties}; this file is only about who gets
  * asked, how often, and whether they are on shift.
  */
 @Mod.EventBusSubscriber(modid = TommeMod.MOD_ID)

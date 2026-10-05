@@ -1,6 +1,8 @@
 package net.finnigan.tommemod.village.blueprint;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.finnigan.tommemod.village.buildings.BuildingPurpose;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
@@ -32,10 +34,20 @@ public final class Blueprint {
     public record Cost(Item item, int count) {
     }
 
+    /**
+     * Where another wall piece may join on: the edge cell at the middle of the joint, the way the
+     * joint faces, and which side of the wall is outside there. Two pieces join when one's port sits
+     * just past the other's, facing back at it, with the same side outside.
+     */
+    public record Port(BlockPos pos, Direction facing, Direction outside) {
+    }
+
     private final String id;
     private final String name;
     private final String description;
     private final String category;
+    private final String purpose;
+    private final String purposeText;
     private final Item icon;
     private final int requiredBuilders;
     private final BlockState foundation;
@@ -44,15 +56,21 @@ public final class Blueprint {
     private final int height;
     private final int depth;
     private final List<Cell> cells;
+    private final List<Port> ports;
+    private final boolean runs;
+    private final int walkway;
     @SuppressWarnings("unchecked")
     private final List<Cell>[] rotated = new List[4];
 
-    Blueprint(String id, String name, String description, String category, Item icon, int requiredBuilders,
-              BlockState foundation, List<Cost> cost, int width, int height, int depth, List<Cell> cells) {
+    Blueprint(String id, String name, String description, String category, String purpose, String purposeText,
+              Item icon, int requiredBuilders, BlockState foundation, List<Cost> cost, int width, int height, int depth,
+              List<Cell> cells, List<Port> ports, boolean runs, int walkway) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.category = category;
+        this.purpose = purpose;
+        this.purposeText = purposeText;
         this.icon = icon;
         this.requiredBuilders = requiredBuilders;
         this.foundation = foundation;
@@ -61,6 +79,9 @@ public final class Blueprint {
         this.height = height;
         this.depth = depth;
         this.cells = List.copyOf(cells);
+        this.ports = List.copyOf(ports);
+        this.runs = runs;
+        this.walkway = walkway;
     }
 
     public String id() {
@@ -77,6 +98,46 @@ public final class Blueprint {
 
     public String category() {
         return category;
+    }
+
+    /**
+     * What this building does for the village once it stands - one of the ids in
+     * {@link net.finnigan.tommemod.village.buildings.BuildingPurpose} - or empty for a building that
+     * is just a building.
+     */
+    public String purpose() {
+        return purpose;
+    }
+
+    public boolean hasPurpose() {
+        return !purpose.isEmpty();
+    }
+
+    /** A piece of the village wall: snaps onto other pieces, follows the ground, and counts towards the loop. */
+    public boolean isWallPiece() {
+        return BuildingPurpose.WALL.equals(purpose);
+    }
+
+    /** Whether blueprint mode lays this piece in a run when the player drags - straight walls, not gatehouses. */
+    public boolean runs() {
+        return runs;
+    }
+
+    /** The layer a wall piece's walkway is stood in, or -1 if it has none to join up (a gatehouse). */
+    public int walkway() {
+        return walkway;
+    }
+
+    /** This piece's ports turned to face {@code rotation}, in the same footprint coordinates as its cells. */
+    public List<Port> ports(Rotation rotation) {
+        List<Port> out = new ArrayList<>(ports.size());
+        for (Port p : ports) out.add(new Port(rotate(p.pos(), rotation), rotation.rotate(p.facing()), rotation.rotate(p.outside())));
+        return out;
+    }
+
+    /** The player-facing line explaining {@link #purpose()}. */
+    public String purposeText() {
+        return purposeText;
     }
 
     public Item icon() {

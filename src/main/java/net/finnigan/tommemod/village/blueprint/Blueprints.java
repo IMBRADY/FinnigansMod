@@ -9,6 +9,7 @@ import com.mojang.logging.LogUtils;
 import net.finnigan.tommemod.TommeMod;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -138,6 +139,8 @@ public final class Blueprints {
         String name = json.get("name").getAsString();
         String description = json.has("description") ? json.get("description").getAsString() : "";
         String category = json.has("category") ? json.get("category").getAsString() : "Buildings";
+        String purpose = json.has("purpose") ? json.get("purpose").getAsString() : "";
+        String purposeText = json.has("purpose_text") ? json.get("purpose_text").getAsString() : "";
         Item icon = json.has("icon") ? item(json.get("icon").getAsString()) : Items.BRICKS;
         int builders = json.has("builders") ? json.get("builders").getAsInt() : 1;
         BlockState foundation = json.has("foundation")
@@ -193,7 +196,22 @@ public final class Blueprints {
             }
         }
 
-        return new Blueprint(id, name, description, category, icon, builders, foundation, cost, width, height, depth, cells);
+        List<Blueprint.Port> ports = new ArrayList<>();
+        if (json.has("ports")) {
+            for (JsonElement e : json.getAsJsonArray("ports")) {
+                JsonObject p = e.getAsJsonObject();
+                Direction facing = Direction.byName(p.get("facing").getAsString());
+                Direction outside = Direction.byName(p.get("outside").getAsString());
+                if (facing == null || outside == null || facing.getAxis().isVertical() || outside.getAxis().isVertical()) {
+                    throw new IllegalArgumentException("port directions must be north, south, east or west");
+                }
+                ports.add(new Blueprint.Port(new BlockPos(p.get("x").getAsInt(), 0, p.get("z").getAsInt()), facing, outside));
+            }
+        }
+
+        return new Blueprint(id, name, description, category, purpose, purposeText, icon, builders, foundation, cost,
+                width, height, depth, cells, ports, json.has("runs") && json.get("runs").getAsBoolean(),
+                json.has("walkway") ? json.get("walkway").getAsInt() : -1);
     }
 
     private static BlockState state(String text) {
